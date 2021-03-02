@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lekkerbek.Web.Models;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -12,7 +13,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: KlantController
         public ActionResult Index()
         {
-            return View();
+            return View(KlantenDBTemp.getKlanten());
         }
 
         // GET: KlantController/Details/5
@@ -34,6 +35,14 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
+                Klant newKlant = new Klant()
+                {
+                    Naam = collection["Naam"],
+                    Adres = collection["Adres"],
+                    Geboortedatum = DateTime.Parse(collection["Geboortedatum"]),
+                    Getrouwheidsscore = Int32.Parse(collection["Getrouwheidsscore"])
+                };
+                KlantenDBTemp.AddKlant(newKlant);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -45,7 +54,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: KlantController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            return View(KlantenDBTemp.GetKlant(id));
         }
 
         // POST: KlantController/Edit/5
@@ -55,6 +64,9 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
+                KlantenDBTemp.UpdateKlant(id, collection["Naam"], collection["Adres"],
+                                    DateTime.Parse(collection["Geboortedatum"]), 
+                                    Int32.Parse(collection["Getrouwheidsscore"]));
                 return RedirectToAction(nameof(Index));
             }
             catch

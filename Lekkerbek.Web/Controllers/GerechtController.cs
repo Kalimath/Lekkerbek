@@ -2,17 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Lekkerbek.Web.Models;
 
 namespace Lekkerbek.Web.Controllers
 {
     public class GerechtController : Controller
     {
+        public GerechtController()
+        {
+            
+        }
         // GET: GerechtController
         public ActionResult Index()
         {
-            return View();
+            return View(GerechtenDBTemp.getGerechten());
         }
 
         // GET: GerechtController/Details/5
@@ -34,6 +40,13 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
+                Gerecht newGerecht = new Gerecht()
+                {
+                    Omschrijving = collection["Omschrijving"],
+                    Categorie = Enum.Parse<CategorieEnum>(((string)collection["Categorie"]).ToLower()),
+                    Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"))
+                };
+                GerechtenDBTemp.AddGerecht(newGerecht);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -45,7 +58,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: GerechtController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            return View(GerechtenDBTemp.GetGerecht(id));
         }
 
         // POST: GerechtController/Edit/5
@@ -55,6 +68,9 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
+                GerechtenDBTemp.UpdateGerecht(id, collection["Omschrijving"], 
+                                            Enum.Parse<CategorieEnum>(((string)collection["Categorie"]).ToLower()),
+                                            Double.Parse(collection["Prijs"], new CultureInfo("en-US")));
                 return RedirectToAction(nameof(Index));
             }
             catch

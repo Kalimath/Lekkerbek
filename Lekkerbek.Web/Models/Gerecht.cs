@@ -1,13 +1,20 @@
-﻿namespace Lekkerbek.Web.Models
+﻿using System;
+using System.Linq;
+
+namespace Lekkerbek.Web.Models
 {
-    public enum Categorie
+    public enum CategorieEnum
     {
         voorgerecht,hoofdgerecht,dessert
     }
     public class Gerecht
     {
-        public string Naam { get; set; }
-        public Categorie Categorie { get; set; }
+
+
+        public int Id { get; set; }
+
+        public string Omschrijving { get; set; }
+        public CategorieEnum Categorie { get; set; }
         public double Prijs { get; set; }
     }
 }
