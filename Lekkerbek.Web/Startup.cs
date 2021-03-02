@@ -50,7 +50,7 @@ namespace Lekkerbek.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Klant}/{action=Create}/{id?}");
+                    pattern: "{controller=Klant}/{action=Index}/{id?}");
             });
         }
     }
