@@ -1,103 +1,160 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 
 namespace Lekkerbek.Web.Controllers
 {
     public class GerechtController : Controller
     {
-        public GerechtController()
+        private readonly BestellingDbContext _context;
+
+        public GerechtController(BestellingDbContext context)
         {
-            
-        }
-        // GET: GerechtController
-        public ActionResult Index()
-        {
-            return View(GerechtenDBTemp.getGerechten());
+            _context = context;
         }
 
-        // GET: GerechtController/Details/5
-        public ActionResult Details(int id)
+        // GET: Gerechts
+        public async Task<IActionResult> Index()
         {
+            var bestellingDbContext = _context.Gerecht.Include(g => g.Categorie);
+            return View(await bestellingDbContext.ToListAsync());
+        }
+
+        // GET: Gerechts/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var gerecht = await _context.Gerecht
+                .Include(g => g.Categorie)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (gerecht == null)
+            {
+                return NotFound();
+            }
+
+            return View(gerecht);
+        }
+
+        // GET: Gerechts/Create
+        public IActionResult Create()
+        {
+            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam");
             return View();
         }
 
-        // GET: GerechtController/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: GerechtController/Create
+        // POST: Gerechts/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("Id,Omschrijving,CategorieId,Prijs")] Gerecht gerecht)
         {
-            try
+            if (ModelState.IsValid)
             {
-                Gerecht newGerecht = new Gerecht()
+                _context.Add(gerecht);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam", gerecht.CategorieId);
+            return View(gerecht);
+        }
+
+        // GET: Gerechts/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var gerecht = await _context.Gerecht.FindAsync(id);
+            if (gerecht == null)
+            {
+                return NotFound();
+            }
+            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam", gerecht.CategorieId);
+            return View(gerecht);
+        }
+
+        // POST: Gerechts/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Omschrijving,CategorieId,Prijs")] Gerecht gerecht)
+        {
+            if (id != gerecht.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    Omschrijving = collection["Omschrijving"],
-                    Categorie = Enum.Parse<CategorieEnum>(((string)collection["Categorie"]).ToLower()),
-                    Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"))
-                };
-                GerechtenDBTemp.AddGerecht(newGerecht);
+                    _context.Update(gerecht);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!GerechtExists(gerecht.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
-            catch
-            {
-                return View();
-            }
+            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam", gerecht.CategorieId);
+            return View(gerecht);
         }
 
-        // GET: GerechtController/Edit/5
-        public ActionResult Edit(int id)
+        // GET: Gerechts/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            return View(GerechtenDBTemp.GetGerecht(id));
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var gerecht = await _context.Gerecht
+                .Include(g => g.Categorie)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (gerecht == null)
+            {
+                return NotFound();
+            }
+
+            return View(gerecht);
         }
 
-        // POST: GerechtController/Edit/5
-        [HttpPost]
+        // POST: Gerechts/Delete/5
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            try
-            {
-                GerechtenDBTemp.UpdateGerecht(id, collection["Omschrijving"], 
-                                            Enum.Parse<CategorieEnum>(((string)collection["Categorie"]).ToLower()),
-                                            Double.Parse(collection["Prijs"], new CultureInfo("en-US")));
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            var gerecht = await _context.Gerecht.FindAsync(id);
+            _context.Gerecht.Remove(gerecht);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        // GET: GerechtController/Delete/5
-        public ActionResult Delete(int id)
+        private bool GerechtExists(int id)
         {
-            return View();
-        }
-
-        // POST: GerechtController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return _context.Gerecht.Any(e => e.Id == id);
         }
     }
 }

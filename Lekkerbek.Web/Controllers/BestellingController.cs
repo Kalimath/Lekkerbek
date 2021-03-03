@@ -10,22 +10,23 @@ using Lekkerbek.Web.Models;
 
 namespace Lekkerbek.Web.Controllers
 {
-    public class KlantController : Controller
+    public class BestellingController : Controller
     {
         private readonly BestellingDbContext _context;
 
-        public KlantController(BestellingDbContext context)
+        public BestellingController(BestellingDbContext context)
         {
             _context = context;
         }
 
-        // GET: Klant
+        // GET: Bestelling
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Klanten.ToListAsync());
+            var bestellingDbContext = _context.Bestellingen.Include(b => b.Klant);
+            return View(await bestellingDbContext.ToListAsync());
         }
 
-        // GET: Klant/Details/5
+        // GET: Bestelling/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -33,39 +34,42 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var klant = await _context.Klanten
+            var bestelling = await _context.Bestellingen
+                .Include(b => b.Klant)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (klant == null)
+            if (bestelling == null)
             {
                 return NotFound();
             }
 
-            return View(klant);
+            return View(bestelling);
         }
 
-        // GET: Klant/Create
+        // GET: Bestelling/Create
         public IActionResult Create()
         {
+            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id");
             return View();
         }
 
-        // POST: Klant/Create
+        // POST: Bestelling/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Naam,Adres,Geboortedatum,Getrouwheidsscore")] Klant klant)
+        public async Task<IActionResult> Create([Bind("Id,Leverdatum,AantalMaaltijden,KlantId")] Bestelling bestelling)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(klant);
+                _context.Add(bestelling);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(klant);
+            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantId);
+            return View(bestelling);
         }
 
-        // GET: Klant/Edit/5
+        // GET: Bestelling/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -73,22 +77,23 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var klant = await _context.Klanten.FindAsync(id);
-            if (klant == null)
+            var bestelling = await _context.Bestellingen.FindAsync(id);
+            if (bestelling == null)
             {
                 return NotFound();
             }
-            return View(klant);
+            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantId);
+            return View(bestelling);
         }
 
-        // POST: Klant/Edit/5
+        // POST: Bestelling/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Naam,Adres,Geboortedatum,Getrouwheidsscore")] Klant klant)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Leverdatum,AantalMaaltijden,KlantId")] Bestelling bestelling)
         {
-            if (id != klant.Id)
+            if (id != bestelling.Id)
             {
                 return NotFound();
             }
@@ -97,12 +102,12 @@ namespace Lekkerbek.Web.Controllers
             {
                 try
                 {
-                    _context.Update(klant);
+                    _context.Update(bestelling);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!KlantExists(klant.Id))
+                    if (!BestellingExists(bestelling.Id))
                     {
                         return NotFound();
                     }
@@ -113,10 +118,11 @@ namespace Lekkerbek.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(klant);
+            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantId);
+            return View(bestelling);
         }
 
-        // GET: Klant/Delete/5
+        // GET: Bestelling/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -124,30 +130,31 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var klant = await _context.Klanten
+            var bestelling = await _context.Bestellingen
+                .Include(b => b.Klant)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (klant == null)
+            if (bestelling == null)
             {
                 return NotFound();
             }
 
-            return View(klant);
+            return View(bestelling);
         }
 
-        // POST: Klant/Delete/5
+        // POST: Bestelling/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var klant = await _context.Klanten.FindAsync(id);
-            _context.Klanten.Remove(klant);
+            var bestelling = await _context.Bestellingen.FindAsync(id);
+            _context.Bestellingen.Remove(bestelling);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool KlantExists(int id)
+        private bool BestellingExists(int id)
         {
-            return _context.Klanten.Any(e => e.Id == id);
+            return _context.Bestellingen.Any(e => e.Id == id);
         }
     }
 }

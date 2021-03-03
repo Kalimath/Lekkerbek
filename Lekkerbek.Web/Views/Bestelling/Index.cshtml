@@ -1,27 +1,26 @@
-﻿@model IEnumerable<Lekkerbek.Web.Models.Gerecht>
+﻿@model IEnumerable<Lekkerbek.Web.Models.Bestelling>
 
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Gerechten</h1>
+<h1>Bestellingen</h1>
 
 <p>
-    <a asp-action="Create">Voeg nieuw Gerecht toe</a>
+    <a asp-action="Create">Maak nieuwe bestelling aan</a>
 </p>
-<p><a asp-controller="Categorie" asp-action="Index">Beheer categorieën</a></p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Omschrijving)
+                @Html.DisplayNameFor(model => model.Leverdatum)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Categorie)
+                @Html.DisplayNameFor(model => model.AantalMaaltijden)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Prijs)
+                @Html.DisplayNameFor(model => model.Klant)
             </th>
             <th></th>
         </tr>
@@ -30,13 +29,13 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Omschrijving)
+                @Html.DisplayFor(modelItem => item.Leverdatum)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Categorie.Naam)
+                @Html.DisplayFor(modelItem => item.AantalMaaltijden)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Prijs)
+                @Html.DisplayFor(modelItem => item.Klant.Id)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

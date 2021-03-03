@@ -9,12 +9,10 @@ namespace Lekkerbek.Web.Models
     }
     public class Gerecht
     {
-
-
         public int Id { get; set; }
-
         public string Omschrijving { get; set; }
-        public CategorieEnum Categorie { get; set; }
+        public string CategorieId { get; set; }
+        public virtual Categorie Categorie { get; set; }
         public double Prijs { get; set; }
     }
 }

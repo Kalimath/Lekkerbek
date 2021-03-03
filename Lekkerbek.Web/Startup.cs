@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lekkerbek.Web.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web
 {
@@ -24,6 +26,10 @@ namespace Lekkerbek.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddDbContext<BestellingDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

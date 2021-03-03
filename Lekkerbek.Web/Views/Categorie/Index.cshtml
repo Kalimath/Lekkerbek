@@ -1,0 +1,35 @@
+﻿@model IEnumerable<Lekkerbek.Web.Models.Categorie>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Categorieën</h1>
+
+<p>
+    <a asp-action="Create">Voeg nieuwe categorie toe</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Naam)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Naam)
+        </td>
+        <td>
+            @*<a asp-action="Edit" asp-route-id="@item.Naam">Edit</a> |
+            <a asp-action="Details" asp-route-id="@item.Naam">Details</a> |*@
+            <a asp-action="Delete" asp-route-id="@item.Naam">Delete</a>
+        </td>
+    </tr>
+}
+    </tbody>
+</table>

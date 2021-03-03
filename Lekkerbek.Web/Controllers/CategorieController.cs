@@ -10,85 +10,85 @@ using Lekkerbek.Web.Models;
 
 namespace Lekkerbek.Web.Controllers
 {
-    public class KlantController : Controller
+    public class CategorieController : Controller
     {
         private readonly BestellingDbContext _context;
 
-        public KlantController(BestellingDbContext context)
+        public CategorieController(BestellingDbContext context)
         {
             _context = context;
         }
 
-        // GET: Klant
+        // GET: Categorie
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Klanten.ToListAsync());
+            return View(await _context.Categorie.ToListAsync());
         }
 
-        // GET: Klant/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Categorie/Details/5
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var klant = await _context.Klanten
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (klant == null)
+            var categorie = await _context.Categorie
+                .FirstOrDefaultAsync(m => m.Naam == id);
+            if (categorie == null)
             {
                 return NotFound();
             }
 
-            return View(klant);
+            return View(categorie);
         }
 
-        // GET: Klant/Create
+        // GET: Categorie/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Klant/Create
+        // POST: Categorie/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Naam,Adres,Geboortedatum,Getrouwheidsscore")] Klant klant)
+        public async Task<IActionResult> Create([Bind("Naam")] Categorie categorie)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(klant);
+                _context.Add(categorie);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(klant);
+            return View(categorie);
         }
 
-        // GET: Klant/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Categorie/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var klant = await _context.Klanten.FindAsync(id);
-            if (klant == null)
+            var categorie = await _context.Categorie.FindAsync(id);
+            if (categorie == null)
             {
                 return NotFound();
             }
-            return View(klant);
+            return View(categorie);
         }
 
-        // POST: Klant/Edit/5
+        // POST: Categorie/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Naam,Adres,Geboortedatum,Getrouwheidsscore")] Klant klant)
+        public async Task<IActionResult> Edit(string id, [Bind("Naam")] Categorie categorie)
         {
-            if (id != klant.Id)
+            if (id != categorie.Naam)
             {
                 return NotFound();
             }
@@ -97,12 +97,12 @@ namespace Lekkerbek.Web.Controllers
             {
                 try
                 {
-                    _context.Update(klant);
+                    _context.Update(categorie);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!KlantExists(klant.Id))
+                    if (!CategorieExists(categorie.Naam))
                     {
                         return NotFound();
                     }
@@ -113,41 +113,41 @@ namespace Lekkerbek.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(klant);
+            return View(categorie);
         }
 
-        // GET: Klant/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Categorie/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var klant = await _context.Klanten
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (klant == null)
+            var categorie = await _context.Categorie
+                .FirstOrDefaultAsync(m => m.Naam == id);
+            if (categorie == null)
             {
                 return NotFound();
             }
 
-            return View(klant);
+            return View(categorie);
         }
 
-        // POST: Klant/Delete/5
+        // POST: Categorie/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var klant = await _context.Klanten.FindAsync(id);
-            _context.Klanten.Remove(klant);
+            var categorie = await _context.Categorie.FindAsync(id);
+            _context.Categorie.Remove(categorie);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool KlantExists(int id)
+        private bool CategorieExists(string id)
         {
-            return _context.Klanten.Any(e => e.Id == id);
+            return _context.Categorie.Any(e => e.Naam == id);
         }
     }
 }
