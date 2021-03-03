@@ -19,7 +19,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: KlantController/Details/5
         public ActionResult Details(int id)
         {
-            return View();
+            return View(KlantenDBTemp.GetKlant(id));
         }
 
         // GET: KlantController/Create
