@@ -22,6 +22,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Klant)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tijdslot)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -36,6 +39,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Klant.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Tijdslot)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

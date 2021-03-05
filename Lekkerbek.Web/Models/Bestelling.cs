@@ -20,5 +20,6 @@ namespace Lekkerbek.Web.Models
         public int AantalMaaltijden { get; set; }
         public int KlantId { get; set; }
         public virtual Klant Klant { get; set; }
+        public DateTime? Tijdslot { get; set; }
     }
 }

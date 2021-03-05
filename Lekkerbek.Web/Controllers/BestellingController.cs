@@ -48,6 +48,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: Bestelling/Create
         public IActionResult Create()
         {
+            ViewData["Tijdslot"] = new SelectList(Tijdstippen.tijdslotten, "Tijdstip", "Tijdstip"); 
             ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id");
             return View();
         }
