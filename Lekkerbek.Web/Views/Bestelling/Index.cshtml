@@ -21,6 +21,9 @@
             <th>
                 Adres
             </th>
+            <th>
+                Afhaaltijd
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -34,6 +37,9 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Klant.Adres)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AfhaalTijd)
             </td>
             <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |

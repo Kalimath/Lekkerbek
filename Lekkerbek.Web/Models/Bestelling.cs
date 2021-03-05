@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Lekkerbek.Web.Models
 {
-    public class Bestelling
+    public class Bestelling : Tijdstipt
     {
 
         public int Id { get; set; }
@@ -17,8 +17,7 @@ namespace Lekkerbek.Web.Models
             throw new NotImplementedException();
         }
 
-        //Prop voor tijdslot --> voorstel een klasse Tijdstip
-
+        //Prop voor tijdslot --> voorstel een klasse Tijdstip -- ok
 
     }
 }
