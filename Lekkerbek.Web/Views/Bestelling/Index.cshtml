@@ -5,16 +5,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Bestellingen</h1>
+<h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Maak nieuwe bestelling aan</a>
+    <a asp-action="Create">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Leverdatum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Opmerkingen)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AantalMaaltijden)
@@ -30,6 +33,9 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Leverdatum)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Opmerkingen)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.AantalMaaltijden)

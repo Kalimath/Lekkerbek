@@ -7,6 +7,10 @@ namespace Lekkerbek.Web.Models
 {
     public class Klant
     {
+        public Klant()
+        {
+            Bestellingen= new HashSet<Bestelling>();
+        }
         private DateTime _geboortedatum;
         public int Id { get; set; }
         public string Naam { get; set; }

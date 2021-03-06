@@ -19,6 +19,21 @@ namespace Lekkerbek.Web.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("BestellingGerecht", b =>
+                {
+                    b.Property<int>("BestellingenId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GerechtenLijstNaam")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("BestellingenId", "GerechtenLijstNaam");
+
+                    b.HasIndex("GerechtenLijstNaam");
+
+                    b.ToTable("BestellingGerecht");
+                });
+
             modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
                 {
                     b.Property<int>("Id")
@@ -29,11 +44,17 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<int>("AantalMaaltijden")
                         .HasColumnType("int");
 
-                    b.Property<int>("KlantId")
+                    b.Property<int?>("KlantId")
                         .HasColumnType("int");
+
+                    b.Property<string>("KlantNaam")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Leverdatum")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Opmerkingen")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -54,13 +75,8 @@ namespace Lekkerbek.Web.Migrations
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Gerecht", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("BestellingId")
-                        .HasColumnType("int");
+                    b.Property<string>("Naam")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CategorieId")
                         .HasColumnType("nvarchar(450)");
@@ -68,15 +84,10 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<int?>("KlantId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Omschrijving")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<double>("Prijs")
                         .HasColumnType("float");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("BestellingId");
+                    b.HasKey("Naam");
 
                     b.HasIndex("CategorieId");
 
@@ -109,23 +120,32 @@ namespace Lekkerbek.Web.Migrations
                     b.ToTable("Klanten");
                 });
 
+            modelBuilder.Entity("BestellingGerecht", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Bestelling", null)
+                        .WithMany()
+                        .HasForeignKey("BestellingenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Lekkerbek.Web.Models.Gerecht", null)
+                        .WithMany()
+                        .HasForeignKey("GerechtenLijstNaam")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Klant", "Klant")
                         .WithMany("Bestellingen")
-                        .HasForeignKey("KlantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("KlantId");
 
                     b.Navigation("Klant");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Gerecht", b =>
                 {
-                    b.HasOne("Lekkerbek.Web.Models.Bestelling", null)
-                        .WithMany("GerechtenLijst")
-                        .HasForeignKey("BestellingId");
-
                     b.HasOne("Lekkerbek.Web.Models.Categorie", "Categorie")
                         .WithMany()
                         .HasForeignKey("CategorieId");
@@ -135,11 +155,6 @@ namespace Lekkerbek.Web.Migrations
                         .HasForeignKey("KlantId");
 
                     b.Navigation("Categorie");
-                });
-
-            modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
-                {
-                    b.Navigation("GerechtenLijst");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Klant", b =>

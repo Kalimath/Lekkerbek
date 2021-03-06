@@ -19,24 +19,24 @@ namespace Lekkerbek.Web.Controllers
             _context = context;
         }
 
-        // GET: Gerechts
+        // GET: Gerecht
         public async Task<IActionResult> Index()
         {
-            var bestellingDbContext = _context.Gerecht.Include(g => g.Categorie);
+            var bestellingDbContext = _context.Gerechten.Include(g => g.Categorie);
             return View(await bestellingDbContext.ToListAsync());
         }
 
-        // GET: Gerechts/Details/5
-        public async Task<IActionResult> Details(int? id)
+        // GET: Gerecht/Details/5
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var gerecht = await _context.Gerecht
+            var gerecht = await _context.Gerechten
                 .Include(g => g.Categorie)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Naam == id);
             if (gerecht == null)
             {
                 return NotFound();
@@ -45,19 +45,19 @@ namespace Lekkerbek.Web.Controllers
             return View(gerecht);
         }
 
-        // GET: Gerechts/Create
+        // GET: Gerecht/Create
         public IActionResult Create()
         {
             ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam");
             return View();
         }
 
-        // POST: Gerechts/Create
+        // POST: Gerecht/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Omschrijving,CategorieId,Prijs")] Gerecht gerecht)
+        public async Task<IActionResult> Create([Bind("Naam,CategorieId,Prijs")] Gerecht gerecht)
         {
             if (ModelState.IsValid)
             {
@@ -69,15 +69,15 @@ namespace Lekkerbek.Web.Controllers
             return View(gerecht);
         }
 
-        // GET: Gerechts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Gerecht/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var gerecht = await _context.Gerecht.FindAsync(id);
+            var gerecht = await _context.Gerechten.FindAsync(id);
             if (gerecht == null)
             {
                 return NotFound();
@@ -86,14 +86,14 @@ namespace Lekkerbek.Web.Controllers
             return View(gerecht);
         }
 
-        // POST: Gerechts/Edit/5
+        // POST: Gerecht/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Omschrijving,CategorieId,Prijs")] Gerecht gerecht)
+        public async Task<IActionResult> Edit(string id, [Bind("Naam,CategorieId,Prijs")] Gerecht gerecht)
         {
-            if (id != gerecht.Id)
+            if (id != gerecht.Naam)
             {
                 return NotFound();
             }
@@ -107,7 +107,7 @@ namespace Lekkerbek.Web.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GerechtExists(gerecht.Id))
+                    if (!GerechtExists(gerecht.Naam))
                     {
                         return NotFound();
                     }
@@ -122,17 +122,17 @@ namespace Lekkerbek.Web.Controllers
             return View(gerecht);
         }
 
-        // GET: Gerechts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: Gerecht/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var gerecht = await _context.Gerecht
+            var gerecht = await _context.Gerechten
                 .Include(g => g.Categorie)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Naam == id);
             if (gerecht == null)
             {
                 return NotFound();
@@ -141,20 +141,20 @@ namespace Lekkerbek.Web.Controllers
             return View(gerecht);
         }
 
-        // POST: Gerechts/Delete/5
+        // POST: Gerecht/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var gerecht = await _context.Gerecht.FindAsync(id);
-            _context.Gerecht.Remove(gerecht);
+            var gerecht = await _context.Gerechten.FindAsync(id);
+            _context.Gerechten.Remove(gerecht);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool GerechtExists(int id)
+        private bool GerechtExists(string id)
         {
-            return _context.Gerecht.Any(e => e.Id == id);
+            return _context.Gerechten.Any(e => e.Naam == id);
         }
     }
 }

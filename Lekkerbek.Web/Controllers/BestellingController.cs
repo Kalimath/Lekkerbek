@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -48,7 +49,8 @@ namespace Lekkerbek.Web.Controllers
         // GET: Bestelling/Create
         public IActionResult Create()
         {
-            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id");
+            ViewData["KlantNaam"] = new SelectList(_context.Klanten, "Naam", "Naam");
+            ViewData["AlleGerechten"] = new SelectList(_context.Gerechten, "Naam", "Naam");
             return View();
         }
 
@@ -57,16 +59,28 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Leverdatum,AantalMaaltijden,KlantId")] Bestelling bestelling)
+        /*[Bind("Id,Leverdatum,Opmerkingen,AantalMaaltijden,KlantNaam")] Bestelling bestelling*/
+        public async Task<IActionResult> Create(IFormCollection collection)
         {
+            Bestelling bestelling;
             if (ModelState.IsValid)
             {
+                bestelling = new Bestelling()
+                {
+                    AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]),
+                    GerechtenLijst = new List<Gerecht>(),
+                    Id = _context.Bestellingen.ToList().Count + 1,
+                    Klant = (Klant)_context.Klanten.Where(klant => klant.Naam.Equals(collection["KlantNaam"])),
+                    Leverdatum = DateTime.Parse(collection["Leverdatum"]).Date,
+                    KlantNaam = collection["KlantNaam"],
+                };
+                bestelling.GerechtenLijst.Add((Gerecht)_context.Gerechten.Where((gerecht => gerecht.Naam.Equals(collection["GerechtenLijst"]))));
                 _context.Add(bestelling);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantId);
-            return View(bestelling);
+            ViewData["KlantNamen"] = new SelectList(_context.Klanten, "Naam", "Naam");
+            return RedirectToAction("Index");
         }
 
         // GET: Bestelling/Edit/5
@@ -82,7 +96,7 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantId);
+            ViewData["KlantNaam"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantNaam);
             return View(bestelling);
         }
 
@@ -91,7 +105,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Leverdatum,AantalMaaltijden,KlantId")] Bestelling bestelling)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Leverdatum,Opmerkingen,AantalMaaltijden,KlantNaam")] Bestelling bestelling)
         {
             if (id != bestelling.Id)
             {
@@ -118,7 +132,7 @@ namespace Lekkerbek.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantId);
+            ViewData["KlantNaam"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantNaam);
             return View(bestelling);
         }
 

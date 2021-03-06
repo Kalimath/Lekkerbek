@@ -15,6 +15,7 @@ namespace Lekkerbek.Web.Context
         }
         public DbSet<Bestelling> Bestellingen { get; set; }
         public DbSet<Klant> Klanten { get; set; }
+        public DbSet<Gerecht> Gerechten { get; set; }
         public DbSet<Lekkerbek.Web.Models.Gerecht> Gerecht { get; set; }
         public DbSet<Lekkerbek.Web.Models.Categorie> Categorie { get; set; }
 

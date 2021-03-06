@@ -11,27 +11,27 @@
     <h4>Gerecht</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Omschrijving)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Naam)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Omschrijving)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Naam)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Categorie)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Categorie.Naam)
         </dd>
-        <dt class = "col-sm-2">
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Prijs)
         </dt>
-        <dd class = "col-sm-10">
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Prijs)
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.Naam">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
