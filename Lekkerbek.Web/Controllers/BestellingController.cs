@@ -94,7 +94,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Leverdatum,AantalMaaltijden,KlantId")] Bestelling bestelling)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Leverdatum,AantalMaaltijden,KlantId,Tijdslot")] Bestelling bestelling)
         {
             if (id != bestelling.Id)
             {
@@ -121,6 +121,7 @@ namespace Lekkerbek.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["Tijdslot"] = new SelectList(Tijdstippen.tijdslotten, "Tijdstip", "Tijdstip", bestelling.Tijdslot);
             ViewData["KlantId"] = new SelectList(_context.Klanten, "Id", "Id", bestelling.KlantId);
             return View(bestelling);
         }
