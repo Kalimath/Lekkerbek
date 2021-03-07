@@ -31,7 +31,7 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<int>("AantalMaaltijden")
                         .HasColumnType("int");
 
-                    b.Property<int>("KlantId")
+                    b.Property<int>("KlantNaam")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Leverdatum")
@@ -39,7 +39,7 @@ namespace Lekkerbek.Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KlantId");
+                    b.HasIndex("KlantNaam");
 
                     b.ToTable("Bestellingen");
                 });
@@ -67,7 +67,7 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<string>("CategorieId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("KlantId")
+                    b.Property<int?>("KlantNaam")
                         .HasColumnType("int");
 
                     b.Property<string>("Omschrijving")
@@ -82,7 +82,7 @@ namespace Lekkerbek.Web.Migrations
 
                     b.HasIndex("CategorieId");
 
-                    b.HasIndex("KlantId");
+                    b.HasIndex("KlantNaam");
 
                     b.ToTable("Gerecht");
                 });
@@ -115,7 +115,7 @@ namespace Lekkerbek.Web.Migrations
                 {
                     b.HasOne("Lekkerbek.Web.Models.Klant", "Klant")
                         .WithMany("Bestellingen")
-                        .HasForeignKey("KlantId")
+                        .HasForeignKey("KlantNaam")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -134,7 +134,7 @@ namespace Lekkerbek.Web.Migrations
 
                     b.HasOne("Lekkerbek.Web.Models.Klant", null)
                         .WithMany("Voorkeursgerechten")
-                        .HasForeignKey("KlantId");
+                        .HasForeignKey("KlantNaam");
 
                     b.Navigation("Categorie");
                 });

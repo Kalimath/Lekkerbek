@@ -95,7 +95,7 @@ namespace Lekkerbek.Web.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Bestellingen_KlantId",
                 table: "Bestellingen",
-                column: "KlantId");
+                column: "KlantNaam");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Gerecht_BestellingId",
@@ -110,7 +110,7 @@ namespace Lekkerbek.Web.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Gerecht_KlantId",
                 table: "Gerecht",
-                column: "KlantId");
+                column: "KlantNaam");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
