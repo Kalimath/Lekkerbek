@@ -64,7 +64,7 @@ namespace Lekkerbek.Web.Controllers
         /*[Bind("Id,Leverdatum,Opmerkingen,AantalMaaltijden,KlantNaam")] Bestelling bestelling*/
         public async Task<IActionResult> Create(IFormCollection collection)
         {
-            Bestelling bestelling;
+            Bestelling bestelling = new Bestelling();
             if (ModelState.IsValid)
             {
                 bestelling = new Bestelling()
