@@ -11,6 +11,8 @@ namespace Lekkerbek.Web.Models
     }
     public class Gerecht
     {
+        private double _prijs;
+
         [Key]
         public string Naam { get; set; }
 
@@ -21,7 +23,11 @@ namespace Lekkerbek.Web.Models
         public string CategorieId { get; set; }
         public virtual Categorie Categorie { get; set; }
 
-        public double Prijs { get; set; }
+        public double Prijs
+        {
+            get => _prijs;
+            set => _prijs = value;
+        }
 
         public virtual ICollection<Bestelling> Bestellingen { get; set; }
 

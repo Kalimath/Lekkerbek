@@ -2,7 +2,7 @@
 
 namespace Lekkerbek.Web.Migrations
 {
-    public partial class CategorieNaam2 : Migration
+    public partial class BestellingLevertijd : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

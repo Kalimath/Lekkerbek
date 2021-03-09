@@ -38,7 +38,7 @@
             @Html.DisplayFor(modelItem => item.Categorie.Naam)
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Prijs)
+           € @Html.DisplayFor(modelItem => item.Prijs)
         </td>
         <td>
             <a asp-action="Edit" asp-route-id="@item.Naam">Edit</a> |

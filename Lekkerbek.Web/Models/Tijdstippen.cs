@@ -7,13 +7,13 @@ namespace Lekkerbek.Web.Models
 {
     public sealed class Tijdstippen
     {
-        public static List<Tijdslot> tijdslotten = new List<Tijdslot> {
+        public static List<Tijdslot> Tijdsloten = new List<Tijdslot> {
             new Tijdslot("8:00"), new Tijdslot("8:00"), new Tijdslot("8:15"), new Tijdslot("8:15"),
             new Tijdslot("8:30"), new Tijdslot("8:30"),new Tijdslot("8:45"), new Tijdslot("8:45")
         };
         public static List<Tijdslot> GetBeschikbaar()
         {
-            return tijdslotten; 
+            return Tijdsloten; 
         }
 
     }

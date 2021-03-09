@@ -44,13 +44,10 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<int>("AantalMaaltijden")
                         .HasColumnType("int");
 
-                    b.Property<int?>("KlantId")
+                    b.Property<int>("KlantId")
                         .HasColumnType("int");
 
-                    b.Property<string>("KlantNaam")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Leverdatum")
+                    b.Property<DateTime>("Levertijd")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Opmerkingen")
@@ -123,6 +120,24 @@ namespace Lekkerbek.Web.Migrations
                     b.ToTable("Klanten");
                 });
 
+            modelBuilder.Entity("Lekkerbek.Web.Models.Tijdslot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsVrij")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Tijdstip")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tijdsloten");
+                });
+
             modelBuilder.Entity("BestellingGerecht", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Bestelling", null)
@@ -142,7 +157,9 @@ namespace Lekkerbek.Web.Migrations
                 {
                     b.HasOne("Lekkerbek.Web.Models.Klant", "Klant")
                         .WithMany("Bestellingen")
-                        .HasForeignKey("KlantId");
+                        .HasForeignKey("KlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Klant");
                 });
