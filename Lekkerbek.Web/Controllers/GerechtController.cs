@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Microsoft.AspNetCore.Http;
+using System.Globalization;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -57,10 +59,15 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Naam,CategorieId,Prijs")] Gerecht gerecht)
+        public async Task<IActionResult> Create(IFormCollection collection)
         {
-            if (ModelState.IsValid)
-            {
+            Gerecht gerecht = new Gerecht(); 
+            if (ModelState.IsValid) {
+                Categorie categorieGerecht = await _context.Categorie.FirstAsync(cat => cat.Naam.Equals(collection["CategorieId"]));
+                gerecht.Naam = collection["Naam"];
+                gerecht.CategorieId = collection["CategorieId"];
+                gerecht.Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"));
+                gerecht.Categorie = categorieGerecht; 
                 _context.Add(gerecht);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -72,6 +79,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: Gerecht/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
+
             if (id == null)
             {
                 return NotFound();
@@ -91,17 +99,23 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Naam,CategorieId,Prijs")] Gerecht gerecht)
+        public async Task<IActionResult> Edit(string id, IFormCollection collection)
         {
-            if (id != gerecht.Naam)
+            Gerecht gerecht = null; 
+/*            if (id != gerecht.Naam)
             {
                 return NotFound();
-            }
+            }*/
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    gerecht = _context.Gerecht.First(gerecht => gerecht.Naam.Equals(id)); 
+                    gerecht.CategorieId = collection["CategorieId"];
+                    gerecht.Categorie = await _context.Categorie.FirstAsync(cat => cat.Naam.Equals(collection["CategorieId"])); 
+                    gerecht.Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"));
+
                     _context.Update(gerecht);
                     await _context.SaveChangesAsync();
                 }
