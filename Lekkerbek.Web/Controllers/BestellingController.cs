@@ -25,6 +25,7 @@ namespace Lekkerbek.Web.Controllers
         public async Task<IActionResult> Index()
         {
             var bestellingDbContext = _context.Bestellingen.Include(b => b.Klant);
+            /*bestellingDbContext.ForEachAsync(bestelling => bestelling.GerechtenLijst = _context.Gerechten.Where(gerecht => gerecht.Bestellingen.Any(bestellingTemp => bestellingTemp.Id == bestelling.Id)).ToList())*/;
             return View(await bestellingDbContext.ToListAsync());
         }
 
@@ -39,11 +40,12 @@ namespace Lekkerbek.Web.Controllers
             var bestelling = await _context.Bestellingen
                 .Include(b => b.Klant)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            bestelling.GerechtenLijst = _context.Gerechten.Where(gerecht => gerecht.Bestellingen.Any(bestellingTemp => bestellingTemp.Id == bestelling.Id)).ToList();
+            bestelling.Klant.Bestellingen = _context.Klanten.First(klant => klant.Id == bestelling.KlantId).Bestellingen;
             if (bestelling == null)
             {
                 return NotFound();
             }
-
             return View(bestelling);
         }
 
@@ -80,7 +82,7 @@ namespace Lekkerbek.Web.Controllers
                     KlantId = klantVanBestelling.Id,
                     Tijdslot = DateTime.Parse(collection["Tijdslot"]),
                     /*_context.Tijdsloten.First(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]) && tijdslot.IsVrij)*/
-                };
+        };
                 Tijdstippen.Tijdsloten.First(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]) && tijdslot.IsVrij).IsVrij = false;
                 IEnumerable<string> gerechtNamen = (ICollection<string>)collection["GerechtenLijst"];
                 bestelling.GerechtenLijst = await _context.Gerechten.Where(gerecht=> gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
@@ -112,6 +114,8 @@ namespace Lekkerbek.Web.Controllers
             {
                 return RedirectToAction(nameof(Index));
             }
+
+            Tijdstippen.Tijdsloten.Find(tijdslot => tijdslot.Tijdstip == bestelling.Tijdslot.Value).IsVrij = true;
             ViewData["Klanten"] = new SelectList(_context.Klanten, "Naam", "Naam");
             ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten, "Naam", "Naam");
             ViewData["Tijdslot"] = new SelectList(Tijdstippen.Tijdsloten.Where(tijdslot => tijdslot.IsVrij), "Tijdstip", "Tijdstip");
@@ -134,7 +138,6 @@ namespace Lekkerbek.Web.Controllers
                     Klant klantVanBestelling = await _context.Klanten.FirstAsync(klant => klant.Naam.Trim().ToLower().Equals(collection["Klant.Naam"].ToString().Trim().ToLower()));
                     bestelling = _context.Bestellingen.First(bestelling => bestelling.Id == id);
                     bestelling.AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]);
-                    bestelling.GerechtenLijst = new List<Gerecht>();
                     bestelling.Klant = klantVanBestelling;
                     bestelling.Opmerkingen = collection["Opmerkingen"];
                     bestelling.Levertijd = DateTime.Parse(collection["Levertijd"]);
@@ -149,6 +152,26 @@ namespace Lekkerbek.Web.Controllers
                             true;
                     }
                     Tijdstippen.Tijdsloten.First(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]) && tijdslot.IsVrij).IsVrij = false;
+                    IEnumerable<string> gerechtNamen = (ICollection<string>)collection["GerechtenLijst"];
+                    var nieuweGerechten = _context.Gerechten.Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToList()
+                        .AsQueryable();
+                    /*bestelling.GerechtenLijst = nieuweGerechten.ToList();*/
+
+                    /*foreach (var gerechtNew in nieuweGerechten)
+                    {
+                        if (!bestelling.GerechtenLijst.Any(gerecht => gerecht.Equals(gerechtNew)))
+                        {
+                            bestelling.GerechtenLijst.Add(gerechtNew);
+                        }
+
+                        var deletedGerechten = bestelling.GerechtenLijst.Where(gerecht => !gerechtNamen.Any(s => s.Equals(gerecht.Naam)));
+                        foreach (var gerecht in deletedGerechten)
+                        {
+                            bestelling.GerechtenLijst.Remove(_context.Gerechten.First(gerecht =>
+                                gerecht.Naam.Equals(gerechtNew)));
+                        }
+                    }*/
+                    
                     _context.Update(bestelling);
                     await _context.SaveChangesAsync();
                 }

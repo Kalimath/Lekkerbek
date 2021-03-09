@@ -13,7 +13,7 @@ namespace Lekkerbek.Web.Models
         };
         public static List<Tijdslot> GetBeschikbaar()
         {
-            return Tijdsloten; 
+            return Tijdsloten.Where(tijdslot => tijdslot.IsVrij).ToList(); 
         }
 
     }
