@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
+using Lekkerbek.Web.Models.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web
@@ -25,6 +26,16 @@ namespace Lekkerbek.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIdentity<Gebruiker, Rol>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            }).AddEntityFrameworkStores<IdentityContext>();
+
+            services.AddDbContext<IdentityContext>(cfg =>
+            {
+                cfg.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
+            });
+
             services.AddControllersWithViews();
             services.AddDbContext<BestellingDbContext>(options =>
             {
@@ -46,7 +57,9 @@ namespace Lekkerbek.Web
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
+
             app.UseStaticFiles();
+            app.UseAuthentication();
 
             app.UseRouting();
 
