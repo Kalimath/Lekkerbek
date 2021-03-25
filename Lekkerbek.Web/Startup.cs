@@ -10,12 +10,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web
 {
     public class Startup
     {
+        
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,10 +28,12 @@ namespace Lekkerbek.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddIdentity<Gebruiker, Rol>(options =>
-            {
-                options.User.RequireUniqueEmail = true;
-            }).AddEntityFrameworkStores<IdentityContext>();
+            services.AddDefaultIdentity<Gebruiker>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<Rol>()
+                .AddEntityFrameworkStores<IdentityContext>();
+            
+
+
 
             services.AddDbContext<IdentityContext>(cfg =>
             {
@@ -44,7 +48,7 @@ namespace Lekkerbek.Web
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -60,6 +64,7 @@ namespace Lekkerbek.Web
 
             app.UseStaticFiles();
             app.UseAuthentication();
+            CreateRoles(serviceProvider).Wait();
 
             app.UseRouting();
 
@@ -71,6 +76,37 @@ namespace Lekkerbek.Web
                     name: "default",
                     pattern: "{controller=Klant}/{action=Index}/{id?}");
             });
+        }
+
+        
+        private async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<Rol>>();
+            var UserManager = serviceProvider.GetRequiredService<UserManager<Gebruiker>>();
+
+            IdentityResult roleResult;
+            //here in this line we are adding the Roles
+            foreach (string role in Enum.GetValues<RollenEnum>().Cast<RollenEnum>().Select(v => v.ToString()).ToList())
+            {
+                var roleCheck = await RoleManager.RoleExistsAsync(role);
+                if (!roleCheck)
+                {
+                    //here in this line we are creating admin role and seed it to the database
+                    roleResult = await RoleManager.CreateAsync(new Rol(role));
+                }
+            }
+
+            //here we are assigning the Admin role to the User that we have registered above 
+            //Now, we are assinging admin role to this user("Ali@gmail.com"). When will we run this project then it will
+            //be assigned to that user.
+            /*Gebruiker user = await UserManager.FindByEmailAsync("adw-admin@ucll.be");
+            if (user != null)
+            {
+                foreach (string role in ROLES)
+                {
+                    await UserManager.AddToRoleAsync(user, role);
+                }
+            }*/
         }
     }
 }
