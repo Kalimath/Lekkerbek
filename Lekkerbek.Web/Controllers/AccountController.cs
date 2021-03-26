@@ -10,6 +10,7 @@ using Lekkerbek.Web.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -52,7 +53,6 @@ namespace Lekkerbek.Web.Controllers
                     _userManager.AddToRoleAsync(gebruiker, RollenEnum.Klant.ToString());
                     _context.Add(gebruiker);
                     await _context.SaveChangesAsync();
-
                 }
                 else
                 {
@@ -79,7 +79,7 @@ namespace Lekkerbek.Web.Controllers
 
         public JsonResult LoadAllUsers()
         {
-            return Json(_userManager.Users);
+            return Json(_userManager.Users.ToListAsync());
         }
 
         public static string HashPassword(string password)

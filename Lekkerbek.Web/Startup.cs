@@ -41,6 +41,11 @@ namespace Lekkerbek.Web
             });
 
             services.AddControllersWithViews();
+            services.AddControllersWithViews().AddJsonOptions(opts => opts.JsonSerializerOptions.PropertyNamingPolicy = null);
+            services.AddDbContext<IdentityContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
+            }, ServiceLifetime.Transient);
             /*services.AddDbContext<BestellingDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
