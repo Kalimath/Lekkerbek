@@ -5,21 +5,33 @@
 
 <h1>Index</h1>
 @*<p>
-    <a asp-action="Create">Create New</a>
-</p>*@
+        <a asp-action="Create">Create New</a>
+    </p>*@
 <table id="usersTable" class="table">
     <thead>
-    <tr>
-        <th> @Html.DisplayNameFor(model => model.Id)
-        </th>
-        <th> @Html.DisplayNameFor(model => model.Naam)
-        </th>
-        <th> @Html.DisplayNameFor(model => model.Email)
-        </th>
-        <th> @Html.DisplayNameFor(model => model.Geboortedatum)
-        </th>
-        <th> @Html.DisplayNameFor(model => model.Adres)
-        </th> </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Naam)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Geboortedatum)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Adres)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PhoneNumber)
+            </th>
+        </tr>
     </thead>
 </table>
 
@@ -32,7 +44,16 @@
                     "url": "/Account/LoadAllUsers",
                     "type": "GET",
                     "datatype": "json"
-                }
+                },
+                "columns": [
+                    { "data": "Id" },
+                    { "data": "Naam" },
+                    { "data": "Email" },
+                    { "data": "Geboortedatum" },
+                    { "data": "Adres" },
+                    { "data": "Email" },
+                    { "data": "PhoneNumber" }
+                ]
             });
         });
     </script> }

@@ -79,7 +79,7 @@ namespace Lekkerbek.Web.Controllers
 
         public JsonResult LoadAllUsers()
         {
-            return Json(_userManager.Users.ToListAsync());
+            return Json(new { data = _userManager.Users });
         }
 
         public static string HashPassword(string password)
