@@ -4,20 +4,99 @@ using Lekkerbek.Web.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Lekkerbek.Web.Migrations.Identity
+namespace Lekkerbek.Web.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20210326121822_IdentityContextDbAllInit")]
+    partial class IdentityContextDbAllInit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.4")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("BestellingGerecht", b =>
+                {
+                    b.Property<int>("BestellingenId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GerechtenLijstNaam")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("BestellingenId", "GerechtenLijstNaam");
+
+                    b.HasIndex("GerechtenLijstNaam");
+
+                    b.ToTable("BestellingGerecht");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("AantalMaaltijden")
+                        .HasColumnType("int");
+
+                    b.Property<int>("KlantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Levertijd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Opmerkingen")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("Tijdslot")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KlantId");
+
+                    b.ToTable("Bestellingen");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Categorie", b =>
+                {
+                    b.Property<string>("Naam")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Naam");
+
+                    b.ToTable("Categorie");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Gerecht", b =>
+                {
+                    b.Property<string>("Naam")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CategorieId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int?>("KlantId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("Prijs")
+                        .HasColumnType("float");
+
+                    b.HasKey("Naam");
+
+                    b.HasIndex("CategorieId");
+
+                    b.HasIndex("KlantId");
+
+                    b.ToTable("Gerecht");
+                });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Gebruiker", b =>
                 {
@@ -34,6 +113,10 @@ namespace Lekkerbek.Web.Migrations.Identity
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -93,6 +176,8 @@ namespace Lekkerbek.Web.Migrations.Identity
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("Gebruiker");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Rol", b =>
@@ -122,6 +207,24 @@ namespace Lekkerbek.Web.Migrations.Identity
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Tijdslot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsVrij")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Tijdstip")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tijdsloten");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -229,6 +332,55 @@ namespace Lekkerbek.Web.Migrations.Identity
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("Lekkerbek.Web.Models.Klant", b =>
+                {
+                    b.HasBaseType("Lekkerbek.Web.Models.Identity.Gebruiker");
+
+                    b.Property<int>("Getrouwheidsscore")
+                        .HasColumnType("int");
+
+                    b.HasDiscriminator().HasValue("Klant");
+                });
+
+            modelBuilder.Entity("BestellingGerecht", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Bestelling", null)
+                        .WithMany()
+                        .HasForeignKey("BestellingenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Lekkerbek.Web.Models.Gerecht", null)
+                        .WithMany()
+                        .HasForeignKey("GerechtenLijstNaam")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Klant", "Klant")
+                        .WithMany("Bestellingen")
+                        .HasForeignKey("KlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Klant");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Gerecht", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Categorie", "Categorie")
+                        .WithMany()
+                        .HasForeignKey("CategorieId");
+
+                    b.HasOne("Lekkerbek.Web.Models.Klant", null)
+                        .WithMany("Voorkeursgerechten")
+                        .HasForeignKey("KlantId");
+
+                    b.Navigation("Categorie");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Identity.Rol", null)
@@ -278,6 +430,13 @@ namespace Lekkerbek.Web.Migrations.Identity
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Klant", b =>
+                {
+                    b.Navigation("Bestellingen");
+
+                    b.Navigation("Voorkeursgerechten");
                 });
 #pragma warning restore 612, 618
         }

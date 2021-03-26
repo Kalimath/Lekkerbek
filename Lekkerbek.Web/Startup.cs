@@ -41,10 +41,10 @@ namespace Lekkerbek.Web
             });
 
             services.AddControllersWithViews();
-            services.AddDbContext<BestellingDbContext>(options =>
+            /*services.AddDbContext<BestellingDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
-            });
+            });*/
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

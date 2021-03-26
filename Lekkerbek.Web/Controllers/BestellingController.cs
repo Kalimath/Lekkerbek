@@ -14,9 +14,9 @@ namespace Lekkerbek.Web.Controllers
 {
     public class BestellingController : Controller
     {
-        private readonly BestellingDbContext _context;
+        private readonly IdentityContext _context;
 
-        public BestellingController(BestellingDbContext context)
+        public BestellingController(IdentityContext context)
         {
             _context = context;
         }

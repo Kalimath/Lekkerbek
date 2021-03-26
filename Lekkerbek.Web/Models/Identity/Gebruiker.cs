@@ -11,7 +11,6 @@ namespace Lekkerbek.Web.Models.Identity
     public class Gebruiker : IdentityUser<int>
     {
         private DateTime _geboortedatum;
-        public int Id { get; set; }
         public string Naam { get; set; }
         public string Adres { get; set; }
 

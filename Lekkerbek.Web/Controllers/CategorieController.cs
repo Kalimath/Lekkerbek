@@ -12,9 +12,9 @@ namespace Lekkerbek.Web.Controllers
 {
     public class CategorieController : Controller
     {
-        private readonly BestellingDbContext _context;
+        private readonly IdentityContext _context;
 
-        public CategorieController(BestellingDbContext context)
+        public CategorieController(IdentityContext context)
         {
             _context = context;
         }
