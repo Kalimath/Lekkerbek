@@ -105,14 +105,14 @@ namespace Lekkerbek.Web
             //here we are assigning the Admin role to the User that we have registered above 
             //Now, we are assinging admin role to this user("Ali@gmail.com"). When will we run this project then it will
             //be assigned to that user.
-            /*Gebruiker user = await UserManager.FindByEmailAsync("adw-admin@ucll.be");
+            Gebruiker user = await UserManager.FindByEmailAsync("mathieu_broe@yahoo.com");
             if (user != null)
             {
-                foreach (string role in ROLES)
+                foreach (string role in Enum.GetValues<RollenEnum>().Cast<RollenEnum>().Select(v => v.ToString()).ToList())
                 {
                     await UserManager.AddToRoleAsync(user, role);
                 }
-            }*/
+            }
         }
     }
 }
