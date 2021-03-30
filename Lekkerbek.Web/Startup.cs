@@ -46,6 +46,7 @@ namespace Lekkerbek.Web
             {
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
             }, ServiceLifetime.Transient);
+            services.AddTransient<IdentityContext>();
             /*services.AddDbContext<BestellingDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
