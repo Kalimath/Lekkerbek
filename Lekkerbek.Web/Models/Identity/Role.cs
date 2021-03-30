@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Lekkerbek.Web.Models.Identity
 {
-    public class Rol : IdentityRole<int>
+    public class Role : IdentityRole<int>
     {
-        public Rol()
+        public Role()
         {
 
         }
-        public Rol(string roleName) : base(roleName)
+        public Role(string roleName) : base(roleName)
         {
         }
     }

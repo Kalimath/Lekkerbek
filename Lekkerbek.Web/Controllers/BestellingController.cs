@@ -230,5 +230,11 @@ namespace Lekkerbek.Web.Controllers
         {
             return _context.Bestellingen.Any(e => e.Id == id);
         }
+
+        public async Task<IActionResult> MijnBestellingen(int? klantId)
+        {
+            var klanten = await _context.Klanten.ToListAsync();
+            return View(klanten.First((klant => klant.Id == klantId)).Bestellingen);
+        }
     }
 }

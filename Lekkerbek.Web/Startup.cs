@@ -29,7 +29,7 @@ namespace Lekkerbek.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDefaultIdentity<Gebruiker>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddRoles<Rol>()
+                .AddRoles<Role>()
                 .AddEntityFrameworkStores<IdentityContext>();
             
 
@@ -69,12 +69,12 @@ namespace Lekkerbek.Web
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
+
             app.UseAuthentication();
+            app.UseAuthorization();
             CreateRoles(serviceProvider).Wait();
 
             app.UseRouting();
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -87,7 +87,7 @@ namespace Lekkerbek.Web
         
         private async Task CreateRoles(IServiceProvider serviceProvider)
         {
-            var RoleManager = serviceProvider.GetRequiredService<RoleManager<Rol>>();
+            var RoleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
             var UserManager = serviceProvider.GetRequiredService<UserManager<Gebruiker>>();
 
             IdentityResult roleResult;
@@ -98,7 +98,7 @@ namespace Lekkerbek.Web
                 if (!roleCheck)
                 {
                     //here in this line we are creating admin role and seed it to the database
-                    roleResult = await RoleManager.CreateAsync(new Rol(role));
+                    roleResult = await RoleManager.CreateAsync(new Role(role));
                 }
             }
 

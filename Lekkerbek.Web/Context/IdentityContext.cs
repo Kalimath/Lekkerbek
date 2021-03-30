@@ -9,14 +9,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Context
 {
-    public class IdentityContext : IdentityDbContext<Gebruiker,Rol,int>
+    public class IdentityContext : IdentityDbContext<Gebruiker,Role,int>
     {
+        private DbSet<Klant> _klanten;
+
         public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
         {
             
         }
         public DbSet<Bestelling> Bestellingen { get; set; }
-        public DbSet<Klant> Klanten { get; set; }
+
+        public DbSet<Klant> Klanten
+        {
+            get => /*(DbSet<Klant>) */_klanten/*.Where((klant => klant.Rol.Equals(RollenEnum.Klant.ToString())))*/;
+            set => _klanten = value;
+        }
 
         public List<string> KlantNamen()
         {
@@ -31,7 +38,7 @@ namespace Lekkerbek.Web.Context
         public DbSet<Lekkerbek.Web.Models.Categorie> Categorie { get; set; }
 
         public DbSet<Gebruiker> Gebruikers { get; set; }
-        public DbSet<Rol> Rollen { get; set; }
+        public DbSet<Role> Rollen { get; set; }
 
     }
 }

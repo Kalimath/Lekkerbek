@@ -180,7 +180,7 @@ namespace Lekkerbek.Web.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Gebruiker");
                 });
 
-            modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Rol", b =>
+            modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -383,7 +383,7 @@ namespace Lekkerbek.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("Lekkerbek.Web.Models.Identity.Rol", null)
+                    b.HasOne("Lekkerbek.Web.Models.Identity.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -410,7 +410,7 @@ namespace Lekkerbek.Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("Lekkerbek.Web.Models.Identity.Rol", null)
+                    b.HasOne("Lekkerbek.Web.Models.Identity.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)

@@ -10,10 +10,13 @@ namespace Lekkerbek.Web.Models.Identity
 {
     public class Gebruiker : IdentityUser<int>
     {
+        public Gebruiker(){
+        }
         private DateTime _geboortedatum;
         public string Naam { get; set; }
         public string Adres { get; set; }
 
+        /*public Role Rol { get; set; }*/
 
         [DataType(DataType.Date)]
         public DateTime Geboortedatum
@@ -21,6 +24,7 @@ namespace Lekkerbek.Web.Models.Identity
             get => _geboortedatum.Date;
             set => _geboortedatum = value;
         }
+        
     }
     
 }

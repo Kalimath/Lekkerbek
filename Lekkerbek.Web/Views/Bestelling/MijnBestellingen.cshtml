@@ -1,0 +1,54 @@
+﻿@model IEnumerable<Lekkerbek.Web.Models.Bestelling>
+
+@{
+    ViewData["Title"] = "MijnBestellingen";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>MijnBestellingen</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Levertijd)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Opmerkingen)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AantalMaaltijden)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tijdslot)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Levertijd)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Opmerkingen)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AantalMaaltijden)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Tijdslot)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
