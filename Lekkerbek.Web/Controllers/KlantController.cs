@@ -150,5 +150,26 @@ namespace Lekkerbek.Web.Controllers
             return _context.Klanten.Any(e => e.Id == id);
         }
 
+        // Action om naar voorkeursgerechen te gaan 
+
+        public async Task<IActionResult> Voorkeursgerechten(int id)
+        {
+
+            var voorkeursgerechten = await _context.Voorkeursgerechten.FirstOrDefaultAsync(v => v.KlantId == id); 
+
+            if(voorkeursgerechten == null)
+            {
+                return RedirectToAction("Create", "Voorkeursgerechtens", new { id = id});
+            }
+            //var klant = await _context.Klanten
+            //.FirstOrDefaultAsync(m => m.Id == id);
+            else
+            {
+                return View(voorkeursgerechten);
+            }
+
+            
+        }
+
     }
 }

@@ -39,6 +39,7 @@ namespace Lekkerbek.Web.Context
 
         public DbSet<Gebruiker> Gebruikers { get; set; }
         public DbSet<Role> Rollen { get; set; }
+        public DbSet<Lekkerbek.Web.Models.Voorkeursgerechten> Voorkeursgerechten { get; set; }
 
     }
 }
