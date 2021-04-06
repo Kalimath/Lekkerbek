@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lekkerbek.Web.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20210326121822_IdentityContextDbAllInit")]
-    partial class IdentityContextDbAllInit
+    [Migration("20210406143139_RemovedNaamFromGebruiker")]
+    partial class RemovedNaamFromGebruiker
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -46,6 +46,12 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<int>("AantalMaaltijden")
                         .HasColumnType("int");
 
+                    b.Property<bool>("InGebruikDoorPersoneel")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAfhaling")
+                        .HasColumnType("bit");
+
                     b.Property<int>("KlantId")
                         .HasColumnType("int");
 
@@ -55,12 +61,14 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<string>("Opmerkingen")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("Tijdslot")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("TijdslotId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("KlantId");
+
+                    b.HasIndex("TijdslotId");
 
                     b.ToTable("Bestellingen");
                 });
@@ -81,9 +89,10 @@ namespace Lekkerbek.Web.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CategorieId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("KlantId")
+                    b.Property<int?>("GebruikerId")
                         .HasColumnType("int");
 
                     b.Property<double>("Prijs")
@@ -93,7 +102,7 @@ namespace Lekkerbek.Web.Migrations
 
                     b.HasIndex("CategorieId");
 
-                    b.HasIndex("KlantId");
+                    b.HasIndex("GebruikerId");
 
                     b.ToTable("Gerecht");
                 });
@@ -111,12 +120,11 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<string>("Adres")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
+                    b.Property<string>("BtwNummer")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
@@ -126,17 +134,23 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FirmaNaam")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Geboortedatum")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Getrouwheidsscore")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsProfessional")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Naam")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -176,8 +190,6 @@ namespace Lekkerbek.Web.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Gebruiker");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Role", b =>
@@ -209,6 +221,22 @@ namespace Lekkerbek.Web.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
+            modelBuilder.Entity("Lekkerbek.Web.Models.Kok", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Naam")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Koks");
+                });
+
             modelBuilder.Entity("Lekkerbek.Web.Models.Tijdslot", b =>
                 {
                     b.Property<int>("Id")
@@ -219,12 +247,17 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<bool>("IsVrij")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("KokId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Tijdstip")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tijdsloten");
+                    b.HasIndex("KokId");
+
+                    b.ToTable("Tijdslot");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -332,16 +365,6 @@ namespace Lekkerbek.Web.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Lekkerbek.Web.Models.Klant", b =>
-                {
-                    b.HasBaseType("Lekkerbek.Web.Models.Identity.Gebruiker");
-
-                    b.Property<int>("Getrouwheidsscore")
-                        .HasColumnType("int");
-
-                    b.HasDiscriminator().HasValue("Klant");
-                });
-
             modelBuilder.Entity("BestellingGerecht", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Bestelling", null)
@@ -359,26 +382,43 @@ namespace Lekkerbek.Web.Migrations
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
                 {
-                    b.HasOne("Lekkerbek.Web.Models.Klant", "Klant")
+                    b.HasOne("Lekkerbek.Web.Models.Identity.Gebruiker", "Klant")
                         .WithMany("Bestellingen")
                         .HasForeignKey("KlantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Lekkerbek.Web.Models.Tijdslot", "Tijdslot")
+                        .WithMany()
+                        .HasForeignKey("TijdslotId");
+
                     b.Navigation("Klant");
+
+                    b.Navigation("Tijdslot");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Gerecht", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Categorie", "Categorie")
                         .WithMany()
-                        .HasForeignKey("CategorieId");
+                        .HasForeignKey("CategorieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Lekkerbek.Web.Models.Klant", null)
+                    b.HasOne("Lekkerbek.Web.Models.Identity.Gebruiker", null)
                         .WithMany("Voorkeursgerechten")
-                        .HasForeignKey("KlantId");
+                        .HasForeignKey("GebruikerId");
 
                     b.Navigation("Categorie");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Tijdslot", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Kok", "Kok")
+                        .WithMany("Tijdsloten")
+                        .HasForeignKey("KokId");
+
+                    b.Navigation("Kok");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -432,11 +472,16 @@ namespace Lekkerbek.Web.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Lekkerbek.Web.Models.Klant", b =>
+            modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Gebruiker", b =>
                 {
                     b.Navigation("Bestellingen");
 
                     b.Navigation("Voorkeursgerechten");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Kok", b =>
+                {
+                    b.Navigation("Tijdsloten");
                 });
 #pragma warning restore 612, 618
         }

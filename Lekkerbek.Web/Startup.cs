@@ -81,7 +81,7 @@ namespace Lekkerbek.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Klant}/{action=Index}/{id?}");
+                    pattern: "{controller=Bestelling}/{action=Index}");//\       /{id?}
                 endpoints.MapRazorPages();
             });
         }

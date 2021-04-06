@@ -5,10 +5,6 @@ using System.Linq;
 
 namespace Lekkerbek.Web.Models
 {
-    public enum CategorieEnum
-    {
-        voorgerecht,hoofdgerecht,dessert
-    }
     public class Gerecht
     {
         private double _prijs;
@@ -20,6 +16,7 @@ namespace Lekkerbek.Web.Models
         {
             Bestellingen = new HashSet<Bestelling>();
         }
+        [Required]
         public string CategorieId { get; set; }
         public virtual Categorie Categorie { get; set; }
 

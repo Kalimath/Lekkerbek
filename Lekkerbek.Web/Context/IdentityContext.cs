@@ -11,34 +11,42 @@ namespace Lekkerbek.Web.Context
 {
     public class IdentityContext : IdentityDbContext<Gebruiker,Role,int>
     {
-        private DbSet<Klant> _klanten;
-
         public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
         {
             
         }
         public DbSet<Bestelling> Bestellingen { get; set; }
 
-        public DbSet<Klant> Klanten
-        {
-            get => /*(DbSet<Klant>) */_klanten/*.Where((klant => klant.Rol.Equals(RollenEnum.Klant.ToString())))*/;
-            set => _klanten = value;
-        }
-
-        public List<string> KlantNamen()
-        {
-            List<string> klantNamen = new List<string>();
-            Klanten.ToList().ForEach(klant => klantNamen.Add(klant.Naam));
-            return klantNamen;
-        }
-
-        public DbSet<Tijdslot> Tijdsloten { get; set; }
+        public DbSet<Kok> Koks { get; set; }
         public DbSet<Gerecht> Gerechten { get; set; }
         public DbSet<Lekkerbek.Web.Models.Gerecht> Gerecht { get; set; }
         public DbSet<Lekkerbek.Web.Models.Categorie> Categorie { get; set; }
-
         public DbSet<Gebruiker> Gebruikers { get; set; }
         public DbSet<Role> Rollen { get; set; }
+        public List<Gebruiker> GebruikersMetRolKlant()
+        {
+            var klanten = from u in Users join r in UserRoles on u.Id equals r.UserId where r.RoleId == 3 select u;
+            return klanten.ToList();
+        }
+        public List<string> KlantNamen()
+        {
+            List<string> klantNamen = new List<string>();
+            GebruikersMetRolKlant().ToList().ForEach(klant => klantNamen.Add(klant.UserName));
+            return klantNamen;
+        }
+
+        public List<Tijdslot> Alletijdsloten()
+        {
+            var sloten = new List<Tijdslot>();
+            Koks.ForEachAsync(kok => sloten.AddRange(kok.Tijdsloten));
+            return sloten;
+        }
+        public List<Tijdslot> AlleVrijeTijdsloten()
+        {
+            var sloten = new List<Tijdslot>();
+            Koks.ForEachAsync(kok => sloten.AddRange(kok.Tijdsloten.Where(tijdslot => tijdslot.IsVrij)));
+            return sloten;
+        }
 
     }
 }
