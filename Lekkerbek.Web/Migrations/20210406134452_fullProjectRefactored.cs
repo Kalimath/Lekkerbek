@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Lekkerbek.Web.Migrations
 {
-    public partial class IdentityContextDbAllInit : Migration
+    public partial class fullProjectRefactored : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,11 +28,13 @@ namespace Lekkerbek.Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Naam = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Naam = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Adres = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Geboortedatum = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Getrouwheidsscore = table.Column<int>(type: "int", nullable: true),
+                    Getrouwheidsscore = table.Column<int>(type: "int", nullable: false),
+                    IsProfessional = table.Column<bool>(type: "bit", nullable: false),
+                    BtwNummer = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirmaNaam = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -62,6 +64,19 @@ namespace Lekkerbek.Web.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categorie", x => x.Naam);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Koks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Naam = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Koks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -185,6 +200,32 @@ namespace Lekkerbek.Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Gerecht",
+                columns: table => new
+                {
+                    Naam = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CategorieId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Prijs = table.Column<double>(type: "float", nullable: false),
+                    GebruikerId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Gerecht", x => x.Naam);
+                    table.ForeignKey(
+                        name: "FK_Gerecht_AspNetUsers_GebruikerId",
+                        column: x => x.GebruikerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Gerecht_Categorie_CategorieId",
+                        column: x => x.CategorieId,
+                        principalTable: "Categorie",
+                        principalColumn: "Naam",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bestellingen",
                 columns: table => new
                 {
@@ -194,7 +235,9 @@ namespace Lekkerbek.Web.Migrations
                     Opmerkingen = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AantalMaaltijden = table.Column<int>(type: "int", nullable: false),
                     KlantId = table.Column<int>(type: "int", nullable: false),
-                    Tijdslot = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    TijdslotId = table.Column<int>(type: "int", nullable: true),
+                    InGebruikDoorPersoneel = table.Column<bool>(type: "bit", nullable: false),
+                    IsAfhaling = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -205,31 +248,11 @@ namespace Lekkerbek.Web.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Gerecht",
-                columns: table => new
-                {
-                    Naam = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CategorieId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Prijs = table.Column<double>(type: "float", nullable: false),
-                    KlantId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Gerecht", x => x.Naam);
                     table.ForeignKey(
-                        name: "FK_Gerecht_AspNetUsers_KlantId",
-                        column: x => x.KlantId,
-                        principalTable: "AspNetUsers",
+                        name: "FK_Bestellingen_Tijdsloten_TijdslotId",
+                        column: x => x.TijdslotId,
+                        principalTable: "Tijdsloten",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Gerecht_Categorie_CategorieId",
-                        column: x => x.CategorieId,
-                        principalTable: "Categorie",
-                        principalColumn: "Naam",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -302,6 +325,11 @@ namespace Lekkerbek.Web.Migrations
                 column: "KlantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bestellingen_TijdslotId",
+                table: "Bestellingen",
+                column: "TijdslotId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_BestellingGerecht_GerechtenLijstNaam",
                 table: "BestellingGerecht",
                 column: "GerechtenLijstNaam");
@@ -312,9 +340,9 @@ namespace Lekkerbek.Web.Migrations
                 column: "CategorieId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Gerecht_KlantId",
+                name: "IX_Gerecht_GebruikerId",
                 table: "Gerecht",
-                column: "KlantId");
+                column: "GebruikerId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -338,7 +366,7 @@ namespace Lekkerbek.Web.Migrations
                 name: "BestellingGerecht");
 
             migrationBuilder.DropTable(
-                name: "Tijdsloten");
+                name: "Koks");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -348,6 +376,9 @@ namespace Lekkerbek.Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "Gerecht");
+
+            migrationBuilder.DropTable(
+                name: "Tijdsloten");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

@@ -44,19 +44,19 @@ namespace Lekkerbek.Web.Controllers
             return View(gebruiker);
         }
 
-        // GET: Account/Create
-        public IActionResult Create()
+        // GET: Account/Register
+        public IActionResult Register()
         {
-            return View();
+            return RedirectToPage("Register");
         }
 
-        // POST: Account/Create
+        /*// POST: Account/Register
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Create([Bind("Naam,Adres,Geboortedatum,Email,PasswordHash")] Gebruiker gebruiker)
+        public async Task<IActionResult> Register([Bind("Naam,Adres,Geboortedatum,Email,PasswordHash")] Gebruiker gebruiker)
         {
             if (ModelState.IsValid)
             {
@@ -65,7 +65,7 @@ namespace Lekkerbek.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(gebruiker);
-        }
+        }*/
 
         // GET: Account/Edit/5
         public async Task<IActionResult> Edit(int? id)
