@@ -8,11 +8,13 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Lekkerbek.Web.Controllers
 {
+    [Authorize]
     public class BestellingController : Controller
     {
         private readonly IdentityContext _context;

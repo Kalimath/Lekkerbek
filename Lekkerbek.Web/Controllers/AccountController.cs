@@ -8,21 +8,31 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Lekkerbek.Web.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly IdentityContext _context;
+        private readonly RoleManager<Role> _roleManager;
+        private readonly UserManager<Gebruiker> _userManager;
 
-        public AccountController(IdentityContext context)
+        public AccountController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
         {
             _context = context;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         // GET: Account
         public async Task<IActionResult> Index()
         {
+            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                RedirectToAction("Details");
+            }
             return View(await _context.Gebruikers.ToListAsync());
         }
 
@@ -33,21 +43,34 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-
             var gebruiker = await _context.Gebruikers
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
+            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                gebruiker = await _userManager.GetUserAsync(HttpContext.User);
+            }
             if (gebruiker == null)
             {
                 return NotFound();
             }
 
+
             return View(gebruiker);
         }
 
         // GET: Account/Register
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return RedirectToPage("Register");
+        }
+
+        // GET: Account/Login
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            return RedirectToPage("Login");
         }
 
         /*// POST: Account/Register
@@ -88,7 +111,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Naam,Adres,Geboortedatum,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Gebruiker gebruiker)
+        public async Task<IActionResult> Edit(int id, [Bind("Naam,Adres,Geboortedatum,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,Adres,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Gebruiker gebruiker)
         {
             if (id != gebruiker.Id)
             {

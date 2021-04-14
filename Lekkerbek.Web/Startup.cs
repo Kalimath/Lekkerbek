@@ -28,11 +28,6 @@ namespace Lekkerbek.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            
-
-
-
             services.AddDbContext<IdentityContext>(cfg =>
             {
                 cfg.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
@@ -72,7 +67,7 @@ namespace Lekkerbek.Web
 
             app.UseStaticFiles();
             
-            //CreateRoles(serviceProvider).Wait();
+            CreateRoles(serviceProvider).Wait();
 
             app.UseRouting();
             app.UseAuthentication();
@@ -81,7 +76,7 @@ namespace Lekkerbek.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Bestelling}/{action=Index}");//\       /{id?}
+                    pattern: "{controller=Gerecht}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
         }

@@ -105,6 +105,7 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account
 
                     
                         await _signInManager.SignInAsync(user, isPersistent: false);
+                        _userManager.AddToRoleAsync(user, RollenEnum.Klant.ToString());
                         /*return LocalRedirect(returnUrl);*/
                         return RedirectToAction("Index", "Account");
                     
