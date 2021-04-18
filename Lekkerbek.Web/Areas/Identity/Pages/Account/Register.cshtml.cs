@@ -59,7 +59,6 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account
 
             [Required]
             [EmailAddress]
-            [Display(Name = "Email")]
             public string Email { get; set; }
 
             [Required]
@@ -100,12 +99,12 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account
                         values: new { area = "Identity", userId = user.Id, code = code, returnUrl = returnUrl },
                         protocol: Request.Scheme);
 
-                    /*await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    /*await _emailSender.SendEmailAsync(Input.Username, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");*/
 
                     
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        _userManager.AddToRoleAsync(user, RollenEnum.Klant.ToString());
+                        await _userManager.AddToRoleAsync(user, RollenEnum.Klant.ToString());
                         /*return LocalRedirect(returnUrl);*/
                         return RedirectToAction("Index", "Account");
                     

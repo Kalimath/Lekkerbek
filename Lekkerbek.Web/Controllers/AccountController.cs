@@ -73,13 +73,19 @@ namespace Lekkerbek.Web.Controllers
             return RedirectToPage("Login");
         }
 
+        // GET: Account/Logout
+        public IActionResult Logout()
+        {
+            return RedirectToRoute("Logout");
+        }
+
         /*// POST: Account/Register
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([Bind("Naam,Adres,Geboortedatum,Email,PasswordHash")] Gebruiker gebruiker)
+        public async Task<IActionResult> Register([Bind("Naam,Adres,Geboortedatum,Username,PasswordHash")] Gebruiker gebruiker)
         {
             if (ModelState.IsValid)
             {
@@ -111,7 +117,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Naam,Adres,Geboortedatum,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,Adres,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Gebruiker gebruiker)
+        public async Task<IActionResult> Edit(int id, [Bind("Naam,Adres,Geboortedatum,Id,UserName,NormalizedUserName,Username,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,Adres,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Gebruiker gebruiker)
         {
             if (id != gebruiker.Id)
             {

@@ -44,10 +44,15 @@ namespace Lekkerbek.Web
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
             }, ServiceLifetime.Transient);
             services.AddTransient<IdentityContext>();
-            /*services.AddDbContext<BestellingDbContext>(options =>
+
+            services.Configure<IdentityOptions>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
-            });*/
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+                options.Password.RequiredLength = 1;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

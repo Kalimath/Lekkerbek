@@ -9,9 +9,11 @@ using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
 {
+    [Authorize]
     public class GerechtController : Controller
     {
         private readonly IdentityContext _context;
@@ -22,6 +24,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Gerecht
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var bestellingDbContext = _context.Gerechten.Include(g => g.Categorie);
@@ -29,6 +32,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Gerecht/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
