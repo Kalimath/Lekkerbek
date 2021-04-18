@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -29,11 +30,15 @@ namespace Lekkerbek.Web.Controllers
         // GET: Account
         public async Task<IActionResult> Index()
         {
-            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
-                RedirectToAction("Details");
+                return View(await _context.Gebruikers.ToListAsync());
             }
-            return View(await _context.Gebruikers.ToListAsync());
+            else
+            {
+                return RedirectToAction("Details", new { id = await _userManager.GetUserIdAsync(await _userManager.GetUserAsync(HttpContext.User)) });
+            }
+            
         }
 
         // GET: Account/Details/5

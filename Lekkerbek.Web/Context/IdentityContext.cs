@@ -48,5 +48,11 @@ namespace Lekkerbek.Web.Context
             return sloten;
         }
 
+        public List<Bestelling> OpenstaandeBestellingenVanKlantMetId(int klantId)
+        {
+            return Bestellingen.AsQueryable().Where(bestelling => GebruikersMetRolKlant().Select(gebruiker => gebruiker.Id).Any(i => bestelling.KlantId == i))
+                .Where(bestelling => !bestelling.IsAfgerond).ToList();
+        }
+
     }
 }

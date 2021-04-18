@@ -10,6 +10,7 @@ using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Lekkerbek.Web.Controllers
@@ -18,18 +19,30 @@ namespace Lekkerbek.Web.Controllers
     public class BestellingController : Controller
     {
         private readonly IdentityContext _context;
-
-        public BestellingController(IdentityContext context)
+        private readonly RoleManager<Role> _roleManager;
+        private readonly UserManager<Gebruiker> _userManager;
+        public BestellingController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
         {
             _context = context;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         // GET: Bestelling
         public async Task<IActionResult> Index()
         {
+            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                return View(_context.OpenstaandeBestellingenVanKlantMetId(currentUser.Id));
+            }
+            else
+            {
+                return View(await _context.Bestellingen.ToListAsync());
+            }
             var bestellingDbContext = _context.Bestellingen.Include(b => b.Klant);
             /*bestellingDbContext.ForEachAsync(bestelling => bestelling.GerechtenLijst = _context.Gerechten.Where(gerecht => gerecht.Bestellingen.Any(bestellingTemp => bestellingTemp.Id == bestelling.Id)).ToList())*/;
-            return View(await bestellingDbContext.ToListAsync());
+            /*return View(await bestellingDbContext.ToListAsync());*/
         }
 
         // GET: Bestelling/Details/5

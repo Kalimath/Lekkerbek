@@ -14,22 +14,38 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Bestelling" asp-action="Index"><img width="100" src="~/img/Lekkerbek.jpeg" alt="Logo De lekkerbek" /></a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"><img width="100" src="~/img/Lekkerbek.jpeg" alt="Logo De lekkerbek" /></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Gerecht" asp-action="Index">Gerechten</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        @if (!User.IsInRole(RollenEnum.Klant.ToString()))
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Gerecht" asp-action="Index">Menukaart</a>
+                        </li>
+                        @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Bestelling" asp-action="Index">Bestellingen</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Gebruikers</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Kok" asp-action="Index">Koks</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Bestelling" asp-action="Index">Openstaande bestellingen</a>
+                            </li>
+
                         }
 
                     </ul>

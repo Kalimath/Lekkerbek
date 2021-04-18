@@ -8,7 +8,7 @@
 
 <h1>Index</h1>
 
-@if (!User.IsInRole(RollenEnum.Klant.ToString()))
+@if (User.IsInRole(RollenEnum.Admin.ToString()))
 {
     <p>
         <a asp-action="Create">Create New</a>
@@ -46,9 +46,15 @@
                         € @Html.DisplayFor(modelItem => item.Prijs)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Naam">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Naam">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Naam">Delete</a>
+                    @if (User.IsInRole(RollenEnum.Admin.ToString()))
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Naam">Edit</a>
+                    }
+                        <a asp-action="Details" asp-route-id="@item.Naam">Details</a> 
+                    @if (User.IsInRole(RollenEnum.Admin.ToString()))
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Naam" > Delete </a>
+                    }
                     </td>
                 </tr>
             }
