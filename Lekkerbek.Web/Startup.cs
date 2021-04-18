@@ -33,7 +33,7 @@ namespace Lekkerbek.Web
                 cfg.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
             });
 
-            services.AddDefaultIdentity<Gebruiker>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<Gebruiker>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<Role>()
                 .AddEntityFrameworkStores<IdentityContext>();
 
@@ -47,7 +47,7 @@ namespace Lekkerbek.Web
 
             services.Configure<IdentityOptions>(options =>
             {
-                options.SignIn.RequireConfirmedEmail = false;
+                //options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.Password.RequiredLength = 1;
@@ -81,7 +81,7 @@ namespace Lekkerbek.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Gerecht}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
         }
@@ -107,14 +107,14 @@ namespace Lekkerbek.Web
             //here we are assigning the Admin role to the User that we have registered above 
             //Now, we are assinging admin role to this user("Ali@gmail.com"). When will we run this project then it will
             //be assigned to that user.
-            Gebruiker user = await UserManager.FindByEmailAsync("mathieu_broe@yahoo.com");
+            /*Gebruiker user = await UserManager.FindByEmailAsync("mathieu_broe@yahoo.com");
             if (user != null)
             {
                 foreach (string role in Enum.GetValues<RollenEnum>().Cast<RollenEnum>().Select(v => v.ToString()).ToList())
                 {
                     await UserManager.AddToRoleAsync(user, role);
                 }
-            }
+            }*/
         }
     }
 }

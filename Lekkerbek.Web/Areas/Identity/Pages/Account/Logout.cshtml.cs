@@ -25,7 +25,7 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account
 
         public void OnGet()
         {
-            RedirectToPage("Login");
+            RedirectToPage("Logout");
         }
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
@@ -38,7 +38,7 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account
             }
             else
             {
-                return RedirectToPage("Login");
+                return RedirectToAction("Index", "Home");
             }
         }
     }
