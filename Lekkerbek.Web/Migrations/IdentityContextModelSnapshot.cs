@@ -47,6 +47,9 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<bool>("InGebruikDoorPersoneel")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsAfgerond")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsAfhaling")
                         .HasColumnType("bit");
 

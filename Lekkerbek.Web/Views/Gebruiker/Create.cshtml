@@ -1,0 +1,69 @@
+﻿@model Lekkerbek.Web.Models.Identity.Gebruiker
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Gebruiker</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Adres" class="control-label"></label>
+                <input asp-for="Adres" class="form-control" />
+                <span asp-validation-for="Adres" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Geboortedatum" class="control-label"></label>
+                <input asp-for="Geboortedatum" class="form-control" />
+                <span asp-validation-for="Geboortedatum" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Getrouwheidsscore" class="control-label"></label>
+                <input asp-for="Getrouwheidsscore" class="form-control" />
+                <span asp-validation-for="Getrouwheidsscore" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsProfessional" /> @Html.DisplayNameFor(model => model.IsProfessional)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="BtwNummer" class="control-label"></label>
+                <input asp-for="BtwNummer" class="form-control" />
+                <span asp-validation-for="BtwNummer" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FirmaNaam" class="control-label"></label>
+                <input asp-for="FirmaNaam" class="form-control" />
+                <span asp-validation-for="FirmaNaam" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UserName" class="control-label"></label>
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

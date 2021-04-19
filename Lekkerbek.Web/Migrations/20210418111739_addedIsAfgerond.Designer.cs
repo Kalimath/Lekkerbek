@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Lekkerbek.Web.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20210406134452_fullProjectRefactored")]
-    partial class fullProjectRefactored
+    [Migration("20210418111739_addedIsAfgerond")]
+    partial class addedIsAfgerond
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -47,6 +47,9 @@ namespace Lekkerbek.Web.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("InGebruikDoorPersoneel")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsAfgerond")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsAfhaling")
@@ -127,7 +130,7 @@ namespace Lekkerbek.Web.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -152,10 +155,6 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Naam")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -167,7 +166,7 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("nieuwAdres")
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
@@ -251,12 +250,17 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<bool>("IsVrij")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("KokId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Tijdstip")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tijdsloten");
+                    b.HasIndex("KokId");
+
+                    b.ToTable("Tijdslot");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -411,6 +415,15 @@ namespace Lekkerbek.Web.Migrations
                     b.Navigation("Categorie");
                 });
 
+            modelBuilder.Entity("Lekkerbek.Web.Models.Tijdslot", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Kok", "Kok")
+                        .WithMany("Tijdsloten")
+                        .HasForeignKey("KokId");
+
+                    b.Navigation("Kok");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Identity.Role", null)
@@ -467,6 +480,11 @@ namespace Lekkerbek.Web.Migrations
                     b.Navigation("Bestellingen");
 
                     b.Navigation("Voorkeursgerechten");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Kok", b =>
+                {
+                    b.Navigation("Tijdsloten");
                 });
 #pragma warning restore 612, 618
         }

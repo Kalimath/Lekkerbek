@@ -23,7 +23,15 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
         }
 
+        public int UserId { get; set; }
         public string Username { get; set; }
+        public string Email { get; set; }
+        public DateTime Geboortedatum { get; set; }
+        public int Getrouwheidsscore { get; set; }
+        public bool IsProfessional { get; set; }
+        public string BtwNummer { get; set; }
+        public string FirmaNaam { get; set; }
+        public string Adres { get; set; }
 
         [TempData]
         public string StatusMessage { get; set; }
@@ -33,21 +41,20 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
+            [Display(Name = "Nieuw adres")]
+            public string Adres { get; set; }
         }
 
         private async Task LoadAsync(Gebruiker user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            var nieuwAdres = await _userManager.GetPhoneNumberAsync(user);
 
             Username = userName;
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                Adres = nieuwAdres
             };
         }
 
@@ -60,6 +67,15 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account.Manage
             }
 
             await LoadAsync(user);
+            this.UserId = user.Id;
+            this.Username = user.UserName;
+            this.Email = user.Email;
+            this.Getrouwheidsscore = user.Getrouwheidsscore;
+            this.Geboortedatum = user.Geboortedatum;
+            this.IsProfessional = user.IsProfessional;
+            this.BtwNummer = user.BtwNummer;
+            this.FirmaNaam = user.FirmaNaam;
+            this.Adres = user.Adres;
             return Page();
         }
 
@@ -77,15 +93,10 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
+            if (!Input.Adres.Equals(user.Adres))
             {
-                var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
-                if (!setPhoneResult.Succeeded)
-                {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
-                    return RedirectToPage();
-                }
+                user.Adres = Input.Adres;
+                await _userManager.UpdateAsync(user);
             }
 
             await _signInManager.RefreshSignInAsync(user);

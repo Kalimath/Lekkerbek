@@ -127,7 +127,7 @@ namespace Lekkerbek.Web.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("Username")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -163,7 +163,7 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PhoneNumber")
+                    b.Property<string>("nieuwAdres")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")

@@ -28,17 +28,12 @@ namespace Lekkerbek.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            
-
-
-
             services.AddDbContext<IdentityContext>(cfg =>
             {
                 cfg.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
             });
 
-            services.AddDefaultIdentity<Gebruiker>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddDefaultIdentity<Gebruiker>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<Role>()
                 .AddEntityFrameworkStores<IdentityContext>();
 
@@ -49,10 +44,15 @@ namespace Lekkerbek.Web
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
             }, ServiceLifetime.Transient);
             services.AddTransient<IdentityContext>();
-            /*services.AddDbContext<BestellingDbContext>(options =>
+
+            services.Configure<IdentityOptions>(options =>
             {
-                options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
-            });*/
+                //options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+                options.Password.RequiredLength = 1;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,7 +72,7 @@ namespace Lekkerbek.Web
 
             app.UseStaticFiles();
             
-            //CreateRoles(serviceProvider).Wait();
+            CreateRoles(serviceProvider).Wait();
 
             app.UseRouting();
             app.UseAuthentication();
@@ -81,7 +81,7 @@ namespace Lekkerbek.Web
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Bestelling}/{action=Index}");//\       /{id?}
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
         }
@@ -107,14 +107,14 @@ namespace Lekkerbek.Web
             //here we are assigning the Admin role to the User that we have registered above 
             //Now, we are assinging admin role to this user("Ali@gmail.com"). When will we run this project then it will
             //be assigned to that user.
-            Gebruiker user = await UserManager.FindByEmailAsync("mathieu_broe@yahoo.com");
+            /*Gebruiker user = await UserManager.FindByEmailAsync("mathieu_broe@yahoo.com");
             if (user != null)
             {
                 foreach (string role in Enum.GetValues<RollenEnum>().Cast<RollenEnum>().Select(v => v.ToString()).ToList())
                 {
                     await UserManager.AddToRoleAsync(user, role);
                 }
-            }
+            }*/
         }
     }
 }

@@ -21,6 +21,7 @@ namespace Lekkerbek.Web.Models
         public virtual Gebruiker Klant { get; set; }
         public Tijdslot Tijdslot { get; set; }
         public bool InGebruikDoorPersoneel { get; set; } = false;
+        public bool IsAfgerond { get; set; } = false;
         public bool IsAfhaling { get; set; } = false;
 
 

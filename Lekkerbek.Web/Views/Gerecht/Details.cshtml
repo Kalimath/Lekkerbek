@@ -1,4 +1,5 @@
-﻿@model Lekkerbek.Web.Models.Gerecht
+﻿@using Lekkerbek.Web.Models.Identity
+@model Lekkerbek.Web.Models.Gerecht
 
 @{
     ViewData["Title"] = "Details";
@@ -32,6 +33,9 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Naam">Edit</a> |
+    @if (User.IsInRole(RollenEnum.Admin.ToString()))
+    {
+    <a asp-action="Edit" asp-route-id="@Model.Naam">Edit</a>
+    }
     <a asp-action="Index">Back to List</a>
 </div>

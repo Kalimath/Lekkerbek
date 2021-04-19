@@ -25,20 +25,21 @@ namespace Lekkerbek.Web.Areas.Identity.Pages.Account
 
         public void OnGet()
         {
+            RedirectToPage("Logout");
         }
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User logged out.");
-            if (returnUrl != null)
+            /*if (returnUrl != null)
             {
                 return LocalRedirect(returnUrl);
             }
             else
-            {
-                return RedirectToPage();
-            }
+            {*/
+                return RedirectToAction("Index", "Home");
+            /*}*/
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,22 +9,36 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace Lekkerbek.Web.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly IdentityContext _context;
+        private readonly RoleManager<Role> _roleManager;
+        private readonly UserManager<Gebruiker> _userManager;
 
-        public AccountController(IdentityContext context)
+        public AccountController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
         {
             _context = context;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
         // GET: Account
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Gebruikers.ToListAsync());
+            if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+            {
+                return View(await _context.Gebruikers.ToListAsync());
+            }
+            else
+            {
+                return RedirectToAction("Details", new { id = await _userManager.GetUserIdAsync(await _userManager.GetUserAsync(HttpContext.User)) });
+            }
+            
         }
 
         // GET: Account/Details/5
@@ -33,21 +48,40 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-
             var gebruiker = await _context.Gebruikers
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
+            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                gebruiker = await _userManager.GetUserAsync(HttpContext.User);
+            }
             if (gebruiker == null)
             {
                 return NotFound();
             }
 
+
             return View(gebruiker);
         }
 
         // GET: Account/Register
+        [AllowAnonymous]
         public IActionResult Register()
         {
             return RedirectToPage("Register");
+        }
+
+        // GET: Account/Login
+        [AllowAnonymous]
+        public IActionResult Login()
+        {
+            return RedirectToPage("Login");
+        }
+
+        // GET: Account/Logout
+        public IActionResult Logout()
+        {
+            return RedirectToRoute("Logout");
         }
 
         /*// POST: Account/Register
@@ -56,7 +90,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([Bind("Naam,Adres,Geboortedatum,Email,PasswordHash")] Gebruiker gebruiker)
+        public async Task<IActionResult> Register([Bind("Naam,Adres,Geboortedatum,Username,PasswordHash")] Gebruiker gebruiker)
         {
             if (ModelState.IsValid)
             {
@@ -88,7 +122,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Naam,Adres,Geboortedatum,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Gebruiker gebruiker)
+        public async Task<IActionResult> Edit(int id, [Bind("Naam,Adres,Geboortedatum,Id,UserName,NormalizedUserName,Username,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,Adres,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Gebruiker gebruiker)
         {
             if (id != gebruiker.Id)
             {

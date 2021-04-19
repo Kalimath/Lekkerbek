@@ -26,7 +26,7 @@ namespace Lekkerbek.Web.Models.Identity
         }
 
         public int Getrouwheidsscore { get; set; } = 0;
-        public virtual ICollection<Gerecht> Voorkeursgerechten { get; set; }
+        public ICollection<Gerecht> Voorkeursgerechten { get; set; }
         public virtual ICollection<Bestelling> Bestellingen { get; set; }
 
         [Required]
