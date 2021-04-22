@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
+using Lekkerbek.Web.Models.Dtos;
 using Lekkerbek.Web.Models.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -32,17 +33,17 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
+                ViewBag.GebruikersRollen = _context.HoogsteRollenGebruikers();
                 return View(await _context.Gebruikers.ToListAsync());
             }
             else
             {
                 return RedirectToAction("Details", new { id = await _userManager.GetUserIdAsync(await _userManager.GetUserAsync(HttpContext.User)) });
             }
-            
         }
 
         // GET: Account/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
             if (id == null)
             {
@@ -51,16 +52,17 @@ namespace Lekkerbek.Web.Controllers
             var gebruiker = await _context.Gebruikers
                 .FirstOrDefaultAsync(m => m.Id == id);
             
-            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            /*if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
                 gebruiker = await _userManager.GetUserAsync(HttpContext.User);
-            }
+            }*/
             if (gebruiker == null)
             {
                 return NotFound();
             }
 
-
+            ViewBag.Rol = _context.GebruikerHoogsteRol(id);
+            //ViewBag.Rol = await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(id + ""));
             return View(gebruiker);
         }
 
@@ -84,22 +86,41 @@ namespace Lekkerbek.Web.Controllers
             return RedirectToRoute("Logout");
         }
 
-        /*// POST: Account/Register
+        public IActionResult Create()
+        {
+            ViewBag.Rollen = new SelectList(Enum.GetValues<RollenEnum>());
+            return View();
+        }
+
+        // POST: Account/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([Bind("Naam,Adres,Geboortedatum,Username,PasswordHash")] Gebruiker gebruiker)
+        public async Task<IActionResult> Create([Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam,Rol,PasswordHash")] GebruikerMetRolDto gebruikerDto)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(gebruiker);
-                await _context.SaveChangesAsync();
+                var nieuweGebruiker = new Gebruiker()
+                {
+                    UserName = gebruikerDto.UserName,
+                    Email = gebruikerDto.Email,
+                    Adres = gebruikerDto.Adres,
+                    Geboortedatum = gebruikerDto.Geboortedatum,
+                    Getrouwheidsscore = gebruikerDto.Getrouwheidsscore,
+                    IsProfessional = gebruikerDto.IsProfessional,
+                    BtwNummer = gebruikerDto.BtwNummer,
+                    FirmaNaam = gebruikerDto.FirmaNaam,
+                    PasswordHash = gebruikerDto.PasswordHash
+                };
+                var user = await _userManager.CreateAsync(nieuweGebruiker, gebruikerDto.PasswordHash);
+                await _userManager.AddToRoleAsync(nieuweGebruiker, gebruikerDto.Rol);
+                _context.Add(nieuweGebruiker);
                 return RedirectToAction(nameof(Index));
             }
-            return View(gebruiker);
-        }*/
+            return View(gebruikerDto);
+        }
 
         // GET: Account/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -114,6 +135,7 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
+            ViewBag.Rol = await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(id + ""));
             return View(gebruiker);
         }
 
@@ -122,7 +144,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Naam,Adres,Geboortedatum,Id,UserName,NormalizedUserName,Username,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,Adres,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] Gebruiker gebruiker)
+        public async Task<IActionResult> Edit(int id, [Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam")] Gebruiker gebruiker)
         {
             if (id != gebruiker.Id)
             {

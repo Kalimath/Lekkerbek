@@ -54,5 +54,49 @@ namespace Lekkerbek.Web.Context
                 .Where(bestelling => !bestelling.IsAfgerond).ToList();
         }
 
+        //geeft rollen terug van gebruiker met id
+        public List<String> GebruikerRollen(int userId)
+        {
+            var rollen = from u in Users
+                join ur in UserRoles on u.Id equals ur.UserId where u.Id == userId
+                join r in Rollen on ur.RoleId equals r.Id
+                select r.Name;
+
+            return rollen.ToList();
+        }
+
+        //geeft voor iedere gebruiker de rol terug met de meeste rechten
+        public Dictionary<int, string> HoogsteRollenGebruikers()
+        {
+            Dictionary<int, string> rollenGebruikers = new Dictionary<int, string>();
+            foreach (var gebruiker in Gebruikers)
+            {
+                rollenGebruikers[gebruiker.Id] = GebruikerHoogsteRol(gebruiker.Id);
+            }
+            return rollenGebruikers;
+        }
+
+        //geeft de rol terug met de meeste rechten van gebruiker met id
+        public String GebruikerHoogsteRol(int userId)
+        {
+            List<string> rollenGebruiker = GebruikerRollen(userId);
+            if (rollenGebruiker.Contains(RollenEnum.Admin.ToString()))
+            {
+                return RollenEnum.Admin.ToString();
+            }
+            else if (rollenGebruiker.Contains(RollenEnum.Kassamedewerker.ToString()))
+            {
+                return RollenEnum.Kassamedewerker.ToString();
+            }
+            else if (rollenGebruiker.Contains(RollenEnum.Kok.ToString()))
+            {
+                return RollenEnum.Kok.ToString();
+            }
+            else
+            {
+                return RollenEnum.Klant.ToString();
+            }
+        }
+
     }
 }
