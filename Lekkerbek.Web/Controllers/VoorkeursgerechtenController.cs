@@ -10,9 +10,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
 {
+    [Authorize]
     public class VoorkeursgerechtenController : Controller
     {
         private readonly IdentityContext _context;

@@ -17,7 +17,7 @@ namespace Lekkerbek.Web.Context
         }
         public DbSet<Bestelling> Bestellingen { get; set; }
 
-        public DbSet<Kok> Koks { get; set; }
+        /*public DbSet<Agenda> Agenda { get; set; }*/
         public DbSet<Gerecht> Gerechten { get; set; }
         public DbSet<Lekkerbek.Web.Models.Gerecht> Gerecht { get; set; }
         public DbSet<Lekkerbek.Web.Models.Categorie> Categorie { get; set; }
@@ -37,15 +37,11 @@ namespace Lekkerbek.Web.Context
 
         public List<Tijdslot> Alletijdsloten()
         {
-            var sloten = new List<Tijdslot>();
-            Koks.ForEachAsync(kok => sloten.AddRange(kok.Tijdsloten));
-            return sloten;
+            return Tijdslot.ToList();
         }
         public List<Tijdslot> AlleVrijeTijdsloten()
         {
-            var sloten = new List<Tijdslot>();
-            Koks.ForEachAsync(kok => sloten.AddRange(kok.Tijdsloten.Where(tijdslot => tijdslot.IsVrij)));
-            return sloten;
+            return Tijdslot.Where(tijdslot => tijdslot.IsVrij).ToList();
         }
 
         public List<Bestelling> OpenstaandeBestellingenVanKlantMetId(int klantId)
@@ -103,5 +99,34 @@ namespace Lekkerbek.Web.Context
             }
         }
 
+        public DbSet<Lekkerbek.Web.Models.Tijdslot> Tijdslot { get; set; }
+
+
+        public List<Tijdslot> TijdslotenToegankelijkVoorKok(Gebruiker kok)
+        {
+            var tijdslotenDoorKok = Tijdslot.Where(tijdslot => tijdslot.InGebruikDoorKok.Id == kok.Id).ToList();
+            var tijdsloten = Tijdslot.Where(tijdslot => tijdslot.InGebruikDoorKok == null).ToList();
+            tijdsloten.AddRange(tijdslotenDoorKok);
+            return tijdsloten;
+        }
+
+        public Bestelling BestellingVanTijdslot(int tijdslotId)
+        {
+            Bestelling bestelling = null;
+            try
+            {
+                bestelling = Bestellingen.FirstOrDefault(bestelling => bestelling.Tijdslot.Id == tijdslotId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
+            return bestelling;
+            
+
+            
+        }
     }
 }

@@ -7,13 +7,11 @@ using Lekkerbek.Web.Models.Identity;
 
 namespace Lekkerbek.Web.Models
 {
-    public  class Kok
+    public  class Agenda
     {
         public int Id { get; set; }
-        [Required]
-        public string Naam { get; set; }
         public ICollection<Tijdslot> Tijdsloten { get; set; }
-        public Kok()
+        public Agenda()
         {
             Tijdsloten = new HashSet<Tijdslot>();
         }

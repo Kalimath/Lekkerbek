@@ -1,0 +1,86 @@
+﻿@using Lekkerbek.Web.Models.Identity
+@model Lekkerbek.Web.Models.Tijdslot
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Tijdslot</h4>
+    <hr />
+    
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Tijdstip)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Tijdstip)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IsVrij)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IsVrij)
+        </dd>
+        @if (!Model.IsVrij)
+        {
+            <div>
+                @if (User.IsInRole(RollenEnum.Kok.ToString()))
+                {
+                    <button class="btn btn-primary" asp-area="" asp-controller="Tijdslot" asp-action="Toegewezen">Bereiden</button>
+                }
+            </div>
+            var bestelling = new Bestelling();
+            if (((Bestelling)ViewBag.Bestelling) != null)
+            {
+                bestelling = ((Bestelling)ViewBag.Bestelling);
+            }
+            <dt class="col-sm-2">
+                Speciale wensen
+            </dt>
+            <dd class="col-sm-10">
+                @bestelling.Opmerkingen;
+            </dd>
+            <dt class="col-sm-2">
+                Aantal maaltijden
+            </dt>
+            <dd class="col-sm-10">
+                @bestelling.AantalMaaltijden;
+            </dd>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Gerecht
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ var gerechten = bestelling.GerechtenLijst;}
+                    @foreach (Gerecht item in gerechten)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Naam)
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Naam">Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </dl>
+</div>
+<div>
+@if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+{
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a>}
+    <a asp-action="Index">Back to List</a>
+    
+</div>
+

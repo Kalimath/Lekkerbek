@@ -84,7 +84,20 @@ namespace Lekkerbek.Web.Controllers
             Bestelling bestelling = new Bestelling();
             if (ModelState.IsValid)
             {
-                Gebruiker klantVanBestelling = await _context.GebruikersMetRolKlant().AsQueryable().FirstAsync(klant => klant.UserName.Trim().ToLower().Equals(collection["Gebruiker.Naam"].ToString().Trim().ToLower()));
+                var tijdslot = _context.AlleVrijeTijdsloten()
+                    .Find(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]));
+                tijdslot.IsVrij = false;
+                Gebruiker klantVanBestelling = null;
+                if (User.IsInRole(RollenEnum.Klant.ToString()))
+                {
+                    klantVanBestelling = await _userManager.GetUserAsync(HttpContext.User);
+                }
+                else
+                {
+                    //voor admin en kassamedewerker userid ofzo mee in hidden field meegeven en hier user uit db opvragen
+                    //klantVanBestelling =
+                }
+
                 bestelling = new Bestelling()
                 {
                     AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]),
@@ -93,10 +106,8 @@ namespace Lekkerbek.Web.Controllers
                     Opmerkingen = collection["Opmerkingen"],
                     Levertijd = DateTime.Parse(collection["Levertijd"]),
                     KlantId = klantVanBestelling.Id,
-                    Tijdslot = new Tijdslot(DateTime.Parse(collection["Tijdslot"])),
-                    /*_context.Tijdsloten.First(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]) && tijdslot.IsVrij)*/
-        };
-                _context.AlleVrijeTijdsloten().ToList().First(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"])).IsVrij = false;
+                    Tijdslot = tijdslot
+                };
                 IEnumerable<string> gerechtNamen = (ICollection<string>)collection["GerechtenLijst"];
                 bestelling.GerechtenLijst = await _context.Gerechten.Where(gerecht=> gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
                 _context.Add(bestelling);
