@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lekkerbek.Web.Models.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,6 +16,7 @@ namespace Lekkerbek.Web.Models
         public Gerecht()
         {
             Bestellingen = new HashSet<Bestelling>();
+            VoorkeursgerechtenVanKlanten = new HashSet<Gebruiker>(); 
         }
         [Required]
         public string CategorieId { get; set; }
@@ -27,7 +29,8 @@ namespace Lekkerbek.Web.Models
         }
 
         public virtual ICollection<Bestelling> Bestellingen { get; set; }
+        public virtual ICollection<Gebruiker> VoorkeursgerechtenVanKlanten { get; set; }
 
-        
+
     }
 }

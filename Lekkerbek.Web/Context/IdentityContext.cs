@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Context
 {
-    public class IdentityContext : IdentityDbContext<Gebruiker,Role,int>
+    public class IdentityContext : IdentityDbContext<Gebruiker, Role, int>
     {
         public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
         {
-            
+
         }
         public DbSet<Bestelling> Bestellingen { get; set; }
 
@@ -54,6 +54,11 @@ namespace Lekkerbek.Web.Context
                 .Where(bestelling => !bestelling.IsAfgerond).ToList();
         }
 
+        public ICollection<Gerecht> VoorkeursGerechtenVanKlanten(int klantId)
+        {
+
+            return Gebruikers.Find(klantId).Voorkeursgerechten;
+        }
         //geeft rollen terug van gebruiker met id
         public List<String> GebruikerRollen(int userId)
         {
