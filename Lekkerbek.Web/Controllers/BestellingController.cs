@@ -83,24 +83,15 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
-                Bestelling bestelling = null;
                 var tijdslot = _context.AlleVrijeTijdsloten()
                     .Find(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]));
                 tijdslot.IsVrij = false;
-                Gebruiker klantVanBestelling = null;
-                if (User.IsInRole(RollenEnum.Klant.ToString()))
-                {
-                    klantVanBestelling = await _userManager.GetUserAsync(HttpContext.User);
-                }else{
-                    //voor admin en kassamedewerker userid ofzo mee in hidden field meegeven en hier user uit db opvragen
-                    //klantVanBestelling =
-                }
+                Gebruiker klantVanBestelling = await _userManager.GetUserAsync(User);
 
-                bestelling = new Bestelling()
+                Bestelling bestelling = new Bestelling()
                 {
                     AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]),
                     GerechtenLijst = new List<Gerecht>(),
-                    Klant = klantVanBestelling,
                     Opmerkingen = collection["Opmerkingen"],
                     Levertijd = DateTime.Parse(collection["Levertijd"]),
                     KlantId = klantVanBestelling.Id,

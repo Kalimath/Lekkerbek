@@ -56,7 +56,7 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-            ViewBag.Bestelling = _context.BestellingVanTijdslot(tijdslot.Id);
+            ViewBag.Bestelling = BestellingVanTijdslot(tijdslot.Id);
             return View(tijdslot);
         }
 
@@ -193,6 +193,22 @@ namespace Lekkerbek.Web.Controllers
         private bool TijdslotExists(int id)
         {
             return _context.Tijdslot.Any(e => e.Id == id);
+        }
+
+        public Bestelling BestellingVanTijdslot(int tijdslotId)
+        {
+            Bestelling bestelling = null;
+            try
+            {
+                bestelling = _context.Bestellingen.Include("GerechtenLijst").FirstOrDefault(bestelling => bestelling.Tijdslot.Id == tijdslotId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+            return bestelling;
         }
     }
 }

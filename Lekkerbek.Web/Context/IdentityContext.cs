@@ -55,6 +55,7 @@ namespace Lekkerbek.Web.Context
 
             return Gebruikers.Find(klantId).Voorkeursgerechten;
         }
+
         //geeft rollen terug van gebruiker met id
         public List<String> GebruikerRollen(int userId)
         {
@@ -108,25 +109,6 @@ namespace Lekkerbek.Web.Context
             var tijdsloten = Tijdslot.Where(tijdslot => tijdslot.InGebruikDoorKok == null).ToList();
             tijdsloten.AddRange(tijdslotenDoorKok);
             return tijdsloten;
-        }
-
-        public Bestelling BestellingVanTijdslot(int tijdslotId)
-        {
-            Bestelling bestelling = null;
-            try
-            {
-                bestelling = Bestellingen.FirstOrDefault(bestelling => bestelling.Tijdslot.Id == tijdslotId);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            
-            return bestelling;
-            
-
-            
         }
     }
 }
