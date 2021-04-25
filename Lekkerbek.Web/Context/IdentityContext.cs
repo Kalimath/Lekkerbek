@@ -53,7 +53,7 @@ namespace Lekkerbek.Web.Context
         public ICollection<Gerecht> VoorkeursGerechtenVanKlanten(int klantId)
         {
 
-            return Gebruikers.Find(klantId).Voorkeursgerechten;
+            return Gebruikers.Include("Voorkeursgerechten").ToList().Find(gebruiker => gebruiker.Id == klantId).Voorkeursgerechten;
         }
 
         //geeft rollen terug van gebruiker met id
@@ -105,9 +105,16 @@ namespace Lekkerbek.Web.Context
 
         public List<Tijdslot> TijdslotenToegankelijkVoorKok(Gebruiker kok)
         {
-            var tijdslotenDoorKok = Tijdslot.Where(tijdslot => tijdslot.InGebruikDoorKok.Id == kok.Id).ToList();
-            var tijdsloten = Tijdslot.Where(tijdslot => tijdslot.InGebruikDoorKok == null).ToList();
-            tijdsloten.AddRange(tijdslotenDoorKok);
+            var tijdsloten = new List<Tijdslot>();
+            if (Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok.Id == kok.Id).Count()>0)
+            {
+                tijdsloten = Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok.Id == kok.Id).ToList();
+            }
+            else
+            {
+                tijdsloten = Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok == null).ToList();
+            }
+            
             return tijdsloten;
         }
     }
