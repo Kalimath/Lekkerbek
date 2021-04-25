@@ -33,11 +33,14 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Kok.ToString()))
             {
-                return View(_context.TijdslotenToegankelijkVoorKok((await _userManager.GetUserAsync(HttpContext.User))).OrderBy(tijdslot => tijdslot.Tijdstip));
+                var currentUser = (await _userManager.GetUserAsync(HttpContext.User));
+                var tijdsloten = _context.TijdslotenToegankelijkVoorKok(currentUser);
+                tijdsloten.Select(tijdslot => tijdslot.IsVrij||tijdslot.InGebruikDoorKok ==null||tijdslot.InGebruikDoorKok.Id == currentUser.Id);
+                return View(tijdsloten.OrderBy(tijdslot => tijdslot.Tijdstip));
             }
             else
             {
-                return View(await _context.Tijdslot.OrderBy(tijdslot => tijdslot.Tijdstip).ToListAsync());
+                return View(await _context.Tijdslot.Include("InGebruikDoorKok").OrderBy(tijdslot => tijdslot.Tijdstip).ToListAsync());
             }
         }
 
@@ -50,7 +53,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var tijdslot = await _context.Tijdslot
+            var tijdslot = await _context.Tijdslot.Include("InGebruikDoorKok")
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (tijdslot == null)
             {
@@ -95,8 +98,8 @@ namespace Lekkerbek.Web.Controllers
             try
             {
                 var tijdslot = _context.Tijdslot.Find(id);
-                    _context.Update(tijdslot.InGebruikDoorKok = await _userManager.GetUserAsync(HttpContext.User));
-                    await _context.SaveChangesAsync();
+                if(tijdslot.InGebruikDoorKok == null) tijdslot.InGebruikDoorKok = await _userManager.GetUserAsync(HttpContext.User);
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {

@@ -25,56 +25,84 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.IsVrij)
         </dd>
-        @if (!Model.IsVrij)
-        {
-            <div>
-                @if (User.IsInRole(RollenEnum.Kok.ToString()))
-                {
-                    <button class="btn btn-primary" asp-area="" asp-controller="Tijdslot" asp-action="Toegewezen">Bereiden</button>
-                }
-            </div>
-            var bestelling = new Bestelling();
-            if (((Bestelling)ViewBag.Bestelling) != null)
-            {
-                bestelling = ((Bestelling)ViewBag.Bestelling);
-            }
-            <dt class="col-sm-2">
-                Speciale wensen
-            </dt>
-            <dd class="col-sm-10">
-                @bestelling.Opmerkingen;
-            </dd>
-            <dt class="col-sm-2">
-                Aantal maaltijden
-            </dt>
-            <dd class="col-sm-10">
-                @bestelling.AantalMaaltijden;
-            </dd>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>
-                            Gerecht
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{ var gerechten = bestelling.GerechtenLijst;}
-                    @foreach (Gerecht item in gerechten)
-                    {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Naam)
-                            </td>
-                            <td>
-                                <a asp-action="Details" asp-route-id="@item.Naam">Details</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
     </dl>
+    @if (!Model.IsVrij)
+    {
+
+        var bestelling = new Bestelling();
+        if (((Bestelling)ViewBag.Bestelling) != null)
+        {
+            bestelling = ((Bestelling)ViewBag.Bestelling);
+        }
+<dl class="row">
+    <dt class="col-sm-2">
+        Speciale wensen
+    </dt>
+    <dd class="col-sm-10">
+        @bestelling.Opmerkingen
+    </dd>
+    <dt class="col-sm-2">
+        Aantal maaltijden
+    </dt>
+    <dd class="col-sm-10">
+        @bestelling.AantalMaaltijden
+    </dd>
+
+    <dt class="col-sm-2">
+        Status:
+    </dt>
+    @if (Model.InGebruikDoorKok != null)
+    {
+        <dd class="col-sm-10">
+            In bereiding
+        </dd>
+    }
+    else if (bestelling.IsAfgerond)
+    {
+        <dd class="col-sm-10">
+            Bestelling afgerond
+        </dd> 
+    }else
+    {
+        <dd class="col-sm-10">
+            Bestelling geplaatst
+        </dd>
+    }
+
+</dl>
+        <p></p>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    Gerecht
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            @{ var gerechten = bestelling.GerechtenLijst;}
+            @foreach (Gerecht item in gerechten)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Naam)
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Naam">Details</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <div>
+            @if (User.IsInRole(RollenEnum.Kok.ToString())&& Model.InGebruikDoorKok == null)
+            {
+                <form asp-controller="Tijdslot" asp-action="Toegewezen" asp-route-id="@Model.Id">
+                    <input type="submit" value="Bereiden" />
+                </form>
+            }
+        </div>
+    }
 </div>
 <div>
 @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
