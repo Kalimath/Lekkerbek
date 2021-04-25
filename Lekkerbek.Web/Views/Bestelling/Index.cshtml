@@ -49,18 +49,18 @@
                 @Html.DisplayFor(modelItem => item.Klant.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Tijdslot)
+                @Html.DisplayFor(modelItem => item.Tijdslot.Tijdstip)
             </td>
             @*<td>
                € € @{double totaal = item.getTotaalPrijs(item.GerechtenLijst.ToList());
                        @Html.DisplayFor(m => totaal, "Totaal bedrag")
                    }
             </td>*@
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Factuur</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
+        <td>
+            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+            <a asp-action="Details" asp-route-id="@item.Id">Factuur</a> |
+            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+        </td>
         </tr>
 }
     </tbody>

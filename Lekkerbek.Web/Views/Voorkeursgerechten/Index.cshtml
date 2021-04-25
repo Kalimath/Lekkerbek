@@ -9,11 +9,13 @@
 
 <p>
     <a class="btn btn-primary" asp-action="Create">Voeg Nieuw voorkeurgerecht toe</a>
-    <a>@ViewBag.User</a>
 </p>
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Naam)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Categorie)
             </th>
@@ -29,19 +31,20 @@
 
             @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Categorie.Naam)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Prijs)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Naam">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Naam">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Naam">Delete</a>
-                    </td>
-                </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Naam)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategorieId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Prijs)
+                </td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@item.Naam">Delete</a>
+                </td>
+            </tr>
             }
         </tbody>
     }

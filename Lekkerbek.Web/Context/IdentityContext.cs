@@ -46,14 +46,19 @@ namespace Lekkerbek.Web.Context
 
         public List<Bestelling> OpenstaandeBestellingenVanKlantMetId(int klantId)
         {
-            return Bestellingen.AsQueryable().Where(bestelling => GebruikersMetRolKlant().Select(gebruiker => gebruiker.Id).Any(i => bestelling.KlantId == i))
-                .Where(bestelling => !bestelling.IsAfgerond).ToList();
+            /*return Bestellingen.Include("Tijdslot").AsQueryable().Where(bestelling => GebruikersMetRolKlant().Select(gebruiker => gebruiker.Id).Any(i => bestelling.KlantId == i))
+                .Where(bestelling => !bestelling.IsAfgerond).ToList();*/
+
+            /**
+             * Zonder GebruikersMetRolKlant                         
+             */
+
+            return Bestellingen.Include("Tijdslot").ToList().FindAll(b => b.KlantId == klantId).Where(b => !b.IsAfgerond).ToList(); 
         }
 
         public ICollection<Gerecht> VoorkeursGerechtenVanKlanten(int klantId)
         {
-
-            return Gebruikers.Find(klantId).Voorkeursgerechten;
+            return Gebruikers.Include("Voorkeursgerechten").ToList().Find(gebruiker => gebruiker.Id == klantId).Voorkeursgerechten;
         }
 
         //geeft rollen terug van gebruiker met id

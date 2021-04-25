@@ -40,7 +40,8 @@ namespace Lekkerbek.Web.Controllers
             }
             else
             {
-                return View(); 
+
+                return View(_context.Gebruikers.Include("Voorkeursgerechten").ToList()); 
             }
         }
         // GET: VoorkeursgerechtenController/Details/5
@@ -53,7 +54,7 @@ namespace Lekkerbek.Web.Controllers
         public ActionResult Create()
         {
 
-            ViewData["GerechteId"] = new SelectList(_context.Gerechten.ToList(), "Naam", "Naam"); 
+            ViewData["Naam"] = new SelectList(_context.Gerechten.ToList(), "Naam", "Naam"); 
             return View();
         }
 
@@ -78,40 +79,26 @@ namespace Lekkerbek.Web.Controllers
             }
         }
 
-        // GET: VoorkeursgerechtenController/Edit/5
-        public ActionResult Edit(int id)
-        {
-            return View();
-        }
-
-        // POST: VoorkeursgerechtenController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
-
+        
         // GET: VoorkeursgerechtenController/Delete/5
-        public ActionResult Delete(int id)
+        public async Task<ActionResult> Delete(String id)
         {
-            return View();
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var gerecht = _context.Gerechten.First(g => g.Naam.Equals(id));            
+            return View(gerecht);
         }
 
         // POST: VoorkeursgerechtenController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public async Task<ActionResult> Delete(String id, IFormCollection collection)
         {
             try
             {
+                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                var gerecht = _context.Gerecht.First(g => g.Naam.Equals(id)); 
+                _context.VoorkeursGerechtenVanKlanten(currentUser.Id).Remove(gerecht);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             catch
