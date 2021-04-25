@@ -81,9 +81,9 @@ namespace Lekkerbek.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(IFormCollection collection)
         {
-            Bestelling bestelling = new Bestelling();
-            if (ModelState.IsValid)
+            try
             {
+                Bestelling bestelling = null;
                 var tijdslot = _context.AlleVrijeTijdsloten()
                     .Find(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]));
                 tijdslot.IsVrij = false;
@@ -91,9 +91,7 @@ namespace Lekkerbek.Web.Controllers
                 if (User.IsInRole(RollenEnum.Klant.ToString()))
                 {
                     klantVanBestelling = await _userManager.GetUserAsync(HttpContext.User);
-                }
-                else
-                {
+                }else{
                     //voor admin en kassamedewerker userid ofzo mee in hidden field meegeven en hier user uit db opvragen
                     //klantVanBestelling =
                 }
@@ -109,15 +107,16 @@ namespace Lekkerbek.Web.Controllers
                     Tijdslot = tijdslot
                 };
                 IEnumerable<string> gerechtNamen = (ICollection<string>)collection["GerechtenLijst"];
-                bestelling.GerechtenLijst = await _context.Gerechten.Where(gerecht=> gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
-                _context.Add(bestelling);
+                bestelling.GerechtenLijst = await _context.Gerechten.Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
+                _context.Bestellingen.Add(bestelling);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["KlantNamen"] = new SelectList(_context.GebruikersMetRolKlant(), "Naam", "Naam");
-            
-            ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten(), "Tijdstip", "Tijdstip", bestelling.Tijdslot.Tijdstip);
-            return RedirectToAction("Index");
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         // GET: Bestelling/Edit/5

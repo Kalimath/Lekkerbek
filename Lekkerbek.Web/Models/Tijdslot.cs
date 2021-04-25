@@ -23,7 +23,6 @@ namespace Lekkerbek.Web.Models
         public Tijdslot()
         {
         }
-        public virtual Agenda Agenda { get; set; }
 
     }
 }
