@@ -52,8 +52,15 @@ namespace Lekkerbek.Web.Context
             /**
              * Zonder GebruikersMetRolKlant                         
              */
-
-            return Bestellingen.Include("Tijdslot").ToList().FindAll(b => b.KlantId == klantId).Where(b => !b.IsAfgerond).ToList(); 
+            var bestellingen = Bestellingen
+                .Include(b => b.Tijdslot)
+                .Include(b => b.GerechtenLijst)
+                .Include(b => b.Klant)
+                .ToList()
+                .FindAll(m => m.KlantId == klantId)
+                .Where(b => !b.IsAfgerond).ToList();
+            return bestellingen; 
+            //return Bestellingen.Include("Tijdslot").ToList().FindAll(b => b.KlantId == klantId).Where(b => !b.IsAfgerond).ToList(); 
         }
 
         public ICollection<Gerecht> VoorkeursGerechtenVanKlanten(int klantId)

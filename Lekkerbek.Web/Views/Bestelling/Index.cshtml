@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<Lekkerbek.Web.Models.Bestelling>
-
+@using Lekkerbek.Web.Models.Identity
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -29,12 +29,13 @@
                 @Html.DisplayNameFor(model => model.Tijdslot)
             </th>
             @*<th>
-                Totaal bedrag
-            </th>*@
+                    Totaal bedrag
+                </th>*@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @foreach (var item in Model)
+        {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Levertijd)
@@ -52,16 +53,32 @@
                 @Html.DisplayFor(modelItem => item.Tijdslot.Tijdstip)
             </td>
             @*<td>
-               € € @{double totaal = item.getTotaalPrijs(item.GerechtenLijst.ToList());
-                       @Html.DisplayFor(m => totaal, "Totaal bedrag")
-                   }
-            </td>*@
+           € € @{double totaal = item.getTotaalPrijs(item.GerechtenLijst.ToList());
+                   @Html.DisplayFor(m => totaal, "Totaal bedrag")
+               }
+        </td>*@
         <td>
-            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-            <a asp-action="Details" asp-route-id="@item.Id">Factuur</a> |
-            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+            {
+                
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a>
+            }
+            @if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                @if (DateTime.Now < item.Tijdslot.Tijdstip.AddHours(-1))
+                {
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
+                }
+                @if (DateTime.Now < item.Tijdslot.Tijdstip.AddHours(-2))
+                {
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a>
+                }
+            }
+            <a asp-action="Details" asp-route-id="@item.Id">Factuur</a>
+
         </td>
         </tr>
-}
+        }
     </tbody>
 </table>

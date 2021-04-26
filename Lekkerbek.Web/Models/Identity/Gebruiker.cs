@@ -32,7 +32,8 @@ namespace Lekkerbek.Web.Models.Identity
         [Required]
         [DisplayName("Professionele gebruiker")]
         public bool IsProfessional { get; set; }
-
+        
+        [RegularExpression(@"^[A-Z]{2}[0-9]{9}[A-Z]{1}[0-9]{2}$", ErrorMessage ="Ongeldige BTW nummer")]
         [DisplayName("Btw-nummer")]
         public string BtwNummer { get; set; }
         [DisplayName("Firma naam")]

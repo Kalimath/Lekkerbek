@@ -9,7 +9,6 @@
 
 <h4>Bestelling</h4>
 <hr />
-<a asp-action="VoegGerechtenToe" asp-route-id="@Model.Id">Voeg een gerecht toe</a>
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
@@ -31,30 +30,75 @@
                 <span asp-validation-for="AantalMaaltijden" class="text-danger"></span>
             </div>
             @*<div class="form-group">
-                    <label asp-for="Klant.UserName" class="control-label"></label>
-                    <select asp-for="Klant.UserName" class="form-control" asp-items="ViewBag.Klanten"></select>
-                    <span asp-validation-for="Klant.UserName" class="text-danger"></span>
-                </div>*@
-            <div class="form-group">
-                <label asp-for="GerechtenLijst" class="control-label"></label>
-                <select asp-for="GerechtenLijst" class="form-control" asp-items="ViewBag.AlleGerechtenNamen" multiple="multiple"></select>
+            <label asp-for="Klant.UserName" class="control-label"></label>
+            <select asp-for="Klant.UserName" class="form-control" asp-items="ViewBag.Klanten"></select>
+            <span asp-validation-for="Klant.UserName" class="text-danger"></span>
+        </div>*@
+
+            @*<div class="form-group">
+            <label asp-for="Tijdslot" class="control-label"></label>
+            <select asp-for="Tijdslot" class="form-control" asp-items="ViewBag.Tijdslot.Tijdstip"></select>
+            <span asp-validation-for="Tijdslot" class="text-danger"></span>
+        </div>*@
+            @*<div class="form-group">
+            <label asp-for="Tijdslot" class="control-label"></label>
+            <select asp-for="Tijdslot" class="form-control" asp-items="ViewBag.Tijdslot"></select>
+        </div>*@
+            <div>
+                <p>Tijdslot</p>
+                <p>@Model.Tijdslot.Tijdstip</p><a asp-action="WijzigTijdslot" asp-route-id="@Model.Id" asp-route-tijdslotId="@Model.Tijdslot.Id" class="btn btn-primary">Verander het tijdslot</a>
             </div>
             @*<div class="form-group">
-                    <label asp-for="Tijdslot" class="control-label"></label>
-                    <select asp-for="Tijdslot" class="form-control" asp-items="ViewBag.Tijdslot.Tijdstip"></select>
-                    <span asp-validation-for="Tijdslot" class="text-danger"></span>
-                </div>*@
-            <div class="form-group">
-                <label asp-for="Tijdslot" class="control-label"></label>
-                <select asp-for="Tijdslot" class="form-control" asp-items="ViewBag.Tijdslot"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label asp-for="GerechtenLijst" class="control-label"></label>
+                <select asp-for="GerechtenLijst" class="form-control" asp-items="ViewBag.AlleGerechtenNamen" multiple="multiple"></select>
+            </div>*@
+            
+            <div class="form-group" style="padding-top:10px">
+                <input type="submit" value="Opslaan" class="btn btn-primary" />
+                <a asp-action="VoegGerechtenToe" asp-route-id="@Model.Id" class="btn btn-primary">Voeg een gerecht toe</a>
+
             </div>
         </form>
     </div>
 </div>
 
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.GerechtenLijst.First().Naam)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GerechtenLijst.First().Categorie)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.GerechtenLijst.First().Prijs)
+            </th>
+            <th>
+                Delete
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var gerecht in Model.GerechtenLijst)
+        {
+            <tr>
+                <td>
+                    @gerecht.Naam
+                </td>
+                <td>
+                    @gerecht.CategorieId
+                </td>
+                <td>
+                    € @gerecht.Prijs
+                </td>
+                <td>
+                    <a asp-action="VerwijderEenGerecht" asp-route-id="@gerecht.Naam" asp-route-bestellingid="@Model.Id"}>Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 <div>
     <a asp-action="Index">Back to List</a>
 </div>

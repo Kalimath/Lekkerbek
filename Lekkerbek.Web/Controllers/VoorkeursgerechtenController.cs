@@ -51,10 +51,11 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: VoorkeursgerechtenController/Create
-        public ActionResult Create()
+        public async Task<ActionResult> Create()
         {
+            var beschikbareGerechten = _context.Gerechten.ToList();
+            ViewData["Naam"] = new SelectList(beschikbareGerechten, "Naam", "Naam"); 
 
-            ViewData["Naam"] = new SelectList(_context.Gerechten.ToList(), "Naam", "Naam"); 
             return View();
         }
 
