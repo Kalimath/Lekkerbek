@@ -1,4 +1,4 @@
-﻿@using Microsoft.EntityFrameworkCore
+﻿@using Lekkerbek.Web.Models.Identity
 @model Lekkerbek.Web.Models.Bestelling
 
 @{
@@ -37,61 +37,112 @@
             @Html.DisplayFor(model => model.Klant.UserName)
         </dd>
         <dt class="col-sm-2">
-            Totaal bedrag
+            Status
+        </dt>
+        @if (Model.Tijdslot.InGebruikDoorKok != null)
+        {
+            if (Model.IsAfgerond)
+            {
+                <dd class="col-sm-10">
+                    Bestelling afgerond
+                </dd> 
+            }
+            else
+            {
+                <dd class="col-sm-10">
+                    In bereiding
+                </dd> 
+            }
+        }
+        else
+        {
+            <dd class="col-sm-10">
+                Bestelling geplaatst
+            </dd>
+        }
+    </dl>
+    <h4>
+        @Html.DisplayNameFor(model => model.GerechtenLijst)
+    </h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.GerechtenLijst.First().Naam)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.GerechtenLijst.First().Categorie)
+                </th>
+                <th>
+                    Prijs excl. btw*
+                </th>
+                <th>
+                    Prijs Incl. btw*
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (Gerecht gerecht in Model.GerechtenLijst)
+            {
+                <tr>
+                    <td>
+                        @gerecht.Naam
+                    </td>
+                    <td>
+                        @gerecht.CategorieId
+                    </td>
+                    <td>
+                        @gerecht.Prijs
+                    </td>
+                    <td>
+                        @gerecht.PrijsInclBtw()
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <dl class="row">
+        @*<dt class="col-sm-2">
+            Korting*
         </dt>
         <dd class="col-sm-10">
-            € @{double totaal = 0;
-                  foreach (Gerecht gerecht in Model.GerechtenLijst)
-                  {
-                      totaal += gerecht.Prijs;
-                  }
-                  totaal *= Model.AantalMaaltijden;
-                  /*if (Model.Klant.Bestellingen.Count+1>=3)
-                  {
-                     totaal*=0.7;
-                  }*/
-                  totaal = Math.Round(totaal,2);
-              @Html.DisplayFor(m => totaal, "Totaal bedrag")
-                }
+            @{
+                var korting = Math.Round(((double)ViewBag.TotaalPrijsInclBtw - (double)ViewBag.TotaalPrijs),2);
+
+            }
+            @korting
+        </dd>*@
+        <dt class="col-sm-2">
+            Totaal excl. btw*
+        </dt>
+        <dd class="col-sm-10">
+            @ViewBag.TotaalPrijs
         </dd>
-        <h4>
-            @Html.DisplayNameFor(model => model.GerechtenLijst)
-        </h4>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.GerechtenLijst.First().Naam)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.GerechtenLijst.First().Categorie)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.GerechtenLijst.First().Prijs)
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var gerecht in Model.GerechtenLijst)
-                {
-                    <tr>
-                        <td>
-                            @gerecht.Naam
-                        </td>
-                        <td>
-                            @gerecht.CategorieId
-                        </td>
-                        <td>
-                            € @gerecht.Prijs
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <dt class="col-sm-2">
+            Totaal incl. btw*
+        </dt>
+        <dd class="col-sm-10">
+            @ViewBag.TotaalPrijsInclBtw
+        </dd>
+
     </dl>
 </div>
+<p>* Prijzen in euro</p>
 <div>
-    <button onclick="window.print();return false;" class="btn-dark" value="Afdrukken">Afdrukken</button>
+    @if (!Model.IsAfgerond)
+    {
+    @if ((User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString())) && Model.Tijdslot.InGebruikDoorKok != null)
+    {
+        <form asp-controller="Bestelling" asp-action="Afronden" asp-route-id="@Model.Id">
+            <input type="submit" value="Bestelling afronden" />
+        </form>
+    }
+    }
+
+</div>
+<div>
+
+    <button onclick="window.print();return false;" class="btn-primary" value="Afdrukken">Afdrukken</button>
     <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Context
@@ -25,7 +26,7 @@ namespace Lekkerbek.Web.Context
         public DbSet<Role> Rollen { get; set; }
         public List<Gebruiker> GebruikersMetRolKlant()
         {
-            var klanten = from u in Users join r in UserRoles on u.Id equals r.UserId where r.RoleId == 3 select u;
+            var klanten = from u in Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten") join r in UserRoles on u.Id equals r.UserId where r.RoleId == 3 select u;
             return klanten.ToList();
         }
         public List<string> KlantNamen()
@@ -35,32 +36,40 @@ namespace Lekkerbek.Web.Context
             return klantNamen;
         }
 
-        public List<Tijdslot> Alletijdsloten()
+        /*public async Task<List<Gerecht>> AlleGerechten()
         {
-            return Tijdslot.ToList();
-        }
-        public List<Tijdslot> AlleVrijeTijdsloten()
-        {
-            return Tijdslot.Where(tijdslot => tijdslot.IsVrij).ToList();
-        }
+            return await Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToListAsync();
+        }*/
 
-        public List<Bestelling> OpenstaandeBestellingenVanKlantMetId(int klantId)
+        /*public List<Bestelling> AlleBestellingen()
         {
-            return Bestellingen.AsQueryable().Where(bestelling => GebruikersMetRolKlant().Select(gebruiker => gebruiker.Id).Any(i => bestelling.KlantId == i))
-                .Where(bestelling => !bestelling.IsAfgerond).ToList();
+            return Bestellingen.Include("Klant").Include(bestelling => bestelling.Tijdslot ).Include("GerechtenLijst").ToList();
+        }*/
+
+        /*public async Task<List<Gebruiker>> AlleGebruikers()
+        {
+            return await Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten").ToListAsync();
+        }*/
+
+        /*public async Task<List<Tijdslot>> Alletijdsloten()
+        {
+            return await Tijdslot.Include("InGebruikDoorKok").ToListAsync();
+        }*/
+        public async Task<List<Tijdslot>> AlleVrijeTijdsloten()
+        {
+            return await Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.IsVrij).ToListAsync();
         }
 
         public ICollection<Gerecht> VoorkeursGerechtenVanKlanten(int klantId)
         {
-
-            return Gebruikers.Include("Voorkeursgerechten").ToList().Find(gebruiker => gebruiker.Id == klantId).Voorkeursgerechten;
+            return Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten").ToList().Find(gebruiker => gebruiker.Id == klantId).Voorkeursgerechten;
         }
 
         //geeft rollen terug van gebruiker met id
         public List<String> GebruikerRollen(int userId)
         {
-            var rollen = from u in Users
-                join ur in UserRoles on u.Id equals ur.UserId where u.Id == userId
+            var rollen = from u in Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten")
+                         join ur in UserRoles on u.Id equals ur.UserId where u.Id == userId
                 join r in Rollen on ur.RoleId equals r.Id
                 select r.Name;
 
@@ -103,16 +112,26 @@ namespace Lekkerbek.Web.Context
         public DbSet<Lekkerbek.Web.Models.Tijdslot> Tijdslot { get; set; }
 
 
-        public List<Tijdslot> TijdslotenToegankelijkVoorKok(Gebruiker kok)
+        public async Task<List<Tijdslot>> TijdslotenToegankelijkVoorKok(Gebruiker kok)
         {
             var tijdsloten = new List<Tijdslot>();
-            if (Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok.Id == kok.Id).Count()>0)
+
+            //alle tijdsloten die aan kok zijn toegewezen
+            List<Tijdslot> list = await Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok!=null && tijdslot.InGebruikDoorKok.Id == kok.Id).ToListAsync();
+
+            //alle tijdsloten waarvan de bestelling nog niet is afgerond
+            IQueryable<Tijdslot> tijdsloten2 = from bestelling in Bestellingen.Include("Tijdslot")
+                join tijdslot in Tijdslot.Include("InGebruikDoorKok") on bestelling.Tijdslot.Id equals tijdslot.Id 
+                where (bestelling.IsAfgerond == false && list.Contains(tijdslot)&&tijdslot.InGebruikDoorKok==kok)
+                select tijdslot;
+
+            if (tijdsloten2.Count()>0)
             {
-                tijdsloten = Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok.Id == kok.Id).ToList();
+                tijdsloten = tijdsloten2.ToList();
             }
             else
             {
-                tijdsloten = Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok == null).ToList();
+                tijdsloten = await Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok == null).ToListAsync();
             }
             
             return tijdsloten;

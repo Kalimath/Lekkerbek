@@ -34,8 +34,7 @@ namespace Lekkerbek.Web.Controllers
             if (User.IsInRole(RollenEnum.Kok.ToString()))
             {
                 var currentUser = (await _userManager.GetUserAsync(HttpContext.User));
-                var tijdsloten = _context.TijdslotenToegankelijkVoorKok(currentUser);
-                tijdsloten.Select(tijdslot => tijdslot.IsVrij||tijdslot.InGebruikDoorKok ==null||tijdslot.InGebruikDoorKok.Id == currentUser.Id);
+                var tijdsloten = _context.TijdslotenToegankelijkVoorKok(currentUser).Result;
                 return View(tijdsloten.OrderBy(tijdslot => tijdslot.Tijdstip));
             }
             else

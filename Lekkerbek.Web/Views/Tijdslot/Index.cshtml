@@ -26,9 +26,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.IsVrij)
             </th>
-            <th>
-                In bereiding door
-            </th>
+            @*<th>
+                Bereidt door
+            </th>*@
         </tr>
     </thead>
     <tbody>
@@ -41,9 +41,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.IsVrij)
             </td>
-            <td>
+            @*<td>
                 @Html.DisplayFor(modelItem => item.InGebruikDoorKok.UserName)
-            </td>
+            </td>*@
             <td>
                 @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
                 {

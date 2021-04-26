@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
 {
+    [Authorize(Roles = "Admin,Kassamedewerker")]
     public class CategorieController : Controller
     {
         private readonly IdentityContext _context;
@@ -20,12 +22,14 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Categorie
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Categorie.ToListAsync());
         }
 
         // GET: Categorie/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)

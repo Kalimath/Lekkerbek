@@ -37,8 +37,7 @@
                         @Html.DisplayFor(modelItem => item.Prijs)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Naam">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Naam">Details</a> |
+                        <a asp-controller="Gerecht" asp-action="Details" asp-route-id="@item.Naam">Details</a> |
                         <a asp-action="Delete" asp-route-id="@item.Naam">Delete</a>
                     </td>
                 </tr>

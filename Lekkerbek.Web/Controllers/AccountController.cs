@@ -34,7 +34,7 @@ namespace Lekkerbek.Web.Controllers
             if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
                 ViewBag.GebruikersRollen = _context.HoogsteRollenGebruikers();
-                return View(await _context.Gebruikers.ToListAsync());
+                return View(_context.Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten"));
             }
             else
             {
@@ -45,17 +45,20 @@ namespace Lekkerbek.Web.Controllers
         // GET: Account/Details/5
         public async Task<IActionResult> Details(int id)
         {
+            Gebruiker gebruiker = null;
             if (id == null)
             {
                 return NotFound();
             }
-            var gebruiker = await _context.Gebruikers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            
-            /*if (User.IsInRole(RollenEnum.Klant.ToString()))
+            if (!User.IsInRole(RollenEnum.Admin.ToString()) || !User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
                 gebruiker = await _userManager.GetUserAsync(HttpContext.User);
-            }*/
+            }
+            else
+            {
+                gebruiker = await _context.Gebruikers
+                    .FirstOrDefaultAsync(m => m.Id == id);
+            }
             if (gebruiker == null)
             {
                 return NotFound();
@@ -86,6 +89,7 @@ namespace Lekkerbek.Web.Controllers
             return RedirectToRoute("Logout");
         }
 
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public IActionResult Create()
         {
             ViewBag.Rollen = new SelectList(Enum.GetValues<RollenEnum>());
@@ -97,7 +101,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> Create([Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam,Rol,PasswordHash")] GebruikerMetRolDto gebruikerDto)
         {
             if (ModelState.IsValid)
@@ -123,6 +127,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Account/Edit/5
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -144,6 +149,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> Edit(int id, [Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam")] Gebruiker gebruiker)
         {
             if (id != gebruiker.Id)

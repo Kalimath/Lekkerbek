@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
 {
-    [Authorize]
+    [AllowAnonymous]
     public class GerechtController : Controller
     {
         private readonly IdentityContext _context;
@@ -24,11 +24,10 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Gerecht
-        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var bestellingDbContext = _context.Gerechten.Include(g => g.Categorie);
-            return View(await bestellingDbContext.ToListAsync());
+            
+            return View(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"));
         }
 
         // GET: Gerecht/Details/5
@@ -40,9 +39,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var gerecht = await _context.Gerechten
-                .Include(g => g.Categorie)
-                .FirstOrDefaultAsync(m => m.Naam == id);
+            var gerecht = await _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").AsQueryable().FirstOrDefaultAsync(m => m.Naam == id);
             if (gerecht == null)
             {
                 return NotFound();
@@ -52,6 +49,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Gerecht/Create
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public IActionResult Create()
         {
             ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam");
@@ -81,6 +79,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Gerecht/Edit/5
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> Edit(string id)
         {
 
@@ -89,7 +88,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var gerecht = await _context.Gerechten.FindAsync(id);
+            var gerecht = _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToList().Find(gerecht1 => gerecht1.Naam.Equals(id));
             if (gerecht == null)
             {
                 return NotFound();
@@ -103,6 +102,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> Edit(string id, IFormCollection collection)
         {
             Gerecht gerecht = null; 
@@ -141,6 +141,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: Gerecht/Delete/5
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -148,8 +149,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var gerecht = await _context.Gerechten
-                .Include(g => g.Categorie)
+            var gerecht = await _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie")
                 .FirstOrDefaultAsync(m => m.Naam == id);
             if (gerecht == null)
             {
@@ -162,17 +162,18 @@ namespace Lekkerbek.Web.Controllers
         // POST: Gerecht/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var gerecht = await _context.Gerechten.FindAsync(id);
-            _context.Gerechten.Remove(gerecht);
+            var gerecht = _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToList().Find(gerecht1 => gerecht1.Naam.Equals(id));
+            _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToList().Remove(gerecht);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool GerechtExists(string id)
         {
-            return _context.Gerechten.Any(e => e.Naam == id);
+            return _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").Any(e => e.Naam == id);
         }
     }
 }

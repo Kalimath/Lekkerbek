@@ -28,9 +28,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Tijdslot)
             </th>
-            @*<th>
-                Totaal bedrag
-            </th>*@
         </tr>
     </thead>
     <tbody>
@@ -51,11 +48,6 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Tijdslot)
             </td>
-            @*<td>
-               € € @{double totaal = item.getTotaalPrijs(item.GerechtenLijst.ToList());
-                       @Html.DisplayFor(m => totaal, "Totaal bedrag")
-                   }
-            </td>*@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Factuur</a> |

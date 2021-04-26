@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin,Kassamedewerker,Klant")]
     public class VoorkeursgerechtenController : Controller
     {
         private readonly IdentityContext _context;

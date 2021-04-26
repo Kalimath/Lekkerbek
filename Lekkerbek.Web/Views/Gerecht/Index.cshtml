@@ -46,12 +46,12 @@
                         € @Html.DisplayFor(modelItem => item.Prijs)
                     </td>
                     <td>
-                    @if (User.IsInRole(RollenEnum.Admin.ToString()))
+                    @if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
                     {
                         <a asp-action="Edit" asp-route-id="@item.Naam">Edit</a>
                     }
                         <a asp-action="Details" asp-route-id="@item.Naam">Details</a> 
-                    @if (User.IsInRole(RollenEnum.Admin.ToString()))
+                    @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
                     {
                         <a asp-action="Delete" asp-route-id="@item.Naam" > Delete </a>
                     }
