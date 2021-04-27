@@ -62,7 +62,7 @@ namespace Lekkerbek.Web.Context
 
         public ICollection<Gerecht> VoorkeursGerechtenVanKlanten(int klantId)
         {
-            return Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten").ToList().Find(gebruiker => gebruiker.Id == klantId).Voorkeursgerechten;
+            return Gerechten.Include("VoorkeursgerechtenVanKlanten").Include("Categorie").Where(gerecht => gerecht.VoorkeursgerechtenVanKlanten.Any(gebruiker => gebruiker.Id == klantId)).ToList();
         }
 
         //geeft rollen terug van gebruiker met id

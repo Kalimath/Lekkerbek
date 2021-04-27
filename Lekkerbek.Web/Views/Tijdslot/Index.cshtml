@@ -41,9 +41,6 @@
             <td>
                 @Html.DisplayFor(modelItem => item.IsVrij)
             </td>
-            @*<td>
-                @Html.DisplayFor(modelItem => item.InGebruikDoorKok.UserName)
-            </td>*@
             <td>
                 @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
                 {

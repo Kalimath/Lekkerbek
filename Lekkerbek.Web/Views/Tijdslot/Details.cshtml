@@ -57,13 +57,15 @@
         {
             <dd class="col-sm-10">
                 Bestelling afgerond
-            </dd> 
+            </dd>
+
         }
         else
         {
             <dd class="col-sm-10">
                 In bereiding
-            </dd> 
+            </dd>
+
         }
     }
     else
@@ -72,6 +74,13 @@
             Bestelling geplaatst
         </dd>
     }
+
+    <dt class="col-sm-2">
+        Bereidt door
+    </dt>
+    <dd>
+        @Html.DisplayFor(modelItem => Model.InGebruikDoorKok.UserName)
+    </dd>
 
 </dl>
         <p></p>

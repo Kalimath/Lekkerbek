@@ -159,21 +159,20 @@ namespace Lekkerbek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> WijzigTijdslot(int id, int tijdslotId)
         {
-            var huidigtijdslot = _context.Alletijdsloten().Find(t => t.Id == tijdslotId); 
+            var huidigtijdslot = _context.Tijdslot.Find(tijdslotId); 
             var tijdsloten = _context.AlleVrijeTijdsloten();
-            var bestelling = _context.Bestellingen.Include("Tijdslot").ToList().Find(b => b.Id == id);
             ViewData["HuidigTijdslot"] = huidigtijdslot.Tijdstip; 
-            ViewData["Tijdslot"] = new SelectList(tijdsloten, "Id", "Tijdstip"); 
+            ViewData["Tijdslot"] = new SelectList(tijdsloten.Result, "Id", "Tijdstip"); 
             return View();
         }
         [HttpPost]
         public async Task<IActionResult> WijzigTijdslot(int id, int tijdslotid, IFormCollection collection)
         {
-            var huidigtijdslot = _context.Alletijdsloten().Find(t => t.Id == tijdslotid); 
+            var huidigtijdslot = _context.Tijdslot.Find(tijdslotid); 
             var tijdsloten = _context.AlleVrijeTijdsloten();
 
             var nieuwTijdslotId = int.Parse(collection["Tijdslot"]); 
-            var nieuwTijdSlot = _context.AlleVrijeTijdsloten().Find(nt => nt.Id == nieuwTijdslotId); 
+            var nieuwTijdSlot = _context.AlleVrijeTijdsloten().Result.Find(nt => nt.Id == nieuwTijdslotId); 
 
             var bestelling = _context.Bestellingen.Include("Tijdslot").ToList().Find(b => b.Id == id);
 
@@ -234,10 +233,10 @@ namespace Lekkerbek.Web.Controllers
                     Gebruiker klantVanBestelling = await _context.GebruikersMetRolKlant().AsQueryable().FirstAsync(klant => klant.UserName.Trim().ToLower().Equals(collection["Klant.Naam"].ToString().Trim().ToLower()));
                     bestelling = _context.Bestellingen.First(bestelling => bestelling.Id == id);
                     bestelling.AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]);
-                    bestelling.Klant = currentUser;
+                    bestelling.Klant = klantVanBestelling;
                     bestelling.Opmerkingen = collection["Opmerkingen"];
                     bestelling.Levertijd = DateTime.Parse(collection["Levertijd"]);
-                    bestelling.KlantId = currentUser.Id;
+                    bestelling.KlantId = klantVanBestelling.Id;
                     //bestelling.Tijdslot = new Tijdslot(DateTime.Parse(collection["Tijdslot"]));
 
                     //Maak tijdslot weer beschikbaar als dit is veranderd of bestelling is verwijderd.
