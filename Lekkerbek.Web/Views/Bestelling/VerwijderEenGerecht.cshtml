@@ -1,0 +1,39 @@
+﻿@model Lekkerbek.Web.Models.Gerecht
+
+@{
+    ViewData["Title"] = "VerwijderEenGerecht";
+}
+
+<h1>@Model.Naam</h1>
+
+<h3>Gerecht uit bestelling halen</h3>
+<div>
+    <h4>Gerecht</h4>
+    <hr />
+    <dl class="col">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Naam)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Naam)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Categorie)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Categorie.Naam)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Prijs)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Prijs)
+        </dd>
+    </dl>
+    
+    <form asp-action="VerwijderEenGerecht" asp-route-bestellingid="@Context.Request.Query["bestellingid"]">
+        <input type="hidden" asp-for="Naam" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

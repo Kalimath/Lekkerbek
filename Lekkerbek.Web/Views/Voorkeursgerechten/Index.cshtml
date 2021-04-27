@@ -9,11 +9,13 @@
 
 <p>
     <a class="btn btn-primary" asp-action="Create">Voeg Nieuw voorkeurgerecht toe</a>
-    <a>@ViewBag.User</a>
 </p>
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Naam)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Categorie)
             </th>
@@ -31,6 +33,9 @@
             {
                 <tr>
                     <td>
+                        @Html.DisplayFor(modelItem => item.Naam)
+                    </td>
+                    <td>
                         @Html.DisplayFor(modelItem => item.Categorie.Naam)
                     </td>
                     <td>
@@ -39,8 +44,7 @@
                     <td>
                         <a asp-controller="Gerecht" asp-action="Details" asp-route-id="@item.Naam">Details</a> |
                         <a asp-action="Delete" asp-route-id="@item.Naam">Delete</a>
-                    </td>
-                </tr>
+                    </td></tr>
             }
         </tbody>
     }
