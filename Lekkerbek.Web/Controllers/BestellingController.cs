@@ -191,7 +191,8 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-
+            
+            
             //var bestelling = _context.Bestellingen.Include("Tijdslot").ToList().Find(g => g.Id == id);
             var bestelling = await _context.Bestellingen
                 .Include(b => b.Tijdslot)
@@ -201,17 +202,20 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-            /**
-             * In comment want View-site beperking => in geval admin iets met bestellingen wilt doen 
-             * gaat niet vanwege beperking
-             */
-            /*if (DateTime.Now > bestelling.Tijdslot.Tijdstip.AddHours(-1))
-            {
-                return RedirectToAction(nameof(Index));
-            }*/
 
-            _context.Tijdslot.Include("InGebruikDoorKok").ToList().Find(tijdslot => tijdslot.Tijdstip == bestelling.Tijdslot.Tijdstip).IsVrij = true;
-            ViewData["Klanten"] = new SelectList(_context.GebruikersMetRolKlant(), "Naam", "Naam");
+            //Check welke gebruiker request doet vervolgens nakijken of tijdslot verstreken is
+            if (!(User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString())))
+            {
+                if (DateTime.Now > bestelling.Tijdslot.Tijdstip.AddHours(-1))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+
+            //_context.Tijdslot.Include("InGebruikDoorKok").ToList().Find(tijdslot => tijdslot.Tijdstip == bestelling.Tijdslot.Tijdstip).IsVrij = true;
+            ViewData["HuidigeKlant"] = _context.GebruikersMetRolKlant().Find(k=> k.Id == bestelling.KlantId); 
+            ViewData["Klanten"] = new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName");
             ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
             ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip");
             return View(bestelling);
@@ -225,18 +229,24 @@ namespace Lekkerbek.Web.Controllers
         public async Task<IActionResult> Edit(int id, IFormCollection collection)
         {
             Bestelling bestelling = null;
+            
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    Gebruiker klantVanBestelling = await _context.GebruikersMetRolKlant().AsQueryable().FirstAsync(klant => klant.UserName.Trim().ToLower().Equals(collection["Klant.Naam"].ToString().Trim().ToLower()));
-                    bestelling = _context.Bestellingen.First(bestelling => bestelling.Id == id);
+
+                    bestelling = _context.Bestellingen.First(bestelling => bestelling.Id == id); 
                     bestelling.AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]);
-                    bestelling.Klant = klantVanBestelling;
                     bestelling.Opmerkingen = collection["Opmerkingen"];
                     bestelling.Levertijd = DateTime.Parse(collection["Levertijd"]);
-                    bestelling.KlantId = klantVanBestelling.Id;
+
+                    if (User.IsInRole(RollenEnum.Admin.ToString()))
+                    { 
+                        Gebruiker klantVanBestelling =  _context.GebruikersMetRolKlant().AsQueryable().First(klant => klant.Id == int.Parse(collection["Klant"]));
+                        bestelling.Klant = klantVanBestelling;
+                        bestelling.KlantId = klantVanBestelling.Id;
+                    }
                     //bestelling.Tijdslot = new Tijdslot(DateTime.Parse(collection["Tijdslot"]));
 
                     //Maak tijdslot weer beschikbaar als dit is veranderd of bestelling is verwijderd.
@@ -258,7 +268,7 @@ namespace Lekkerbek.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Klanten"] = new SelectList(_context.GebruikersMetRolKlant(), "Naam", "Naam");
+            ViewData["Klanten"] = new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName");
             ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
             ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip");
             return View(bestelling);
@@ -277,15 +287,14 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-            /**
-             * In comment want View-site beperking => in geval admin iets met bestellingen wilt doen 
-             * gaat niet vanwege beperking
-             */
-
-            /*if (DateTime.Now > bestelling.Tijdslot.Tijdstip.AddHours(-2))
+            //Check welke gebruiker request doet vervolgens nakijken of tijdslot verstreken is
+            if (!(User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString())))
             {
-                return RedirectToAction(nameof(Index)); 
-            }*/
+                if (DateTime.Now > bestelling.Tijdslot.Tijdstip.AddHours(-2))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
             return View(bestelling);
 
         }
