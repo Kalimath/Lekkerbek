@@ -27,7 +27,7 @@ namespace Lekkerbek.Web.Controllers
         public async Task<IActionResult> Index()
         {
             
-            return View(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"));
+            return View(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").OrderBy(gerecht => gerecht.Categorie));
         }
 
         // GET: Gerecht/Details/5
