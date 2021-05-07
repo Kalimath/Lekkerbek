@@ -31,15 +31,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: Bestelling
         public async Task<IActionResult> Index()
         {
-            if (User.IsInRole(RollenEnum.Klant.ToString()))
-            {
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-                return View(OpenstaandeBestellingenVanKlantMetId(currentUser.Id));
-            }
-            else
-            {
-                return View(AlleBestellingen().Result);
-            }
+            return View();
         }
 
         // GET: Bestelling/Details/5
@@ -382,6 +374,19 @@ namespace Lekkerbek.Web.Controllers
             }
 
             return Math.Round(totaalPrijs, 2); ;
+        }
+
+        public JsonResult LaadAlleBestellingen()
+        {
+            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                var currentUser = _userManager.GetUserAsync(HttpContext.User);
+                return Json(new {data = OpenstaandeBestellingenVanKlantMetId(currentUser.Id)});
+            }
+            else
+            {
+                return Json(new { data = AlleBestellingen().Result});
+            }
         }
 
         /*public async Task<IActionResult> MijnBestellingen(int? klantId)

@@ -9,8 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models.Dtos;
 using Lekkerbek.Web.Models.Identity;
+using Lekkerbek.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SQLitePCL;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -33,8 +36,9 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
-                ViewBag.GebruikersRollen = _context.HoogsteRollenGebruikers();
-                return View(_context.Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten"));
+                /*ViewBag.GebruikersRollen = _context.HoogsteRollenGebruikers();
+                return View(_context.Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten"));*/
+                return View();
             }
             else
             {
@@ -212,6 +216,27 @@ namespace Lekkerbek.Web.Controllers
         private bool GebruikerExists(int id)
         {
             return _context.Gebruikers.Any(e => e.Id == id);
+        }
+
+        public List<GebruikerMetRolViewModel> GebruikersMetRolViewModels()
+        {
+            IQueryable<GebruikerMetRolViewModel> viewmodels = from u in _context.Gebruikers
+                select new GebruikerMetRolViewModel()
+                {
+                    Id = u.Id,
+                    Gebruikersnaam = u.UserName,
+                    Email = u.Email,
+                    Adres = u.Adres,
+                    Geboortedatum = u.Geboortedatum,
+                    Rol = _context.GebruikerHoogsteRol(u.Id)
+                };
+
+            return viewmodels.ToList();
+        }
+
+        public JsonResult LaadAlleGebruikersMetRol()
+        {
+            return Json(new { data = GebruikersMetRolViewModels() });
         }
     }
 }

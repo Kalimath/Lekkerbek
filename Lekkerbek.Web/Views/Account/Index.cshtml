@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity.UI.V4.Pages.Internal.Account
-@model IEnumerable<Lekkerbek.Web.Models.Identity.Gebruiker>
+@model IEnumerable<Lekkerbek.Web.ViewModels.GebruikerMetRolViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -11,11 +11,17 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
+<table class="table" id="usersTable">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.UserName)
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Gebruikersnaam)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Adres)
@@ -24,41 +30,67 @@
                 @Html.DisplayNameFor(model => model.Geboortedatum)
             </th>
             <th>
-                Rol
+                @Html.DisplayNameFor(model => model.Rol)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
+
 
         </tr>
     </thead>
-    <tbody>
-    @{
-        Dictionary<int,string> rollenGebruikers = ViewBag.GebruikersRollen;
-    }
-    @foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.UserName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Adres)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Geboortedatum)
-            </td>
-            <td>
-                @rollenGebruikers[item.Id]
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
+    
 </table>
+
+@section Scripts {
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script>
+        $(function () {
+            $('#usersTable').DataTable({
+                "ajax": {
+                    "url": "/Account/LaadAlleGebruikersMetRol",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "Id" },
+                    { "data": "Gebruikersnaam" },
+                    { "data": "Email" },
+                    { "data": "Adres" },
+                    { "data": "Geboortedatum" },
+                    { "data": "Rol" },
+                    /*{ "data": null, "defaultContent": "<a href='' class='edit'>Edit</a>" },
+                    { "data": null, "defaultContent": "<a href='' class='del'>Delete</a>"}*/
+                ]
+            });
+        });
+
+        $('#usersTable tbody').on('click', 'tr', function() {
+
+                var id = $("td:first", this).text(); $.get('@Url.Action("Details","Account")', { id: id }, function(data) {
+                    $("body").html(data);
+                });
+        });
+
+        $('#usersTable tbody').on('click', 'tr', function (e) {
+            e.preventDefault();
+            var id = $("td:first", this).text();
+            if ($(e.target).is("a.del")) { $.get('@Url.Action("Delete","Account")', { id: id }, function (data) {
+                    $("body").html(data);
+                });
+                return;
+            }
+            if ($(e.target).is("a.edit")) { $.get('@Url.Action("Edit","Account")', { id: id }, function (data) {
+                    $("body").html(data);
+                });
+                return;
+            }
+            $.get('@Url.Action("Details","Account")', { id: id }, function (data) {
+                $("body").html(data);
+            });
+        });
+
+
+    </script> }
+<style>
+    #usersTable tbody tr {
+        cursor: pointer;
+    }
+</style>
