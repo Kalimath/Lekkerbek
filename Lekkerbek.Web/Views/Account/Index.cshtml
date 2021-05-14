@@ -1,12 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Identity.UI.V4.Pages.Internal.Account
 @model IEnumerable<Lekkerbek.Web.ViewModels.GebruikerMetRolViewModel>
 
-@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+
+
+@{ ViewData["Title"] = "Index";
+                Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+
+
 
 <h1>Index</h1>
+
+
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -32,15 +37,23 @@
             <th>
                 @Html.DisplayNameFor(model => model.Rol)
             </th>
-
-
+            <th></th>
+            <th></th>
         </tr>
     </thead>
-    
+
+
+
 </table>
+
+
 
 @section Scripts {
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+
+
+
     <script>
         $(function () {
             $('#usersTable').DataTable({
@@ -54,38 +67,49 @@
                     { "data": "Gebruikersnaam" },
                     { "data": "Email" },
                     { "data": "Adres" },
-                    { "data": "Geboortedatum" },
+                    {
+                        'data': 'Geboortedatum',
+                        'render': function (d) {
+                            return moment(d).format("DD/MM/YYYY");
+                        }
+                    },
                     { "data": "Rol" },
-                    /*{ "data": null, "defaultContent": "<a href='' class='edit'>Edit</a>" },
-                    { "data": null, "defaultContent": "<a href='' class='del'>Delete</a>"}*/
+                    { "data": null, "defaultContent": "<a href='' class='edit'>Edit</a>" },
+                    { "data": null, "defaultContent": "<a href='' class='del'>Delete</a>"}
                 ]
             });
-        });
 
-        $('#usersTable tbody').on('click', 'tr', function() {
 
-                var id = $("td:first", this).text(); $.get('@Url.Action("Details","Account")', { id: id }, function(data) {
+
+            $('#usersTable tbody').on('click', 'tr', function (e) {
+
+
+
+                e.preventDefault();
+                var id = $("td:first", this).text();
+
+
+
+                if ($(e.target).is("a.del")) { $.get('@Url.Action("Delete","Account")', { id: id }, function (data) {
+                        $("body").html(data);
+                    });
+                    return;
+                }
+                if ($(e.target).is("a.edit")) { $.get('@Url.Action("Edit","Account")', { id: id }, function (data) {
+                        $("body").html(data);
+                    });
+                    return;
+                }
+                $.get('@Url.Action("Details","Account")', { id: id }, function (data) {
                     $("body").html(data);
                 });
-        });
-
-        $('#usersTable tbody').on('click', 'tr', function (e) {
-            e.preventDefault();
-            var id = $("td:first", this).text();
-            if ($(e.target).is("a.del")) { $.get('@Url.Action("Delete","Account")', { id: id }, function (data) {
-                    $("body").html(data);
-                });
-                return;
-            }
-            if ($(e.target).is("a.edit")) { $.get('@Url.Action("Edit","Account")', { id: id }, function (data) {
-                    $("body").html(data);
-                });
-                return;
-            }
-            $.get('@Url.Action("Details","Account")', { id: id }, function (data) {
-                $("body").html(data);
             });
+
+
+
+
         });
+
 
 
     </script> }

@@ -31,7 +31,15 @@ namespace Lekkerbek.Web.Controllers
         // GET: Bestelling
         public async Task<IActionResult> Index()
         {
-            return View();
+            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                return View(OpenstaandeBestellingenVanKlantMetId(currentUser.Id));
+            }
+            else
+            {
+                return View(AlleBestellingen().Result);
+            }
         }
 
         // GET: Bestelling/Details/5
