@@ -11,10 +11,10 @@ namespace Lekkerbek.Web.Services
         public Task<List<Bestelling>> GetAlleBestellingen();
         public Bestelling GetBestelling(int id);
 
-        public ICollection<Bestelling> GetBestellingenVanKlant(int klantId);
-        public bool SetBestellingen(ICollection<Bestelling> bestellingen);
-        public bool AddBestelling(Bestelling bestelling);
-        public bool DeleteBestelling(int id);
+        public List<Bestelling> GetBestellingenVanKlant(int klantId);
+        public Task<bool> SetBestellingen(ICollection<Bestelling> bestellingen);
+        public Task<bool> AddBestelling(Bestelling bestelling);
+        public Task<bool> DeleteBestelling(int id);
     }
 
 }

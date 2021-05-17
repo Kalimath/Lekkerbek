@@ -23,10 +23,9 @@ namespace Lekkerbek.Web.Services
 
         public Bestelling GetBestelling(int id)
         {
-            if (_context.Bestellingen.Any(bestelling => bestelling.Id == id))
+            if (BestellingExists(id))
             {
-                return _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst")
-                    .FirstAsync(bestelling1 => bestelling1.Id == id).Result;
+                return GetAlleBestellingen().Result.FirstOrDefault(bestelling1 => bestelling1.Id == id);
             }
             else
             {
@@ -35,24 +34,75 @@ namespace Lekkerbek.Web.Services
             
         }
 
-        public ICollection<Bestelling> GetBestellingenVanKlant(int klantId)
+        public List<Bestelling> GetBestellingenVanKlant(int klantId)
         {
-            throw new NotImplementedException();
+            if (_context.GebruikersMetRolKlant().Any(gebruiker => gebruiker.Id == klantId))
+            {
+                return GetAlleBestellingen().Result.Where(bestelling => bestelling.KlantId == klantId).ToList();
+            }
+            else
+            {
+                throw new ServiceException("Kon geen bestelling van klant vinden met opgegeven klant-id: "+klantId);
+            }
         }
 
-        public bool SetBestellingen(ICollection<Bestelling> bestellingen)
+        public async Task<bool> SetBestellingen(ICollection<Bestelling> bestellingen)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _context.Bestellingen.AddRange(bestellingen);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
+
+            
         }
 
-        public bool AddBestelling(Bestelling bestelling)
+        public async Task<bool> AddBestelling(Bestelling bestelling)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _context.Bestellingen.Add(bestelling);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return false;
+            }
         }
 
-        public bool DeleteBestelling(int id)
+        public Task<bool> DeleteBestelling(int id)
         {
-            throw new NotImplementedException();
+            if (BestellingExists(id))
+            {
+                try
+                {
+                    _context.Bestellingen.Remove(GetBestelling(id));
+                    _context.SaveChangesAsync();
+                    return Task.FromResult(true);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    return Task.FromResult(false);
+                }
+            }
+            else
+            {
+                return Task.FromResult(false);
+            }
+        }
+
+        public bool BestellingExists(int bestellingId)
+        {
+            return _context.Bestellingen.Any(bestelling => bestelling.Id == bestellingId);
         }
     }
 }
