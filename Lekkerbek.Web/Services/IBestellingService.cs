@@ -15,6 +15,8 @@ namespace Lekkerbek.Web.Services
         public Task<bool> SetBestellingen(ICollection<Bestelling> bestellingen);
         public Task<bool> AddBestelling(Bestelling bestelling);
         public Task<bool> DeleteBestelling(int id);
+        public Task<bool> AddGerechtAanBestelling(int id, Gerecht gerecht);
+        public bool deleteGerechtVanBestelling(int gerechtId, int bestellingId);
     }
 
 }

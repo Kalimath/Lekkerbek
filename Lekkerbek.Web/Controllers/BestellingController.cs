@@ -37,7 +37,7 @@ namespace Lekkerbek.Web.Controllers
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
                 var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-                return View(OpenstaandeBestellingenVanKlantMetId(currentUser.Id));
+                return View(_bestellingService.GetBestellingenVanKlant(currentUser.Id));
             }
             else
             {
@@ -56,8 +56,8 @@ namespace Lekkerbek.Web.Controllers
             if (this.BestellingExists((int) id))
             {
                 Bestelling bestelling = _bestellingService.GetBestelling((int)id);
-                bestelling.Tijdslot = await _context.Tijdslot.Include(tijdslot => tijdslot.InGebruikDoorKok)
-                    .FirstAsync(tijdslot => tijdslot.Id == bestelling.Tijdslot.Id);
+                /*bestelling.Tijdslot = await _context.Tijdslot.Include(tijdslot => tijdslot.InGebruikDoorKok)
+                    .FirstAsync(tijdslot => tijdslot.Id == bestelling.Tijdslot.Id);*/
                 ViewBag.TotaalPrijs = GerechtenTotaalPrijsAsync(bestelling, false).Result;
                 ViewBag.TotaalPrijsInclBtw = GerechtenTotaalPrijsAsync(bestelling, true).Result;
                 return View(bestelling);
@@ -110,9 +110,8 @@ namespace Lekkerbek.Web.Controllers
                 {
                     bestelling.KlantId = int.Parse(collection["Klant"]); 
                 }
-                
-                _context.Bestellingen.Add(bestelling);
-                await _context.SaveChangesAsync();
+                await _bestellingService.AddBestelling(bestelling);
+
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception e)
@@ -131,14 +130,9 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> VoegGerechtenToe(int id, IFormCollection collection)
         {
-            var gerecht = await _context.Gerechten.FirstAsync(g => g.Naam.Equals(collection["Naam"])); 
-            var bestelling = await _context.Bestellingen.FindAsync(id);
-            if(bestelling.GerechtenLijst == null)
-            {
-                bestelling.GerechtenLijst = new List<Gerecht>(); 
-            }
-            bestelling.GerechtenLijst.Add(gerecht);
-            await _context.SaveChangesAsync();
+            var gerecht = await _context.Gerechten.FirstAsync(g => g.Naam.Equals(collection["Naam"]));
+            Bestelling bestelling = _bestellingService.GetBestelling(id);
+            await _bestellingService.AddGerechtAanBestelling(id, gerecht);
             return RedirectToAction(nameof(Index));
         }
         [HttpGet]
