@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models.Identity;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,7 +45,7 @@ namespace Lekkerbek.Web
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
             }, ServiceLifetime.Transient);
             services.AddTransient<IdentityContext>();
-
+            services.AddTransient<IBestellingService, BestellingService>();
             services.Configure<IdentityOptions>(options =>
             {
                 //options.SignIn.RequireConfirmedAccount = false;

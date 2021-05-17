@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -21,11 +22,13 @@ namespace Lekkerbek.Web.Controllers
         private readonly IdentityContext _context;
         private readonly RoleManager<Role> _roleManager;
         private readonly UserManager<Gebruiker> _userManager;
-        public BestellingController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
+        private readonly IBestellingService _bestellingService;
+        public BestellingController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager, IBestellingService bestellingService)
         {
             _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
+            _bestellingService = bestellingService;
         }
 
         // GET: Bestelling
@@ -38,7 +41,7 @@ namespace Lekkerbek.Web.Controllers
             }
             else
             {
-                return View(AlleBestellingen().Result);
+                return View(await _bestellingService.GetAlleBestellingen());
             }
         }
 
@@ -52,7 +55,7 @@ namespace Lekkerbek.Web.Controllers
 
             if (this.BestellingExists((int) id))
             {
-                Bestelling bestelling = await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").FirstAsync(bestelling1 => bestelling1.Id == id);
+                Bestelling bestelling = _bestellingService.GetBestelling((int)id);
                 bestelling.Tijdslot = await _context.Tijdslot.Include(tijdslot => tijdslot.InGebruikDoorKok)
                     .FirstAsync(tijdslot => tijdslot.Id == bestelling.Tijdslot.Id);
                 ViewBag.TotaalPrijs = GerechtenTotaalPrijsAsync(bestelling, false).Result;
@@ -282,7 +285,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var bestelling = AlleBestellingen().Result.First(bestelling1 => bestelling1.Id == id);
+            var bestelling = _bestellingService.GetAlleBestellingen().Result.First(bestelling1 => bestelling1.Id == id);
             if (bestelling == null)
             {
                 return NotFound();
@@ -307,7 +310,7 @@ namespace Lekkerbek.Web.Controllers
             var bestelling = await _context.Bestellingen.FindAsync(id);
 
             //Maak tijdslot weer beschikbaar als dit is veranderd of bestelling is verwijderd.
-            if (bestelling.Tijdslot != AlleBestellingen().Result.Find(bestelling1 => bestelling1.Id == id).Tijdslot)
+            if (bestelling.Tijdslot != _bestellingService.GetAlleBestellingen().Result.Find(bestelling1 => bestelling1.Id == id).Tijdslot)
             {
                 _context.Tijdslot.Include("InGebruikDoorKok").ToList().Find(tijdslot => tijdslot.Tijdstip == _context.Bestellingen.Find(id).Tijdslot.Tijdstip).IsVrij = true;
             }
@@ -337,13 +340,9 @@ namespace Lekkerbek.Web.Controllers
 
         private bool BestellingExists(int id)
         {
-            return AlleBestellingen().Result.Any(e => e.Id == id);
+            return _bestellingService.GetAlleBestellingen().Result.Any(e => e.Id == id);
         }
 
-        public async Task<List<Bestelling>> AlleBestellingen()
-        {
-            return await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").ToListAsync();
-        }
 
         public List<Bestelling> OpenstaandeBestellingenVanKlantMetId(int klantId)
         {
@@ -393,7 +392,7 @@ namespace Lekkerbek.Web.Controllers
             }
             else
             {
-                return Json(new { data = AlleBestellingen().Result});
+                return Json(new { data = _bestellingService.GetAlleBestellingen().Result});
             }
         }
 
