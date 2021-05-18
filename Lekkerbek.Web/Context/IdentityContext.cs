@@ -36,25 +36,6 @@ namespace Lekkerbek.Web.Context
             return klantNamen;
         }
 
-        /*public async Task<List<Gerecht>> AlleGerechten()
-        {
-            return await Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToListAsync();
-        }*/
-
-        /*public List<Bestelling> AlleBestellingen()
-        {
-            return Bestellingen.Include("Klant").Include(bestelling => bestelling.Tijdslot ).Include("GerechtenLijst").ToList();
-        }*/
-
-        /*public async Task<List<Gebruiker>> AlleGebruikers()
-        {
-            return await Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten").ToListAsync();
-        }*/
-
-        /*public async Task<List<Tijdslot>> Alletijdsloten()
-        {
-            return await Tijdslot.Include("InGebruikDoorKok").ToListAsync();
-        }*/
         public async Task<List<Tijdslot>> AlleVrijeTijdsloten()
         {
             return await Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.IsVrij).ToListAsync();

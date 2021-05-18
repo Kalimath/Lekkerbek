@@ -38,7 +38,15 @@ namespace Lekkerbek.Web.Services
         {
             if (_context.Gebruikers.Any(gebruiker => gebruiker.Id == klantId))
             {
-                return GetAlleBestellingen().Result.Where(bestelling => bestelling.KlantId == klantId).ToList();
+                try
+                {
+                    return GetAlleBestellingen().Result.Where(bestelling => bestelling.KlantId == klantId).ToList();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
             }
             else
             {
@@ -46,73 +54,92 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async Task<bool> SetBestellingen(ICollection<Bestelling> bestellingen)
+        public async void SetBestellingen(ICollection<Bestelling> bestellingen)
         {
             try
             {
                 _context.Bestellingen.AddRange(bestellingen);
                 await _context.SaveChangesAsync();
-                return true;
+                
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return false;
+                throw;
             }
 
             
         }
 
-        public async Task<bool> AddBestelling(Bestelling bestelling)
+        public async void AddBestelling(Bestelling bestelling)
         {
             try
             {
                 _context.Bestellingen.Add(bestelling);
                 await _context.SaveChangesAsync();
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return false;
+                throw;
             }
         }
 
-        public async Task<bool> DeleteBestelling(int id)
+        public async void DeleteBestelling(int id)
         {
-            if (BestellingExists(id))
+            try
             {
-                try
+                if (BestellingExists(id))
                 {
                     _context.Bestellingen.Remove(GetBestelling(id));
                     await _context.SaveChangesAsync();
-                    return true;
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine(e);
-                    return false;
+                    throw new ServiceException("Kon bestelling met id: " +id+ " niet verwijderen: bestelling niet in database");
                 }
             }
-            else
+            catch (Exception e)
             {
-                return false;
+                Console.WriteLine(e);
+                throw;
             }
         }
 
-        public async Task<bool> AddGerechtAanBestelling(int id, Gerecht gerecht)
+        public async void UpdateBestelling(Bestelling bestelling)
         {
-            bool result = false;
-            if (gerecht == null)
-            {
-                throw new ServiceException("Kon geen lege gerechtenlijst toevoegen aan een bestelling met id: " + id);
-            }
             try
             {
+                if (BestellingExists(bestelling.Id))
+                {
+                    _context.Update(bestelling);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new ServiceException("Kon bestelling met id: " + bestelling.Id + " niet aanpassen: bestelling niet in database");
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public async void AddGerechtAanBestelling(int id, Gerecht gerecht)
+        {
+            try
+            {
+                if (gerecht == null)
+                {
+                    throw new ServiceException("Kon geen lege gerechtenlijst toevoegen aan een bestelling met id: " + id);
+                }
                 Bestelling bestelling = null;
                 if (!BestellingExists(id))
                 {
-                    throw new ServiceException("Kon geen gerechten toevoegen aan een onbestaande bestelling met id: "+id);
+                    throw new ServiceException("Kon geen gerechten toevoegen aan een bestelling met id: "+id+ " die niet in de database zit");
                 }
                 else
                 {
@@ -125,31 +152,26 @@ namespace Lekkerbek.Web.Services
                 }
                 bestelling.GerechtenLijst.Add(gerecht);
                 await _context.SaveChangesAsync();
-                result = true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                throw;
             }
-
-            return result;
-
-
         }
 
-        public async Task<bool> deleteGerechtVanBestelling(int gerechtId, int bestellingId)
+        public async void DeleteGerechtVanBestelling(string gerechtNaam, int bestellingId)
         {
-            bool result = false;
             try
             {
-                if (BestellingExists(bestellingId))
+                if (GerechtExistsInBestelling(gerechtNaam, bestellingId))
                 {
-                    //todo
+                    GetBestelling(bestellingId).GerechtenLijst.Remove(_context.Gerecht.Find(gerechtNaam));
+                    await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    throw new ServiceException("Kon geen gerecht met id: " + gerechtId+
-                                               " verwijderen uit een onbestaande bestelling met id: " + bestellingId);
+                    throw new ServiceException("Kon gerecht (Naam=" + gerechtNaam + ") niet verwijderen uit bestelling met id: " + bestellingId);
                 }
             }
             catch (Exception e)
@@ -157,13 +179,30 @@ namespace Lekkerbek.Web.Services
                 Console.WriteLine(e);
                 throw;
             }
-
-            return result;
         }
 
+         
         public bool BestellingExists(int bestellingId)
         {
             return _context.Bestellingen.Any(bestelling => bestelling.Id == bestellingId);
+        }
+
+        public bool GerechtExistsInBestelling(string gerechtNaam, int bestellingId)
+        {
+            bool result = false;
+            if (gerechtNaam != null && !gerechtNaam.Equals(""))
+            {
+                if (BestellingExists(bestellingId) && GetBestelling(bestellingId).GerechtenLijst.Any(gerecht => gerecht.Naam.Equals(gerechtNaam)))
+                {
+                    result = true;
+                }
+            }
+            return result;
+        }
+
+        public async Task<int> AantalBestellingenVanKlant(int klantId)
+        {
+            return await GetBestellingenVanKlant(klantId).AsQueryable().CountAsync(b => b.KlantId == klantId);
         }
     }
 }

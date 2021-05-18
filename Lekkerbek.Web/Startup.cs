@@ -46,6 +46,7 @@ namespace Lekkerbek.Web
             }, ServiceLifetime.Transient);
             services.AddTransient<IdentityContext>();
             services.AddTransient<IBestellingService, BestellingService>();
+            services.AddTransient<IGebruikerService, GebruikerService>();
             services.Configure<IdentityOptions>(options =>
             {
                 //options.SignIn.RequireConfirmedAccount = false;
