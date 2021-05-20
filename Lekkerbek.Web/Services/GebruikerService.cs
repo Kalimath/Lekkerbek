@@ -51,7 +51,7 @@ namespace Lekkerbek.Web.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw new ServiceException("Kon geen gebruiker vindenmet rol KLANT en id: " + gebruikerId);
+                throw new ServiceException("Kon geen gebruiker vinden met rol KLANT en id: " + gebruikerId);
             }
         }
 

@@ -16,9 +16,9 @@ namespace Lekkerbek.Web.Services
         {
             _context = context;
         }
-        public Task<List<Bestelling>> GetAlleBestellingen()
+        public async Task<List<Bestelling>> GetAlleBestellingen()
         {
-            return _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").ToListAsync();
+            return await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").ToListAsync();
         }
 
         public Bestelling GetBestelling(int id)
@@ -151,12 +151,13 @@ namespace Lekkerbek.Web.Services
                     bestelling.GerechtenLijst = new List<Gerecht>();
                 }
                 bestelling.GerechtenLijst.Add(gerecht);
+                _context.Update(bestelling);
                 await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new ServiceException(e.Message);
             }
         }
 
