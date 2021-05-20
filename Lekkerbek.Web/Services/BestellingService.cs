@@ -200,9 +200,9 @@ namespace Lekkerbek.Web.Services
             return result;
         }
 
-        public async Task<int> AantalBestellingenVanKlant(int klantId)
+        public int AantalBestellingenVanKlant(int klantId)
         {
-            return await GetBestellingenVanKlant(klantId).AsQueryable().CountAsync(b => b.KlantId == klantId);
+            return GetBestellingenVanKlant(klantId).ToList().Count;
         }
     }
 }

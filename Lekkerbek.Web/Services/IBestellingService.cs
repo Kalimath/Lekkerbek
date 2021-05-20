@@ -19,7 +19,7 @@ namespace Lekkerbek.Web.Services
         public void DeleteGerechtVanBestelling(string gerechtNaam, int bestellingId);
         public bool BestellingExists(int bestellingId);
         public bool GerechtExistsInBestelling(string gerechtNaam, int bestellingId);
-        public Task<int> AantalBestellingenVanKlant(int klantId);
+        public int AantalBestellingenVanKlant(int klantId);
 
     }
 

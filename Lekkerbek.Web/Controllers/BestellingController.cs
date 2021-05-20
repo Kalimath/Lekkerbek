@@ -59,8 +59,8 @@ namespace Lekkerbek.Web.Controllers
             if (_bestellingService.BestellingExists((int) id))
             {
                 Bestelling bestelling = _bestellingService.GetBestelling((int)id);
-                ViewBag.TotaalPrijs = await GerechtenTotaalPrijsAsync(bestelling, false);
-                ViewBag.TotaalPrijsInclBtw = await GerechtenTotaalPrijsAsync(bestelling, true);
+                ViewBag.TotaalPrijs = GerechtenTotaalPrijsAsync(bestelling, false);
+                ViewBag.TotaalPrijsInclBtw = GerechtenTotaalPrijsAsync(bestelling, true);
                 return View(bestelling);
             }
             else
@@ -358,27 +358,21 @@ namespace Lekkerbek.Web.Controllers
         }
 
         //todo: deze methode moet in GerechtService
-        private async Task<double> GerechtenTotaalPrijsAsync(Bestelling bestelling, bool isInclBtw)
+        private double GerechtenTotaalPrijsAsync(Bestelling bestelling, bool isInclBtw)
         {
-            var gerechten =  await _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").AsQueryable().Where(gerecht =>
-                gerecht.Bestellingen.Any(bestellingTemp => bestellingTemp.Id == bestelling.Id)).ToListAsync();
+            var gerechten = _context.Gerechten.Include(gerecht => gerecht.Bestellingen)
+                .Where(gerecht => gerecht.Bestellingen.Contains(bestelling)).ToList();
             double totaalPrijs = 0;
             if (isInclBtw)
             {
-                foreach (var g in gerechten)
-                {
-                    totaalPrijs += g.PrijsInclBtw();
-                }
+                foreach (var g in gerechten) totaalPrijs += g.PrijsInclBtw();
             }
             else
             {
-                foreach (var g in gerechten)
-                {
-                    totaalPrijs += g.Prijs;
-                }
+                foreach (var g in gerechten) totaalPrijs += g.Prijs;
             }
 
-            if (await _bestellingService.AantalBestellingenVanKlant(bestelling.KlantId) >= 3)
+            if ((_bestellingService.AantalBestellingenVanKlant(bestelling.KlantId)+1) >= 3)
             {
                 totaalPrijs *= 0.9;
             }

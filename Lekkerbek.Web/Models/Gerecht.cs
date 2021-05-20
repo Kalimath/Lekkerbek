@@ -35,7 +35,7 @@ namespace Lekkerbek.Web.Models
         public double PrijsInclBtw()
         {
             var prijsIncl = 0.0;
-            if (Categorie.Naam.ToLower().Trim().Equals("alcoholische drank"))
+            if (CategorieId.ToLower().Trim().Equals("alcoholische drank"))
             {
                 prijsIncl = Prijs * 1.21;
             }
