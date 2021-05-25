@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Services
@@ -16,6 +17,7 @@ namespace Lekkerbek.Web.Services
         {
             _context = context;
         }
+
         public async Task<List<Bestelling>> GetAlleBestellingen()
         {
             return await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").ToListAsync();
@@ -45,7 +47,7 @@ namespace Lekkerbek.Web.Services
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    throw;
+                    throw new ServiceException(e.Message);
                 }
             }
             else
@@ -65,7 +67,7 @@ namespace Lekkerbek.Web.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new ServiceException(e.Message);
             }
 
             
@@ -81,7 +83,7 @@ namespace Lekkerbek.Web.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new ServiceException(e.Message);
             }
         }
 
@@ -102,7 +104,7 @@ namespace Lekkerbek.Web.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new ServiceException(e.Message);
             }
         }
 
@@ -124,7 +126,7 @@ namespace Lekkerbek.Web.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new ServiceException(e.Message);
             }
         }
 
@@ -134,7 +136,11 @@ namespace Lekkerbek.Web.Services
             {
                 if (gerecht == null)
                 {
-                    throw new ServiceException("Kon geen lege gerechtenlijst toevoegen aan een bestelling met id: " + id);
+                    throw new ArgumentNullException("Kon geen leeg gerecht toevoegen aan een bestelling met id: " + id);
+                }
+                if (_context.Gerechten.Any(gerecht1 => gerecht1.Naam.Equals(gerecht.Naam)))
+                {
+                    throw new ServiceException("Kon geen onbekend gerecht toevoegen aan een bestelling met id: " + id);
                 }
                 Bestelling bestelling = null;
                 if (!BestellingExists(id))
@@ -178,7 +184,7 @@ namespace Lekkerbek.Web.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new ServiceException(e.Message);
             }
         }
 

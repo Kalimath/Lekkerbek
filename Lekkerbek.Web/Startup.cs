@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
+using Lekkerbek.Web.Controllers;
 using Lekkerbek.Web.Models.Identity;
 using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Identity;
@@ -44,12 +45,12 @@ namespace Lekkerbek.Web
             {
                 options.UseSqlServer(Configuration.GetConnectionString("GipTeam11"));
             }, ServiceLifetime.Transient);
-            services.AddTransient<IdentityContext>();
+            services.AddScoped<IdentityContext>();
             services.AddTransient<IBestellingService, BestellingService>();
             services.AddTransient<IGebruikerService, GebruikerService>();
+            services.AddTransient<IBeoordelingService, BeoordelingService>();
             services.Configure<IdentityOptions>(options =>
             {
-                //options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = false;
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.Password.RequiredLength = 1;

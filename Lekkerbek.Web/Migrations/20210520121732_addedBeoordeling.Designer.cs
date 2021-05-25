@@ -4,14 +4,16 @@ using Lekkerbek.Web.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lekkerbek.Web.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20210520121732_addedBeoordeling")]
+    partial class addedBeoordeling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +59,6 @@ namespace Lekkerbek.Web.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Commentaar")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("GebruikerId")
@@ -69,8 +70,8 @@ namespace Lekkerbek.Web.Migrations
                     b.Property<int?>("ScoreLijstId")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotaalScore")
-                        .HasColumnType("float");
+                    b.Property<int>("TotaalScore")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

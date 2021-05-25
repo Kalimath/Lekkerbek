@@ -1,0 +1,80 @@
+﻿@using Lekkerbek.Web.Models.Identity
+@model Lekkerbek.Web.ViewModels.BeoordelingMetKlantNaamViewModel
+
+@{
+    ViewData["Title"] = "Factuur";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Gegevens</h4>
+    <hr />
+    <dl class="row">
+        @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+        {
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Id)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Id)
+            </dd>
+
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.KlantId)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.KlantId)
+            </dd>
+        }
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.KlantNaam)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.KlantNaam)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Commentaar)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Commentaar)
+        </dd>
+    </dl>
+    <h4>
+        @Html.DisplayNameFor(model => model.ScoreLijst)
+    </h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ScoreLijst.EtenEnDrinkenScore)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ScoreLijst.EtenEnDrinkenScore)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ScoreLijst.PrijsKwaliteitScore)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ScoreLijst.PrijsKwaliteitScore)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ScoreLijst.ServiceScore)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ScoreLijst.ServiceScore)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ScoreLijst.HygieneScore)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ScoreLijst.HygieneScore)
+        </dd>
+    </dl>
+    
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

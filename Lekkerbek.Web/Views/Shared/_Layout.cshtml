@@ -40,6 +40,9 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Tijdslot" asp-action="Index">Agenda</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Beoordeling" asp-action="Index">Beoordelingen</a>
+                            </li>
 
                         }
                         @if (User.IsInRole(RollenEnum.Klant.ToString()))
@@ -48,9 +51,11 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Voorkeursgerechten" asp-action="Index">Jouw voorkeursgerechten</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Bestelling" asp-action="Index">Openstaande bestellingen</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Bestelling" asp-action="Index">Mijn bestellingen</a>
                             </li>
-
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Beoordeling" asp-action="MijnBeoordelingen">Mijn beoordelingen</a>
+                            </li>
                         }
                         @if (User.IsInRole(RollenEnum.Kok.ToString()))
                         {

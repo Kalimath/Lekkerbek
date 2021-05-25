@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Lekkerbek.Web.Models
 {
-    public class Gerecht
+    public class Gerecht : IDisposable
     {
         private double _prijs;
 
@@ -68,5 +68,9 @@ namespace Lekkerbek.Web.Models
                 Math.Round(_prijsInclBtw, 2);
             }
         }*/
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
