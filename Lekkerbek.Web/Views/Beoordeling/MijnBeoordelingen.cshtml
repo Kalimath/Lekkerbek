@@ -13,7 +13,7 @@
         <a asp-action="Create">Create New</a>
     }
 </p>
-@if (Model == null || (Model.Count() + 1) > 0)
+@if (Model == null || Model.Count() == 0)
 {
     <h4>Geen beoordelingen om weer te geven</h4>
 }
@@ -46,7 +46,9 @@ else
                     </td>
                     <td id="@item.Id">
                     </td>
-                    document.getElementById("@item.Id").innerHTML = getStars(@item.TotaalScore/2);
+                    <script>
+                        document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
+                    </script>
                     <td>
                         <a asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
                         <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a>
