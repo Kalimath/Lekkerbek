@@ -5,6 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
 <h1>Beoordelingen</h1>
 
 <p>
@@ -28,7 +29,7 @@
     </tr>
     </thead>
     <tbody>
-    @if (Model == null || (Model.Count() + 1) > 0)
+    @if (Model == null || Model.Count() == 0)
     {
         <h4>Geen beoordelingen om weer te geven</h4>
     }
@@ -43,9 +44,12 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.KlantId)
                 </td>
-                <td id="@item.Id">
+                <td>
+                    <span id="@item.Id"></span>
                 </td>
-                document.getElementById("@item.Id").innerHTML = getStars(@item.TotaalScore/2);
+                <script>
+                    document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
+                </script>
                 <td>
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a>

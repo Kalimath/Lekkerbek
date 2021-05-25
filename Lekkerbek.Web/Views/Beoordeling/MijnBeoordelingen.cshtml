@@ -44,7 +44,8 @@ else
                     <td>
                         @Html.DisplayFor(modelItem => item.KlantId)
                     </td>
-                    <td id="@item.Id">
+                    <td>
+                        <span id="@item.Id"></span>
                     </td>
                     <script>
                         document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
