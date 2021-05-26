@@ -47,27 +47,6 @@ namespace Lekkerbek.Web.Models
             return Math.Round(prijsIncl, 2);
         }
 
-        /*public double Prijs
-        {
-            get => _prijs;
-            set => _prijs = value;
-        }
-        public double PrijsInclBtw
-        {
-            get => _prijsInclBtw;
-            set
-            {
-                if (Categorie.Naam.ToLower().Trim().Equals("alcoholische drank"))
-                {
-                    _prijsInclBtw = value * 1.21;
-                }
-                else
-                {
-                    _prijsInclBtw = value * 1.06;
-                }
-                Math.Round(_prijsInclBtw, 2);
-            }
-        }*/
         public void Dispose()
         {
             throw new NotImplementedException();

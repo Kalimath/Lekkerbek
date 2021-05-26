@@ -39,12 +39,12 @@ namespace Lekkerbek.Web.Services
             {
                 if (!BeoordelingExists(beoordeling))
                 {
-                    _context.Beoordelingen.Add(beoordeling);
+                    await _context.Beoordelingen.AddAsync(beoordeling);
                     await _context.SaveChangesAsync();
                 }
                 else
                 {
-                    throw new ServiceException("Beoordeling already exists");
+                    throw new ServiceException("Beoordeling bestaat al");
                 }
             }
             catch (Exception e)
@@ -75,15 +75,8 @@ namespace Lekkerbek.Web.Services
             {
                 using (Beoordeling beoordeling = GetBeoordeling(beoordelingId))
                 {
-                    if (BeoordelingExists(beoordeling))
-                    {
-                        _context.Beoordelingen.Remove(beoordeling);
-                        await _context.SaveChangesAsync();
-                    }
-                    else
-                    {
-                        throw new ServiceException("Beoordeling bestaat niet (meer)");
-                    }
+                    _context.Beoordelingen.Remove(beoordeling);
+                    await _context.SaveChangesAsync();
                 }
             }
             catch (Exception e)

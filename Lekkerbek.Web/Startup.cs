@@ -49,6 +49,7 @@ namespace Lekkerbek.Web
             services.AddTransient<IBestellingService, BestellingService>();
             services.AddTransient<IGebruikerService, GebruikerService>();
             services.AddTransient<IBeoordelingService, BeoordelingService>();
+            services.AddTransient<IGerechtService, GerechtService>()
             services.Configure<IdentityOptions>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = false;
