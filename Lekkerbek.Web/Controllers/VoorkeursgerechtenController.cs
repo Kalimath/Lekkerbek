@@ -53,7 +53,16 @@ namespace Lekkerbek.Web.Controllers
         // GET: VoorkeursgerechtenController/Create
         public async Task<ActionResult> Create()
         {
-            var beschikbareGerechten = _context.Gerechten.ToList();
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            List<Gerecht> beschikbareGerechten = new List<Gerecht>(); 
+            var VoorkeursgerechtenVanKlant = _context.VoorkeursGerechtenVanKlanten(currentUser.Id).ToList(); 
+            foreach(Gerecht gerecht in _context.Gerechten.ToList())
+            {
+                if (!VoorkeursgerechtenVanKlant.Contains(gerecht))
+                {
+                    beschikbareGerechten.Add(gerecht); 
+                }
+            }
             ViewData["Naam"] = new SelectList(beschikbareGerechten, "Naam", "Naam"); 
 
             return View();

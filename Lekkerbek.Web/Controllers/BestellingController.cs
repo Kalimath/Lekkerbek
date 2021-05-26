@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using System.Net.Mail;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -121,7 +122,16 @@ namespace Lekkerbek.Web.Controllers
 
         public IActionResult VoegGerechtenToe(int id)
         {
-            ViewData["Naam"] = new SelectList(_context.Gerechten.ToList(), "Naam", "Naam");
+            var gerechteKlantBestelling = _context.Bestellingen.Find(id);
+            List<Gerecht> gerechtenLijstKlant = new List<Gerecht>(); 
+            foreach(Gerecht g in _context.Gerecht.ToList())
+            {
+                if (!gerechteKlantBestelling.GerechtenLijst.Contains(g))
+                {
+                    gerechtenLijstKlant.Add(g); 
+                }
+            }
+            ViewData["Naam"] = new SelectList(gerechtenLijstKlant, "Naam", "Naam");
             return View(); 
         }
 
