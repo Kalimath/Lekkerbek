@@ -9,6 +9,7 @@ using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Microsoft.AspNetCore.Http;
 using System.Globalization;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
@@ -16,35 +17,36 @@ namespace Lekkerbek.Web.Controllers
     [AllowAnonymous]
     public class GerechtController : Controller
     {
-        private readonly IdentityContext _context;
+        private readonly IGerechtService _gerechtService;
+        private readonly ICategorieService _categorieService;
 
-        public GerechtController(IdentityContext context)
+        public GerechtController(IGerechtService gerechtService, ICategorieService categorieService)
         {
-            _context = context;
+            _gerechtService = gerechtService;
+            _categorieService = categorieService;
         }
 
         // GET: Gerecht
         public async Task<IActionResult> Index()
         {
             
-            return View(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").OrderBy(gerecht => gerecht.Categorie));
+            return View(_gerechtService.GetGerechten());
         }
 
         // GET: Gerecht/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(string gerechtNaam)
         {
-            if (id == null)
+            Gerecht gerecht = null;
+            try
             {
+                gerecht = _gerechtService.GetGerecht(gerechtNaam);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 return NotFound();
             }
-
-            var gerecht = await _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").AsQueryable().FirstOrDefaultAsync(m => m.Naam == id);
-            if (gerecht == null)
-            {
-                return NotFound();
-            }
-
             return View(gerecht);
         }
 
@@ -52,7 +54,7 @@ namespace Lekkerbek.Web.Controllers
         [Authorize(Roles = "Admin,Kassamedewerker")]
         public IActionResult Create()
         {
-            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam");
+            ViewData["CategorieId"] = new SelectList(_categorieService.GetCategorieen(), "Naam", "Naam");
             return View();
         }
 
@@ -65,35 +67,43 @@ namespace Lekkerbek.Web.Controllers
         {
             Gerecht gerecht = new Gerecht(); 
             if (ModelState.IsValid) {
-                Categorie categorieGerecht = await _context.Categorie.FirstAsync(cat => cat.Naam.Equals(collection["CategorieId"]));
-                gerecht.Naam = collection["Naam"];
-                gerecht.CategorieId = collection["CategorieId"];
-                gerecht.Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"));
-                gerecht.Categorie = categorieGerecht; 
-                _context.Add(gerecht);
-                await _context.SaveChangesAsync();
+                try
+                {
+                    Categorie categorieGerecht = _categorieService.GetCategorie(collection["CategorieId"]);
+                    gerecht.Naam = collection["Naam"];
+                    gerecht.CategorieId = collection["CategorieId"];
+                    gerecht.Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"));
+                    gerecht.Categorie = categorieGerecht;
+                    await _gerechtService.AddGerecht(gerecht);
+                }
+                catch (Exception e)
+                {
+                    ViewData["CategorieId"] = new SelectList(_categorieService.GetCategorieen(), "Naam", "Naam", gerecht.CategorieId);
+                    return View(gerecht);
+                }
+                
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam", gerecht.CategorieId);
+            ViewData["CategorieId"] = new SelectList(_categorieService.GetCategorieen(), "Naam", "Naam", gerecht.CategorieId);
             return View(gerecht);
         }
 
         // GET: Gerecht/Edit/5
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(string gerechtNaam)
         {
 
-            if (id == null)
+            Gerecht gerecht = null;
+            try
             {
+                gerecht = _gerechtService.GetGerecht(gerechtNaam);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
                 return NotFound();
             }
-
-            var gerecht = _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToList().Find(gerecht1 => gerecht1.Naam.Equals(id));
-            if (gerecht == null)
-            {
-                return NotFound();
-            }
-            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam", gerecht.CategorieId);
+            ViewData["CategorieId"] = new SelectList(_categorieService.GetCategorieen(), "Naam", "Naam", gerecht.CategorieId);
             return View(gerecht);
         }
 
@@ -103,54 +113,40 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Edit(string id, IFormCollection collection)
+        public async Task<IActionResult> Edit(string gerechtNaam, IFormCollection collection)
         {
-            Gerecht gerecht = null; 
-/*            if (id != gerecht.Naam)
-            {
-                return NotFound();
-            }*/
-
+            Gerecht gerecht = null;
             if (ModelState.IsValid)
             {
                 try
                 {
-                    gerecht = _context.Gerecht.First(gerecht => gerecht.Naam.Equals(id)); 
+                    gerecht = _gerechtService.GetGerecht(gerechtNaam);
                     gerecht.CategorieId = collection["CategorieId"];
-                    gerecht.Categorie = await _context.Categorie.FirstAsync(cat => cat.Naam.Equals(collection["CategorieId"])); 
+                    gerecht.Categorie = _categorieService.GetCategorie(collection["CategorieId"]);
                     gerecht.Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"));
-
-                    _context.Update(gerecht);
-                    await _context.SaveChangesAsync();
+                    await _gerechtService.UpdateGerecht(gerecht);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception e)
                 {
-                    if (!GerechtExists(gerecht.Naam))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    Console.WriteLine(e);
+                    ViewData["CategorieId"] = new SelectList(_categorieService.GetCategorieen(), "Naam", "Naam", gerecht.CategorieId);
+                    return View(gerecht);
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategorieId"] = new SelectList(_context.Categorie, "Naam", "Naam", gerecht.CategorieId);
+            ViewData["CategorieId"] = new SelectList(_categorieService.GetCategorieen(), "Naam", "Naam", gerecht.CategorieId);
             return View(gerecht);
         }
 
         // GET: Gerecht/Delete/5
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(string gerechtNaam)
         {
-            if (id == null)
+            if (gerechtNaam == null)
             {
                 return NotFound();
             }
-
-            var gerecht = await _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie")
-                .FirstOrDefaultAsync(m => m.Naam == id);
+            var gerecht = _gerechtService.GetGerecht(gerechtNaam);
             if (gerecht == null)
             {
                 return NotFound();
@@ -163,17 +159,17 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(string gerechtNaam)
         {
-            var gerecht = _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToList().Find(gerecht1 => gerecht1.Naam.Equals(id));
-            _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToList().Remove(gerecht);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _gerechtService.DeleteGerecht(gerechtNaam);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool GerechtExists(string id)
-        {
-            return _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").Any(e => e.Naam == id);
         }
     }
 }

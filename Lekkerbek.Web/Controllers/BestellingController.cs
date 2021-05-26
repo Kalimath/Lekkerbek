@@ -25,13 +25,17 @@ namespace Lekkerbek.Web.Controllers
         private readonly UserManager<Gebruiker> _userManager;
         private readonly IBestellingService _bestellingService;
         private readonly IGebruikerService _gebruikerService;
-        public BestellingController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager, IBestellingService bestellingService, IGebruikerService gebruikerService)
+        private readonly IGerechtService _gerechtService;
+        private readonly ICategorieService _categorieService;
+        public BestellingController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService)
         {
             _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
             _bestellingService = bestellingService;
             _gebruikerService = gebruikerService;
+            _gerechtService = gerechtService;
+            _categorieService = categorieService;
         }
 
         // GET: Bestelling
@@ -59,8 +63,8 @@ namespace Lekkerbek.Web.Controllers
             if (_bestellingService.BestellingExists((int) id))
             {
                 Bestelling bestelling = _bestellingService.GetBestelling((int)id);
-                ViewBag.TotaalPrijs = GerechtenTotaalPrijsAsync(bestelling, false);
-                ViewBag.TotaalPrijsInclBtw = GerechtenTotaalPrijsAsync(bestelling, true);
+                ViewBag.TotaalPrijs = _gerechtService.GerechtenTotaalPrijsAsync(bestelling, false);
+                ViewBag.TotaalPrijsInclBtw = _gerechtService.GerechtenTotaalPrijsAsync(bestelling, true);
                 return View(bestelling);
             }
             else
@@ -74,7 +78,7 @@ namespace Lekkerbek.Web.Controllers
         public IActionResult Create()
         {
             ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
-            ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
+            ViewData["AlleGerechtenNamen"] = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
             ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result.Where(tijdslot => tijdslot.IsVrij), "Tijdstip", "Tijdstip");
             return View();
         }
@@ -101,7 +105,7 @@ namespace Lekkerbek.Web.Controllers
                     Tijdslot = tijdslot
                 };
                 IEnumerable<string> gerechtNamen = (ICollection<string>)collection["GerechtenLijst"];
-                bestelling.GerechtenLijst = await _context.Gerechten.Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
+                bestelling.GerechtenLijst = await _gerechtService.GetGerechten().AsQueryable().Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
                 
                 if (User.IsInRole(RollenEnum.Klant.ToString()))
                 {
@@ -124,14 +128,14 @@ namespace Lekkerbek.Web.Controllers
 
         public IActionResult VoegGerechtenToe(int id)
         {
-            ViewData["Naam"] = new SelectList(_context.Gerechten.ToList(), "Naam", "Naam");
+            ViewData["Naam"] = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
             return View(); 
         }
 
         [HttpPost]
         public async Task<IActionResult> VoegGerechtenToe(int id, IFormCollection collection)
         {
-            var gerecht = await _context.Gerechten.FirstAsync(g => g.Naam.Equals(collection["Naam"]));
+            var gerecht = _gerechtService.GetGerecht(collection["Naam"]);
             Bestelling bestelling = _bestellingService.GetBestelling(id);
             try
             {
@@ -148,7 +152,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> VerwijderEenGerecht(String gerechtNaam, int bestellingId)
         {
-            var gerecht = _context.Gerechten.Include("Categorie").First(g => g.Naam.Equals(gerechtNaam));
+            var gerecht = _gerechtService.GetGerecht(gerechtNaam);
             try
             {
                 _bestellingService.DeleteGerechtVanBestelling(gerechtNaam, bestellingId);
@@ -227,7 +231,7 @@ namespace Lekkerbek.Web.Controllers
 
             ViewData["HuidigeKlant"] = _gebruikerService.GetGebruikerMetRolKlant(bestelling.KlantId); 
             ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
-            ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
+            ViewData["AlleGerechtenNamen"] = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
             ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip");
             return View(bestelling);
         }
@@ -276,7 +280,7 @@ namespace Lekkerbek.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
-            ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
+            ViewData["AlleGerechtenNamen"] = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
             ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip");
             return View(bestelling);
         }
@@ -357,28 +361,6 @@ namespace Lekkerbek.Web.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        //todo: deze methode moet in GerechtService
-        private double GerechtenTotaalPrijsAsync(Bestelling bestelling, bool isInclBtw)
-        {
-            var gerechten = _context.Gerechten.Include(gerecht => gerecht.Bestellingen)
-                .Where(gerecht => gerecht.Bestellingen.Contains(bestelling)).ToList();
-            double totaalPrijs = 0;
-            if (isInclBtw)
-            {
-                foreach (var g in gerechten) totaalPrijs += g.PrijsInclBtw();
-            }
-            else
-            {
-                foreach (var g in gerechten) totaalPrijs += g.Prijs;
-            }
-
-            if ((_bestellingService.AantalBestellingenVanKlant(bestelling.KlantId)+1) >= 3)
-            {
-                totaalPrijs *= 0.9;
-            }
-
-            return Math.Round(totaalPrijs, 2); ;
-        }
 
         public JsonResult LaadAlleBestellingen()
         {

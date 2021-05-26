@@ -56,7 +56,7 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                return _context.Gerechten.Include(gerecht => gerecht.Categorie).ToList();
+                return _context.Gerechten.Include(gerecht => gerecht.Categorie).OrderBy(gerecht => gerecht.Categorie).ToList();
             }
             catch (Exception e)
             {
@@ -112,6 +112,30 @@ namespace Lekkerbek.Web.Services
             }
 
             return result;
+        }
+
+        public double GerechtenTotaalPrijsAsync(Bestelling bestelling, bool isInclBtw)
+        {
+            
+                var gerechten = _context.Gerechten.Include(gerecht => gerecht.Bestellingen)
+                    .Where(gerecht => gerecht.Bestellingen.Contains(bestelling)).ToList();
+                double totaalPrijs = 0;
+                if (isInclBtw)
+                {
+                    foreach (var g in gerechten) totaalPrijs += g.PrijsInclBtw();
+                }
+                else
+                {
+                    foreach (var g in gerechten) totaalPrijs += g.Prijs;
+                }
+
+                if ((_context.Bestellingen.Count(bestelling1 => bestelling1.KlantId == bestelling.KlantId) + 1) >= 3)
+                {
+                    totaalPrijs *= 0.9;
+                }
+
+                return Math.Round(totaalPrijs, 2); ;
+            
         }
     }
 }

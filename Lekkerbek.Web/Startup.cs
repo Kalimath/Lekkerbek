@@ -50,6 +50,8 @@ namespace Lekkerbek.Web
             services.AddTransient<IGebruikerService, GebruikerService>();
             services.AddTransient<IBeoordelingService, BeoordelingService>();
             services.AddTransient<IGerechtService, GerechtService>();
+            services.AddTransient<ICategorieService, CategorieService>();
+
             services.AddTransient<ITijdslotService, TijdslotService>();
             services.Configure<IdentityOptions>(options =>
             {
