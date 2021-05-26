@@ -6,7 +6,7 @@ using Lekkerbek.Web.Models;
 
 namespace Lekkerbek.Web.Services
 {
-    interface IGerechtService
+    public interface IGerechtService
     {
         public Gerecht GetGerecht(string gerechtNaam);
         public Task AddGerecht(Gerecht gerecht);
@@ -14,5 +14,6 @@ namespace Lekkerbek.Web.Services
         public Task UpdateGerecht(Gerecht updatedGerecht);
         public Task DeleteGerecht(string gerechtNaam);
         public bool GerechtExists(Gerecht gerecht);
+        public double GerechtenTotaalPrijsAsync(Bestelling bestelling, bool isInclBtw);
     }
 }
