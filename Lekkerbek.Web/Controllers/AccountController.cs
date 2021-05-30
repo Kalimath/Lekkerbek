@@ -36,8 +36,6 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
-                /*ViewBag.GebruikersRollen = _context.HoogsteRollenGebruikers();
-                return View(_context.Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten"));*/
                 return View();
             }
             else

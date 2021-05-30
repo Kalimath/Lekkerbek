@@ -9,6 +9,7 @@ using Lekkerbek.Web.Services;
 using Lekkerbek.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -29,7 +30,13 @@ namespace Lekkerbek.Web.Controllers
         }
         public IActionResult Index()
         {
-            return View(_beoordelingService.GetBeoordelingen());
+            List<BeoordelingMetKlantNaamViewModel> viewModels =  new List<BeoordelingMetKlantNaamViewModel>();
+            foreach (var beoordeling in _beoordelingService.GetBeoordelingen())
+            {
+                var username = _gebruikerService.GetGebruiker(beoordeling.KlantId).UserName;
+               viewModels.Add( new BeoordelingMetKlantNaamViewModel(beoordeling.Id, beoordeling.Titel, beoordeling.Commentaar, beoordeling.ScoreLijst,beoordeling.KlantId, username));
+            }
+            return View(viewModels);
         }
 
         // GET: Beoordeling/Details/5
@@ -37,15 +44,15 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
-                var beoordeling = _beoordelingService.GetBeoordeling(id);
-                BeoordelingMetKlantNaamViewModel viewModel = new BeoordelingMetKlantNaamViewModel(beoordeling.Commentaar, beoordeling.ScoreLijst, beoordeling.KlantId, 
+                Beoordeling beoordeling = _beoordelingService.GetBeoordeling(id);
+                BeoordelingMetKlantNaamViewModel viewModel = new BeoordelingMetKlantNaamViewModel(beoordeling.Id, beoordeling.Titel, beoordeling.Commentaar, beoordeling.ScoreLijst, beoordeling.KlantId, 
                                         _gebruikerService.GetGebruiker(beoordeling.KlantId).UserName);
                 return View(viewModel);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                return View(nameof(Index));
+                return RedirectToAction(nameof(Index));
             }
             
         }
@@ -63,7 +70,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Klant")]
-        public async Task<IActionResult> Create([Bind("Commentaar,ScoreLijst")] Beoordeling beoordeling)
+        public async Task<IActionResult> Create([Bind("Titel, Commentaar, ScoreLijst")] Beoordeling beoordeling)
         {
             if (ModelState.IsValid)
             {
@@ -81,51 +88,30 @@ namespace Lekkerbek.Web.Controllers
         }
 
         [Authorize(Roles = "Admin,Kassamedewerker,Klant")]
-        public IActionResult Delete(int id)
-        {
-            try
-            {
-                _beoordelingService.DeleteBeoordeling(id);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        [Authorize(Roles = "Admin,Kassamedewerker,Klant")]
         public IActionResult Edit(int id)
         {
             return View(_beoordelingService.GetBeoordeling(id));
         }
 
         [Authorize(Roles = "Admin,Kassamedewerker,Klant")]
-        public async Task<IActionResult> Edit([Bind("Id,KlantId,Commentaar,EtenEnDrinkenScore,PrijsKwaliteitScore,ServiceScore,HygieneScore")] BeoordelingMetScoresViewModel beoordelingMetScores)
+        public async Task<IActionResult> Edit([Bind("Titel, Commentaar, ScoreLijst, KlantId")] Beoordeling beoordeling)
         {
             RedirectToActionResult result = null;
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var scores = new ScoreLijst()
-                    {
-                        EtenEnDrinkenScore = beoordelingMetScores.EtenEnDrinkenScore,
-                        HygieneScore = beoordelingMetScores.HygieneScore,
-                        PrijsKwaliteitScore = beoordelingMetScores.PrijsKwaliteitScore,
-                        ServiceScore = beoordelingMetScores.ServiceScore
-                    };
-                    Beoordeling beoordeling = _beoordelingService.GetBeoordeling(beoordelingMetScores.Id);
-                    beoordeling.Commentaar = beoordelingMetScores.Commentaar.Trim();
-                    beoordeling.ScoreLijst = scores;
-                    beoordeling.TotaalScore = beoordeling.TotaalScore;
-                    await _beoordelingService.UpdateBeoordeling(beoordeling);
+                    Beoordeling updatedBeoordeling = _beoordelingService.GetBeoordeling(beoordeling.Id);
+                    updatedBeoordeling.Commentaar = beoordeling.Commentaar.Trim();
+                    updatedBeoordeling.ScoreLijst = beoordeling.ScoreLijst;
+                    updatedBeoordeling.DefineTotalScore();
+                    await _beoordelingService.UpdateBeoordeling(updatedBeoordeling);
                     result = RedirectToAction(nameof(Index));
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                     result = RedirectToAction("Edit",new{beoordelingMetScores.Id});
+                     result = RedirectToAction("Edit",new{beoordeling.Id});
                 }
                 
             }
@@ -135,6 +121,50 @@ namespace Lekkerbek.Web.Controllers
         public async Task<IActionResult> MijnBeoordelingen()
         {
             return View(_beoordelingService.GetBeoordelingenVanKlant((await _userManager.GetUserAsync(HttpContext.User)).Id));
+        }
+
+        // GET: Beoordeling/Delete/5
+        
+        [Authorize(Roles = "Admin,Kassamedewerker,Klant")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            Beoordeling beoordelingToDelete = null;
+            try
+            {
+                beoordelingToDelete = _beoordelingService.GetBeoordeling(id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            if (beoordelingToDelete == null)
+            {
+                return NotFound();
+            }
+            return View(beoordelingToDelete);
+        }
+
+        // POST: Beoordeling/Delete/5
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin,Kassamedewerker,Klant")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            
+            try
+            {
+                if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString())|| 
+                    _beoordelingService.GetBeoordelingenVanKlant((await _userManager.GetUserAsync(HttpContext.User)).Id).Any(beoordeling => beoordeling.Id == id))
+                {
+                    await _beoordelingService.DeleteBeoordeling(id);
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return RedirectToAction(nameof(Index));
         }
     }
 }

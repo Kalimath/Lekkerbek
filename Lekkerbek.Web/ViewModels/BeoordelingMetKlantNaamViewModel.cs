@@ -9,8 +9,8 @@ using Lekkerbek.Web.Models;
 namespace Lekkerbek.Web.ViewModels
 {
     public class BeoordelingMetKlantNaamViewModel :Beoordeling
-    {
-        public BeoordelingMetKlantNaamViewModel(string commentaar, ScoreLijst scoreLijst, int klantId, string klantNaam) : base(commentaar, scoreLijst, klantId)
+    { 
+        public BeoordelingMetKlantNaamViewModel(int id, string titel, string commentaar, ScoreLijst scoreLijst, int klantId, string klantNaam) : base(id, titel, commentaar, scoreLijst, klantId)
         {
             KlantNaam = klantNaam;
         }

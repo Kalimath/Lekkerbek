@@ -7,12 +7,12 @@
 
 <h1>Beoordelingen</h1>
 
-<p>
-    @if (User.IsInRole(RollenEnum.Klant.ToString()))
-    {
+@if (User.IsInRole(RollenEnum.Klant.ToString()))
+{
+    <p>
         <a asp-action="Create">Create New</a>
-    }
-</p>
+    </p>
+}
 @if (Model == null || Model.Count() == 0)
 {
     <h4>Geen beoordelingen om weer te geven</h4>
@@ -26,7 +26,7 @@ else
                     @Html.DisplayNameFor(model => model.Id)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.KlantId)
+                    @Html.DisplayNameFor(model => model.Titel)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.TotaalScore)
@@ -37,25 +37,31 @@ else
 
             @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.KlantId)
-                    </td>
-                    <td>
-                        <span id="@item.Id"></span>
-                    </td>
-                    <script>
-                        document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
-                    </script>
-                    <td>
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a>
-                        <a asp-action="Details" asp-route-id="@item.Id">Factuur</a>
-                    </td>
-                </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titel)
+                </td>
+                <td>
+                    @{
+                        var score = Math.Round((item.TotaalScore / 2),1);
+                    }
+                    @score.ToString()/5
+                </td>
+                @*<td>
+                    <span id="@item.Id"></span>
+                </td>*@
+                @*<script>
+            document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
+        </script>*@
+                <td>
+                    <a asp-controller="Beoordeling" asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                </td>
+            </tr>
             }
 
 

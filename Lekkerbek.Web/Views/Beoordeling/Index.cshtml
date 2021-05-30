@@ -1,64 +1,79 @@
-﻿@model IEnumerable<Lekkerbek.Web.Models.Beoordeling>
+﻿@model IEnumerable<Lekkerbek.Web.ViewModels.BeoordelingMetKlantNaamViewModel>
 @using Lekkerbek.Web.Models.Identity
+@using Microsoft.EntityFrameworkCore
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@{
+    var count = @Model.Count();
+    var avg = Math.Round(@Model.AsQueryable().Average(model => model.TotaalScore)/2,1);
+}
+<h1>Beoordelingen<b>(@count)</b></h1>
+<h3>Gemiddelde score: @avg</h3>
 
-<h1>Beoordelingen</h1>
-
-<p>
-    @if (User.IsInRole(RollenEnum.Klant.ToString()))
-    {
-        <a asp-action="Create">Create New</a>
-    }
-</p>
+@if (User.IsInRole(RollenEnum.Klant.ToString()))
+{
+    <p>
+        <a asp-area="" asp-controller="Beoordeling" asp-action="MijnBeoordelingen">Mijn beoordelingen</a>
+    </p>
+}
 <table class="table">
     <thead>
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.Id)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.KlantId)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.TotaalScore)
-        </th>
-    </tr>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.KlantNaam)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Titel)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TotaalScore)
+            </th>
+        </tr>
     </thead>
     <tbody>
-    @if (Model == null || Model.Count() == 0)
-    {
-        <h4>Geen beoordelingen om weer te geven</h4>
-    }
-    else
-    {
-        @foreach (var item in Model)
+        @if (Model == null || Model.Count() == 0)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.KlantId)
-                </td>
-                <td>
-                    <span id="@item.Id"></span>
-                </td>
-                <script>
-                    document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
-                </script>
-                <td>
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit | </a>
-                    <a asp-action="Details" asp-route-id="@item.Id">Factuur</a>
-                </td>
-            </tr>
-        }  
-    }
-    
+            <h4>Geen beoordelingen om weer te geven</h4>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.KlantNaam)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Titel)
+                    </td>
+                    <td>
+                        @{
+                            var score = Math.Round((item.TotaalScore / 2), 1);
+                        }
+                        @score.ToString()/5
+                    </td>
+                    @*<td>
+                            <span id="@item.Id"></span>
+                        </td>*@
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    </td>
+                    @*<script>
+                                        document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
+                        </script>*@
+                </tr>
+            }
+        }
+
     </tbody>
 </table>
 
@@ -77,7 +92,7 @@
         if (i == .5) output.push('<i class="fa fa-star-half-o" aria-hidden="true" style="color: gold;"></i>&nbsp;');
 
         // Fill the empty stars
-        for (let i = (5 - rating); i >= 1; i--)
+        for (var i = (5 - rating); i >= 1; i--)
             output.push('<i class="fa fa-star-o" aria-hidden="true" style="color: gold;"></i>&nbsp;');
 
         return output.join('');
