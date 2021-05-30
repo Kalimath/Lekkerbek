@@ -48,7 +48,7 @@ namespace Lekkerbek.Web.Controllers
         public async Task<IActionResult> Details(int id)
         {
             Gebruiker gebruiker = null;
-            if (id == null)
+            if (id == 0)
             {
                 return NotFound();
             }

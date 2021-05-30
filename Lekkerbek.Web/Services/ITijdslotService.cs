@@ -9,11 +9,15 @@ namespace Lekkerbek.Web.Services
 {
     interface ITijdslotService
     {
-        public Tijdslot GetTijdslot(string Tijdslot);
+        public Tijdslot GetTijdslot(int TijdslotId);
         public Task AddTijdslot(Tijdslot tijdslot);
-        public ICollection<Tijdslot> GetTijdsloten();
+        public ICollection<Tijdslot> GetAlleTijdsloten();
+        public ICollection<Tijdslot> GetVrijeTijdsloten();
+        public ICollection<Tijdslot> GetGereserveerdeTijdsloten();
+        public ICollection<Tijdslot> GetTijdslotenVanKok(int kokId);
         public Task UpdateTijdslot(Tijdslot updatedTijdslot);
-        public Task DeleteTijdslot(string Tijdslot);
+        public Task DeleteTijdslot(int tijdslotId);
+        public bool TijdslotExists(int tijdslotId);
         public bool TijdslotExists(Tijdslot tijdslot);
     }
 }

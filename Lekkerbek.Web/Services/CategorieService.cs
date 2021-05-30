@@ -82,11 +82,9 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                using (Categorie categorie = GetCategorie(categorieNaam))
-                {
-                    _context.Categorie.Remove(categorie);
-                    await _context.SaveChangesAsync();
-                }
+                using Categorie categorie = GetCategorie(categorieNaam);
+                _context.Categorie.Remove(categorie);
+                await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {

@@ -37,7 +37,7 @@ namespace Lekkerbek.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Details(string gerechtNaam)
         {
-            Gerecht gerecht = null;
+            Gerecht gerecht;
             try
             {
                 gerecht = _gerechtService.GetGerecht(gerechtNaam);
@@ -78,6 +78,7 @@ namespace Lekkerbek.Web.Controllers
                 }
                 catch (Exception e)
                 {
+                    Console.WriteLine(e);
                     ViewData["CategorieId"] = new SelectList(_categorieService.GetCategorieen(), "Naam", "Naam", gerecht.CategorieId);
                     return View(gerecht);
                 }
@@ -93,7 +94,7 @@ namespace Lekkerbek.Web.Controllers
         public async Task<IActionResult> Edit(string gerechtNaam)
         {
 
-            Gerecht gerecht = null;
+            Gerecht gerecht;
             try
             {
                 gerecht = _gerechtService.GetGerecht(gerechtNaam);

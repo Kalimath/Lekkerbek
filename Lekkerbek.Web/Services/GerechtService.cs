@@ -83,11 +83,9 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                using (Gerecht gerecht = GetGerecht(gerechtNaam))
-                {
-                    _context.Gerechten.Remove(gerecht);
-                    await _context.SaveChangesAsync();
-                }
+                using Gerecht gerecht = GetGerecht(gerechtNaam);
+                _context.Gerechten.Remove(gerecht);
+                await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {

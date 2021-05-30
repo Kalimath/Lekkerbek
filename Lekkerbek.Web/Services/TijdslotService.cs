@@ -22,7 +22,7 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                return GetTijdsloten().FirstOrDefault(tijdslot => tijdslot.Id == tijdslotId);
+                return GetAlleTijdsloten().FirstOrDefault(tijdslot => tijdslot.Id == tijdslotId);
             }
             catch (Exception e)
             {
@@ -31,40 +31,69 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async Task<bool> AddTijdslot(Tijdslot nieuweTijdslot)
+        public ICollection<Tijdslot> GetAlleTijdsloten()
         {
-            bool result = false;
             try
             {
-                if (nieuweTijdslot != null && !TijdslotExists(nieuweTijdslot))
+                return _context.Tijdslot.Include("InGebruikDoorKok").ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException(e.Message);
+            }
+        }
+
+        public ICollection<Tijdslot> GetVrijeTijdsloten()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICollection<Tijdslot> GetGereserveerdeTijdsloten()
+        {
+            throw new NotImplementedException();
+        }
+
+        public ICollection<Tijdslot> GetTijdslotenVanKok(int kokId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddTijdslot(Tijdslot nieuwTijdslot)
+        {
+            try
+            {
+                if (nieuwTijdslot != null && !TijdslotExists(nieuwTijdslot))
                 {
-                    _context.Tijdslot.Add(nieuweTijdslot);
+                    await _context.Tijdslot.AddAsync(nieuwTijdslot);
                     await _context.SaveChangesAsync();
-                    result = true;
                 }
                 else
                 {
-                    throw new ServiceException("Kon geen gebruiker toevoegen met gebruikersnaam: " + nieuweTijdslot.Id);
+                    throw new ServiceException("Kon geen tijdslot toevoegen met tijdstip: " + nieuwTijdslot.Tijdstip.Date);
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-
+                throw;
             }
-            return result;
         }
 
-        public async Task<bool> DeleteTijdslot(int tijdslotId)
+        //TODO
+        public Task UpdateTijdslot(Tijdslot updatedTijdslot)
         {
-            bool result = false;
+            throw new NotImplementedException();
+        }
+
+        public async Task DeleteTijdslot(int tijdslotId)
+        {
             try
             {
                 if (TijdslotExists(tijdslotId))
                 {
-                    _context.Gebruikers.Remove(GetTijdsloten(tijdslotId));
+                    _context.Tijdslot.Remove(GetTijdslot(tijdslotId));
                     await _context.SaveChangesAsync();
-                    result = true;
                 }
                 else
                 {
@@ -76,85 +105,16 @@ namespace Lekkerbek.Web.Services
                 Console.WriteLine(e);
             }
 
-            return result;
         }
 
-        public bool GebruikerExists(int gebruikerId)
+        public bool TijdslotExists(int tijdslotId)
         {
-            return _context.Gebruikers.Any(gebruiker => gebruiker.Id == gebruikerId);
-        }
-
-        public string GetHoogsteRolVanGebruiker(int gebruikerId)
-        {
-            return GebruikerExists(gebruikerId) ? _context.GebruikerHoogsteRol(gebruikerId) : throw new ServiceException("Kon rol van gebruiker niet opvragen: ID is ongeldig");
-        }
-
-        public Task UpdateTijdslot(Tijdslot updatedTijdslot)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Tijdslot GetTijdslot(string Tijdslot)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AddTijdslot(Tijdslot tijdslot)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICollection<Tijdslot> GetTijdslot()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteTijdslot(string Tijdslot)
-        {
-            throw new NotImplementedException();
+            return _context.Tijdslot.Any(tijdslot => tijdslot.Id == tijdslotId);
         }
 
         public bool TijdslotExists(Tijdslot tijdslot)
         {
-            throw new NotImplementedException();
-        }
-
-        Tijdslot ITijdslotService.GetTijdslot(string Tijdslot)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AddTijdslot(Tijdslot tijdslot)
-        {
-            throw new NotImplementedException();
-        }
-
-        ICollection<Tijdslot> ITijdslotService.GetTijdslot()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateTijdslot(Tijdslot updatedTijdslot)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TijdslotExists(Tijdslot tijdslot)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ICollection<Tijdslot> GetTijdsloten()
-        {
-            try
-            {
-                return _context.Tijdslot.Include("InGebruikDoorKok").ToList();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw new ServiceException(e.Message);
-            }
+            return _context.Tijdslot.Any(tijdslot1 => tijdslot1.Id == tijdslot.Id);
         }
     }
 }

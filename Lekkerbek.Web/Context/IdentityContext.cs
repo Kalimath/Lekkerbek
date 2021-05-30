@@ -106,7 +106,7 @@ namespace Lekkerbek.Web.Context
                 where (bestelling.IsAfgerond == false && list.Contains(tijdslot)&&tijdslot.InGebruikDoorKok==kok)
                 select tijdslot;
 
-            if (tijdsloten2.Count()>0)
+            if (tijdsloten2.Any())
             {
                 tijdsloten = tijdsloten2.ToList();
             }

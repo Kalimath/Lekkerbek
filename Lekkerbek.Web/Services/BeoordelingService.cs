@@ -73,11 +73,9 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                using (Beoordeling beoordeling = GetBeoordeling(beoordelingId))
-                {
-                    _context.Beoordelingen.Remove(beoordeling);
-                    await _context.SaveChangesAsync();
-                }
+                using Beoordeling beoordeling = GetBeoordeling(beoordelingId);
+                _context.Beoordelingen.Remove(beoordeling);
+                await _context.SaveChangesAsync();
             }
             catch (Exception e)
             {
