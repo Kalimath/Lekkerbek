@@ -91,7 +91,7 @@ namespace Lekkerbek.Web.Controllers
                 var tijdslot = _context.AlleVrijeTijdsloten()
                     .Result.Find(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]));
                 tijdslot.IsVrij = false;
-                Gebruiker klantVanBestelling = await _gebruikerService.GetHuidigeGebruiker();
+                Gebruiker klantVanBestelling = _gebruikerService.GetHuidigeGebruiker();
                 Bestelling bestelling = new Bestelling()
                 {
                     AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]),

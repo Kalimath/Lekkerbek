@@ -33,7 +33,7 @@ namespace Lekkerbek.Web.Controllers
             Gebruiker currentUser = null;
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                currentUser = await _gebruikerService.GetHuidigeGebruiker();
+                currentUser = _gebruikerService.GetHuidigeGebruiker();
                 ViewBag.User = currentUser.Id;
 
                 return View(_context.VoorkeursGerechtenVanKlanten(currentUser.Id));

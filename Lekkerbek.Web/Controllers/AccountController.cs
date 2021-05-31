@@ -54,7 +54,7 @@ namespace Lekkerbek.Web.Controllers
 
             if (!hoogsteRolVanGebruiker.Equals(RollenEnum.Admin.ToString()) || !hoogsteRolVanGebruiker.Equals(RollenEnum.Kassamedewerker.ToString()))
             {
-                gebruiker = await _gebruikerService.GetHuidigeGebruiker();
+                gebruiker = _gebruikerService.GetHuidigeGebruiker();
             }
             else
             {
