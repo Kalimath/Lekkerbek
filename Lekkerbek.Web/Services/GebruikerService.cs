@@ -75,11 +75,11 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async Task<Gebruiker> GetHuidigeGebruiker()
+        public Gebruiker GetHuidigeGebruiker()
         {
             try
             {
-                return await _userManager.GetUserAsync(HttpContext.User);
+                return (Gebruiker)_httpContextAccessor.HttpContext.User.Identity;
             }
             catch (Exception e)
             {
