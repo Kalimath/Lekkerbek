@@ -25,7 +25,7 @@ namespace Lekkerbek.Web.Models
             Titel = titel;
             Commentaar = commentaar;
             ScoreLijst = scoreLijst;
-            TotaalScore = (ScoreLijst.HygieneScore + ScoreLijst.ServiceScore + ScoreLijst.EtenEnDrinkenScore + ScoreLijst.PrijsKwaliteitScore) / 4;
+            DefineTotalScore();
         }
         public Beoordeling(string titel, string commentaar, double hygieneScore, double serviceScore, double etenEnDrinkenScore, double prijsKwaliteitScore, int klantId)
         {
@@ -39,7 +39,7 @@ namespace Lekkerbek.Web.Models
                 EtenEnDrinkenScore = etenEnDrinkenScore,
                 PrijsKwaliteitScore = prijsKwaliteitScore
             };
-            TotaalScore = (ScoreLijst.HygieneScore + ScoreLijst.ServiceScore + ScoreLijst.EtenEnDrinkenScore + ScoreLijst.PrijsKwaliteitScore) / 4;
+            DefineTotalScore();
         }
 
         public Beoordeling(string titel, string commentaar, double hygieneScore, double serviceScore, double etenEnDrinkenScore, double prijsKwaliteitScore)

@@ -4,16 +4,23 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models.Identity;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Services
 {
     public class GebruikerService: IGebruikerService
     {
-        private IdentityContext _context;
-        public GebruikerService(IdentityContext context)
+        private readonly IdentityContext _context;
+        private readonly UserManager<Gebruiker> _userManager;
+        private readonly RoleManager<Role> _roleManager;
+        public GebruikerService(IHttpContextAccessor accessor, IdentityContext context, UserManager<Gebruiker> userManager, RoleManager<Role> roleManager)
         {
             _context = context;
+            _userManager = userManager;
+            _roleManager = roleManager;
+            _httpContextAccessor = accessor;
         }
 
         public ICollection<Gebruiker> GetGebruikers()
@@ -68,14 +75,51 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async Task<bool> AddGebruiker(Gebruiker nieuweGebruiker)
+        public async Task<Gebruiker> GetHuidigeGebruiker()
+        {
+            try
+            {
+                return await _userManager.GetUserAsync(HttpContext.User);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException("Kon de ingelogde gebruiker niet opvragen");
+            }
+        }
+
+        public List<string> GetGebruikerRollen()
+        {
+            try
+            {
+                return new List<string>()
+                {
+                    RollenEnum.Admin.ToString(),
+                    RollenEnum.Kassamedewerker.ToString(),
+                    RollenEnum.Klant.ToString(),
+                    RollenEnum.Kok.ToString(),
+                    RollenEnum.Restaurantuitbater.ToString()
+                };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException("Kon rollen niet opvragen");
+            }
+        }
+
+        public IHttpContextAccessor _httpContextAccessor { get; set; }
+
+        public async Task<bool> AddGebruiker(Gebruiker nieuweGebruiker, string passwordHash, string rol)
         {
             bool result = false;
             try
             {
                 if (nieuweGebruiker != null && !GebruikerExists(nieuweGebruiker.Id))
                 {
-                    _context.Gebruikers.Add(nieuweGebruiker);
+                    await _userManager.CreateAsync(nieuweGebruiker, passwordHash);
+                    await _userManager.AddToRoleAsync(nieuweGebruiker, rol);
+                    await _context.Gebruikers.AddAsync(nieuweGebruiker);
                     await _context.SaveChangesAsync();
                     result = true;
                 }
@@ -89,6 +133,30 @@ namespace Lekkerbek.Web.Services
                 Console.WriteLine(e);
                     
             }
+            return result;
+        }
+
+        public async Task<bool> UpdateGebruiker(Gebruiker updatedGebruiker)
+        {
+            bool result = false;
+            try
+            {
+                if (GebruikerExists(updatedGebruiker.Id))
+                {
+                    _context.Gebruikers.Update(updatedGebruiker);
+                    await _context.SaveChangesAsync();
+                    result = true;
+                }
+                else
+                {
+                    throw new ServiceException("Kon geen gebruiker updaten met opgegeven id: " + updatedGebruiker.Id);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
             return result;
         }
 

@@ -4,14 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Services
 {
     public class BestellingService : IBestellingService
     {
-        private IdentityContext _context;
+        private readonly IdentityContext _context;
 
         public BestellingService(IdentityContext context)
         {
@@ -56,7 +55,7 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async void SetBestellingen(ICollection<Bestelling> bestellingen)
+        public async Task SetBestellingen(ICollection<Bestelling> bestellingen)
         {
             try
             {
@@ -73,7 +72,7 @@ namespace Lekkerbek.Web.Services
             
         }
 
-        public async void AddBestelling(Bestelling bestelling)
+        public async Task AddBestelling(Bestelling bestelling)
         {
             try
             {
@@ -87,7 +86,7 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async void DeleteBestelling(int id)
+        public async Task DeleteBestelling(int id)
         {
             try
             {
@@ -108,7 +107,7 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async void UpdateBestelling(Bestelling bestelling)
+        public async Task UpdateBestelling(Bestelling bestelling)
         {
             try
             {
@@ -130,7 +129,7 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async void AddGerechtAanBestelling(int id, Gerecht gerecht)
+        public async Task AddGerechtAanBestelling(int id, Gerecht gerecht)
         {
             try
             {
@@ -167,7 +166,7 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async void DeleteGerechtVanBestelling(string gerechtNaam, int bestellingId)
+        public async Task DeleteGerechtVanBestelling(string gerechtNaam, int bestellingId)
         {
             try
             {

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
@@ -19,21 +20,20 @@ namespace Lekkerbek.Web.Controllers
     {
         private readonly IdentityContext _context;
         private readonly RoleManager<Role> _roleManager;
-        private readonly UserManager<Gebruiker> _userManager;
+        private readonly IGebruikerService _gebruikerService;
 
-        public VoorkeursgerechtenController(IdentityContext context, RoleManager<Role> rolemanager, UserManager<Gebruiker> userManager)
+        public VoorkeursgerechtenController(IdentityContext context, IGebruikerService gebruikerService)
         {
             _context = context;
-            _roleManager = rolemanager;
-            _userManager = userManager;
+            _gebruikerService = gebruikerService;
         }
         // GET: VoorkeursgerechtenController
         public async Task<ActionResult> Index()
         {
-           
+            Gebruiker currentUser = null;
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                currentUser = await _gebruikerService.GetHuidigeGebruiker();
                 ViewBag.User = currentUser.Id;
 
                 return View(_context.VoorkeursGerechtenVanKlanten(currentUser.Id));
@@ -41,14 +41,14 @@ namespace Lekkerbek.Web.Controllers
             else
             {
 
-                return View(_context.Gebruikers.Include("Voorkeursgerechten").ToList()); 
+                return View(model: (List<Gerecht>)_gebruikerService.GetGebruiker(currentUser.Id).Voorkeursgerechten); 
             }
         }
-        // GET: VoorkeursgerechtenController/Details/5
+        /*// GET: VoorkeursgerechtenController/Details/5
         public ActionResult Details(int id)
         {
             return View();
-        }
+        }*/
 
         // GET: VoorkeursgerechtenController/Create
         public async Task<ActionResult> Create()
@@ -66,11 +66,11 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
-                Gerecht gerecht = new Gerecht(); 
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                Gerecht gerecht = new Gerecht();
+                var currentUser = _gebruikerService.GetHuidigeGebruiker();
                 var gerechtvandb = await _context.Gerechten.FirstAsync(g => g.Naam.Equals(collection["Naam"])); 
                 gerecht = gerechtvandb;
-                _context.Gebruikers.First(klant => klant.Id == currentUser.Id).Voorkeursgerechten.Add(gerecht);
+                _gebruikerService.GetGebruiker(currentUser.Id).Voorkeursgerechten.Add(gerecht);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -84,7 +84,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: VoorkeursgerechtenController/Delete/5
         public async Task<ActionResult> Delete(String id)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = _gebruikerService.GetHuidigeGebruiker();
             var gerecht = _context.Gerechten.First(g => g.Naam.Equals(id));            
             return View(gerecht);
         }
@@ -96,7 +96,7 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                var currentUser = _gebruikerService.GetHuidigeGebruiker();
                 var gerecht = _context.Gerecht.First(g => g.Naam.Equals(id)); 
                 _context.VoorkeursGerechtenVanKlanten(currentUser.Id).Remove(gerecht);
                 await _context.SaveChangesAsync();

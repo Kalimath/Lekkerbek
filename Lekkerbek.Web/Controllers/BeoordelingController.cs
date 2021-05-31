@@ -13,21 +13,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Controllers
 {
-    [AllowAnonymous]
+    [Authorize]
     public class BeoordelingController : Controller
     {
         
-        private readonly RoleManager<Role> _roleManager;
-        private readonly UserManager<Gebruiker> _userManager;
+        
         private readonly IGebruikerService _gebruikerService;
         private readonly IBeoordelingService _beoordelingService;
-        public BeoordelingController(RoleManager<Role> roleManager, UserManager<Gebruiker> userManager,IGebruikerService iGebruikerService, IBeoordelingService iBeoordelingService)
+        public BeoordelingController(IGebruikerService iGebruikerService, IBeoordelingService iBeoordelingService)
         {
-            _roleManager = roleManager;
-            _userManager = userManager;
             _gebruikerService = iGebruikerService;
             _beoordelingService = iBeoordelingService;
         }
+        [AllowAnonymous]
         public IActionResult Index()
         {
             List<BeoordelingMetKlantNaamViewModel> viewModels =  new List<BeoordelingMetKlantNaamViewModel>();
@@ -38,6 +36,7 @@ namespace Lekkerbek.Web.Controllers
             }
             return View(viewModels);
         }
+        [AllowAnonymous]
 
         // GET: Beoordeling/Details/5
         public async Task<IActionResult> Details(int id)
@@ -72,13 +71,12 @@ namespace Lekkerbek.Web.Controllers
         [Authorize(Roles = "Klant")]
         public async Task<IActionResult> Create([Bind("Titel, Commentaar, ScoreLijst")] Beoordeling beoordeling)
         {
+            var idHuidigeGebruiker = _gebruikerService.GetHuidigeGebruiker().Id;
             if (ModelState.IsValid)
             {
-                if (_gebruikerService.GetHoogsteRolVanGebruiker((await _userManager.GetUserAsync(HttpContext.User)).Id).Equals(RollenEnum.Klant.ToString()))
+                if (_gebruikerService.GetHoogsteRolVanGebruiker(idHuidigeGebruiker).Equals(RollenEnum.Klant.ToString()))
                 {
-                    var userId = (await _userManager.GetUserAsync(HttpContext.User)).Id;
-                    beoordeling.KlantId = userId;
-
+                    beoordeling.KlantId = idHuidigeGebruiker;
                     await _beoordelingService.AddBeoordeling(beoordeling);
                     return RedirectToAction(nameof(MijnBeoordelingen));
                 }
@@ -120,7 +118,7 @@ namespace Lekkerbek.Web.Controllers
 
         public async Task<IActionResult> MijnBeoordelingen()
         {
-            return View(_beoordelingService.GetBeoordelingenVanKlant((await _userManager.GetUserAsync(HttpContext.User)).Id));
+            return View(_beoordelingService.GetBeoordelingenVanKlant(_gebruikerService.GetHuidigeGebruiker().Id));
         }
 
         // GET: Beoordeling/Delete/5
@@ -154,7 +152,7 @@ namespace Lekkerbek.Web.Controllers
             try
             {
                 if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString())|| 
-                    _beoordelingService.GetBeoordelingenVanKlant((await _userManager.GetUserAsync(HttpContext.User)).Id).Any(beoordeling => beoordeling.Id == id))
+                    _beoordelingService.GetBeoordelingenVanKlant(_gebruikerService.GetHuidigeGebruiker().Id).Any(beoordeling => beoordeling.Id == id))
                 {
                     await _beoordelingService.DeleteBeoordeling(id);
                 }

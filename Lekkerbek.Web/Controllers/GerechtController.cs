@@ -91,13 +91,13 @@ namespace Lekkerbek.Web.Controllers
 
         // GET: Gerecht/Edit/5
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Edit(string gerechtNaam)
+        public async Task<IActionResult> Edit(string id)
         {
 
             Gerecht gerecht;
             try
             {
-                gerecht = _gerechtService.GetGerecht(gerechtNaam);
+                gerecht = _gerechtService.GetGerecht(id);
             }
             catch (Exception e)
             {
@@ -114,14 +114,14 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Edit(string gerechtNaam, IFormCollection collection)
+        public async Task<IActionResult> Edit(string id, IFormCollection collection)
         {
             Gerecht gerecht = null;
             if (ModelState.IsValid)
             {
                 try
                 {
-                    gerecht = _gerechtService.GetGerecht(gerechtNaam);
+                    gerecht = _gerechtService.GetGerecht(id);
                     gerecht.CategorieId = collection["CategorieId"];
                     gerecht.Categorie = _categorieService.GetCategorie(collection["CategorieId"]);
                     gerecht.Prijs = Double.Parse(collection["Prijs"], new CultureInfo("en-US"));
@@ -141,13 +141,13 @@ namespace Lekkerbek.Web.Controllers
 
         // GET: Gerecht/Delete/5
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Delete(string gerechtNaam)
+        public async Task<IActionResult> Delete(string id)
         {
-            if (gerechtNaam == null)
+            if (id == null)
             {
                 return NotFound();
             }
-            var gerecht = _gerechtService.GetGerecht(gerechtNaam);
+            var gerecht = _gerechtService.GetGerecht(id);
             if (gerecht == null)
             {
                 return NotFound();
@@ -160,11 +160,11 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> DeleteConfirmed(string gerechtNaam)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
             try
             {
-                await _gerechtService.DeleteGerecht(gerechtNaam);
+                await _gerechtService.DeleteGerecht(id);
             }
             catch (Exception e)
             {

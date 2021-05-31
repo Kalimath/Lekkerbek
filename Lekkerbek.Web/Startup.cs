@@ -12,6 +12,7 @@ using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Controllers;
 using Lekkerbek.Web.Models.Identity;
 using Lekkerbek.Web.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,6 +60,7 @@ namespace Lekkerbek.Web
                 options.SignIn.RequireConfirmedPhoneNumber = false;
                 options.Password.RequiredLength = 1;
             });
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
         }
 

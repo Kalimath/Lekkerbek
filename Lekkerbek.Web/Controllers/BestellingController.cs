@@ -21,17 +21,13 @@ namespace Lekkerbek.Web.Controllers
     public class BestellingController : Controller
     {
         private readonly IdentityContext _context;
-        private readonly RoleManager<Role> _roleManager;
-        private readonly UserManager<Gebruiker> _userManager;
         private readonly IBestellingService _bestellingService;
         private readonly IGebruikerService _gebruikerService;
         private readonly IGerechtService _gerechtService;
         private readonly ICategorieService _categorieService;
-        public BestellingController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService)
+        public BestellingController(IdentityContext context, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService)
         {
             _context = context;
-            _roleManager = roleManager;
-            _userManager = userManager;
             _bestellingService = bestellingService;
             _gebruikerService = gebruikerService;
             _gerechtService = gerechtService;
@@ -43,7 +39,7 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+                var currentUser = _gebruikerService.GetHuidigeGebruiker();
                 return View(_bestellingService.GetBestellingenVanKlant(currentUser.Id));
             }
             else
@@ -95,7 +91,7 @@ namespace Lekkerbek.Web.Controllers
                 var tijdslot = _context.AlleVrijeTijdsloten()
                     .Result.Find(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]));
                 tijdslot.IsVrij = false;
-                Gebruiker klantVanBestelling = await _userManager.GetUserAsync(User);
+                Gebruiker klantVanBestelling = await _gebruikerService.GetHuidigeGebruiker();
                 Bestelling bestelling = new Bestelling()
                 {
                     AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]),
@@ -115,7 +111,7 @@ namespace Lekkerbek.Web.Controllers
                 {
                     bestelling.KlantId = int.Parse(collection["Klant"]); 
                 }
-                _bestellingService.AddBestelling(bestelling);
+                await _bestellingService.AddBestelling(bestelling);
 
                 return RedirectToAction(nameof(Index));
             }
@@ -139,7 +135,7 @@ namespace Lekkerbek.Web.Controllers
             Bestelling bestelling = _bestellingService.GetBestelling(id);
             try
             {
-                _bestellingService.AddGerechtAanBestelling(id, gerecht);
+                await _bestellingService.AddGerechtAanBestelling(id, gerecht);
             }
             catch (Exception e)
             {
@@ -155,7 +151,7 @@ namespace Lekkerbek.Web.Controllers
             var gerecht = _gerechtService.GetGerecht(gerechtNaam);
             try
             {
-                _bestellingService.DeleteGerechtVanBestelling(gerechtNaam, bestellingId);
+                await _bestellingService.DeleteGerechtVanBestelling(gerechtNaam, bestellingId);
             }
             catch (Exception e)
             {
@@ -170,7 +166,7 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
-                _bestellingService.DeleteGerechtVanBestelling(gerechtNaam, bestellingid);
+                await _bestellingService.DeleteGerechtVanBestelling(gerechtNaam, bestellingid);
             }
             catch (Exception e)
             {
@@ -265,7 +261,7 @@ namespace Lekkerbek.Web.Controllers
 
                     try
                     {
-                        _bestellingService.UpdateBestelling(bestelling);
+                        await _bestellingService.UpdateBestelling(bestelling);
                     }
                     catch (Exception e)
                     {
@@ -325,7 +321,7 @@ namespace Lekkerbek.Web.Controllers
 
             try
             {
-                _bestellingService.DeleteBestelling(id);
+                await _bestellingService.DeleteBestelling(id);
             }
             catch (Exception e)
             {
@@ -351,7 +347,7 @@ namespace Lekkerbek.Web.Controllers
             
             try
             {
-                _bestellingService.UpdateBestelling(bestelling);
+                await _bestellingService.UpdateBestelling(bestelling);
             }
             catch (Exception e)
             {
@@ -366,7 +362,7 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                var currentUser = _userManager.GetUserAsync(HttpContext.User);
+                var currentUser = _gebruikerService.GetHuidigeGebruiker();
                 return Json(new {data = _bestellingService.GetBestellingenVanKlant(currentUser.Id)});
             }
             else
