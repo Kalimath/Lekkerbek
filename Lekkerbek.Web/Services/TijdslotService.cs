@@ -56,7 +56,7 @@ namespace Lekkerbek.Web.Services
 
         public ICollection<Tijdslot> GetTijdslotenVanKok(int kokId)
         {
-            throw new NotImplementedException();
+            return GetTijdslotenVanKok(kokId).ToList();
         }
 
         public async Task AddTijdslot(Tijdslot nieuwTijdslot)
@@ -81,9 +81,26 @@ namespace Lekkerbek.Web.Services
         }
 
         //TODO
-        public Task UpdateTijdslot(Tijdslot updatedTijdslot)
+        public async Task UpdateTijdslot(Tijdslot updatedTijdslot)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (TijdslotExists(updatedTijdslot.Id))
+                {
+                    _context.Update(updatedTijdslot);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new ServiceException("Kon tijdslot met id: " + updatedTijdslot.Id + " niet aanpassen: tijdslot niet in database");
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException(e.Message);
+            }
         }
 
         public async Task DeleteTijdslot(int tijdslotId)
