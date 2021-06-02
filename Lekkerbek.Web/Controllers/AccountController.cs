@@ -106,7 +106,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Create([Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam,Rol,PasswordHash")] GebruikerMetRolDto gebruikerDto)
+        public async Task<IActionResult> Create([Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam,Rol,PasswordHash,Geslacht")] GebruikerMetRolDto gebruikerDto)
         {
             if (ModelState.IsValid)
             {
@@ -120,7 +120,8 @@ namespace Lekkerbek.Web.Controllers
                     IsProfessional = gebruikerDto.IsProfessional,
                     BtwNummer = gebruikerDto.BtwNummer,
                     FirmaNaam = gebruikerDto.FirmaNaam,
-                    PasswordHash = gebruikerDto.PasswordHash
+                    PasswordHash = gebruikerDto.PasswordHash,
+                    Geslacht = gebruikerDto.Geslacht
                 };
                 var user = await _userManager.CreateAsync(nieuweGebruiker, gebruikerDto.PasswordHash);
                 await _userManager.AddToRoleAsync(nieuweGebruiker, gebruikerDto.Rol);
@@ -154,7 +155,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Edit(int id, [Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam")] Gebruiker gebruiker)
+        public async Task<IActionResult> Edit(int id, [Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam,Geslacht")] Gebruiker gebruiker)
         {
             if (id != gebruiker.Id)
             {

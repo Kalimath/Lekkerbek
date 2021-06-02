@@ -24,7 +24,7 @@ namespace Lekkerbek.Web.Models.Identity
             get => _geboortedatum.Date;
             set => _geboortedatum = value;
         }
-
+        public string Geslacht { get; set; }
         public int Getrouwheidsscore { get; set; } = 0;
         public ICollection<Gerecht> Voorkeursgerechten { get; set; }
         public virtual ICollection<Bestelling> Bestellingen { get; set; }
