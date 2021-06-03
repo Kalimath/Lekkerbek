@@ -11,21 +11,25 @@ namespace Lekkerbek.Web.Models
         [DisplayName("Service")]
         [Required]
         [NotNull]
+        [Range(0, 10)]
         public double ServiceScore { get; set; }
 
         [DisplayName("Eten en drinken")]
         [Required]
         [NotNull]
+        [Range(0, 10)]
         public double EtenEnDrinkenScore { get; set; }
 
         [DisplayName("Prijs-kwaliteit")]
         [Required]
         [NotNull]
+        [Range(0, 10)]
         public double PrijsKwaliteitScore { get; set; }
 
         [DisplayName("Hygiëne")]
         [Required]
         [NotNull]
+        [Range(0, 10)]
         public double HygieneScore { get; set; }
 
         public virtual int BeoordelingsId { get; set; }

@@ -16,14 +16,17 @@ namespace Lekkerbek.Web.Models.Identity
             Voorkeursgerechten = new HashSet<Gerecht>();
         }
         private DateTime _geboortedatum;
+        [Required]
         public string Adres { get; set; }
 
         [DataType(DataType.Date)]
+        [Required]
         public DateTime Geboortedatum
         {
             get => _geboortedatum.Date;
             set => _geboortedatum = value;
         }
+
         public int Getrouwheidsscore { get; set; } = 0;
         public ICollection<Gerecht> Voorkeursgerechten { get; set; }
         public virtual ICollection<Bestelling> Bestellingen { get; set; }

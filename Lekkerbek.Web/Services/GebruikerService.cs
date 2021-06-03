@@ -75,16 +75,16 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public Gebruiker GetHuidigeGebruiker()
+        public Gebruiker GetGebruikerInfo(Gebruiker gebruiker)
         {
             try
             {
-                return (Gebruiker)_httpContextAccessor.HttpContext.User.Identity;
+                return GetGebruiker(gebruiker.Id);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw new ServiceException("Kon de ingelogde gebruiker niet opvragen");
+                throw new ServiceException("Kon de opgegeven gebruiker niet opvragen");
             }
         }
 

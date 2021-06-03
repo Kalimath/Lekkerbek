@@ -12,7 +12,7 @@ namespace Lekkerbek.Web.Services
         public ICollection<Gebruiker> GetGebruikersMetRolKlant();
         public Gebruiker GetGebruikerMetRolKlant(int gebruikerId);
         public Gebruiker GetGebruiker(int gebruikerId);
-        public Gebruiker GetHuidigeGebruiker();
+        public Gebruiker GetGebruikerInfo(Gebruiker gebruiker);
         public List<string> GetGebruikerRollen();
         public Task<bool> AddGebruiker(Gebruiker nieuweGebruiker, string passwordHash, string rol);
         public Task<bool> UpdateGebruiker(Gebruiker updatedGebruiker);

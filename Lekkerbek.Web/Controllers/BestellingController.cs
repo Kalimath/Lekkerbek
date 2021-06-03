@@ -25,13 +25,16 @@ namespace Lekkerbek.Web.Controllers
         private readonly IGebruikerService _gebruikerService;
         private readonly IGerechtService _gerechtService;
         private readonly ICategorieService _categorieService;
-        public BestellingController(IdentityContext context, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService)
+        private readonly UserManager<Gebruiker> _userManager;
+
+        public BestellingController(IdentityContext context, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService, UserManager<Gebruiker> userManager)
         {
             _context = context;
             _bestellingService = bestellingService;
             _gebruikerService = gebruikerService;
             _gerechtService = gerechtService;
             _categorieService = categorieService;
+            _userManager = userManager;
         }
 
         // GET: Bestelling
@@ -39,7 +42,7 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                var currentUser = _gebruikerService.GetHuidigeGebruiker();
+                var currentUser = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
                 return View(_bestellingService.GetBestellingenVanKlant(currentUser.Id));
             }
             else
@@ -91,7 +94,7 @@ namespace Lekkerbek.Web.Controllers
                 var tijdslot = _context.AlleVrijeTijdsloten()
                     .Result.Find(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]));
                 tijdslot.IsVrij = false;
-                Gebruiker klantVanBestelling = _gebruikerService.GetHuidigeGebruiker();
+                Gebruiker klantVanBestelling = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
                 Bestelling bestelling = new Bestelling()
                 {
                     AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]),
@@ -358,11 +361,11 @@ namespace Lekkerbek.Web.Controllers
         }
 
 
-        public JsonResult LaadAlleBestellingen()
+        public async Task<JsonResult> LaadAlleBestellingen()
         {
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                var currentUser = _gebruikerService.GetHuidigeGebruiker();
+                var currentUser = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
                 return Json(new {data = _bestellingService.GetBestellingenVanKlant(currentUser.Id)});
             }
             else

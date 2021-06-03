@@ -22,10 +22,12 @@ namespace Lekkerbek.Web.Controllers
     public class AccountController : Controller
     {
         private readonly IGebruikerService _gebruikerService;
+        private readonly UserManager<Gebruiker> _userManager;
 
-        public AccountController(IGebruikerService gebruikerService)
+        public AccountController(IGebruikerService gebruikerService, UserManager<Gebruiker> userManager)
         {
             _gebruikerService = gebruikerService;
+            _userManager = userManager;
         }
 
         // GET: Account
@@ -37,7 +39,7 @@ namespace Lekkerbek.Web.Controllers
             }
             else
             {
-                return RedirectToAction("Details", new { id = _gebruikerService.GetHuidigeGebruiker().Id });
+                return RedirectToAction("Details", new { id = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User)).Id });
             }
         }
 
@@ -50,11 +52,11 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var hoogsteRolVanGebruiker = _gebruikerService.GetHoogsteRolVanGebruiker(_gebruikerService.GetHuidigeGebruiker().Id);
+            var hoogsteRolVanGebruiker = _gebruikerService.GetHoogsteRolVanGebruiker(_gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User)).Id);
 
-            if (!hoogsteRolVanGebruiker.Equals(RollenEnum.Admin.ToString()) || !hoogsteRolVanGebruiker.Equals(RollenEnum.Kassamedewerker.ToString()))
+            if (!hoogsteRolVanGebruiker.Equals(RollenEnum.Admin.ToString()) && !hoogsteRolVanGebruiker.Equals(RollenEnum.Kassamedewerker.ToString()))
             {
-                gebruiker = _gebruikerService.GetHuidigeGebruiker();
+                gebruiker = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
             }
             else
             {

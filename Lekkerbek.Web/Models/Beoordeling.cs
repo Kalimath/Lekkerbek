@@ -68,6 +68,7 @@ namespace Lekkerbek.Web.Models
         public int Id { get; set; }
 
         [Required]
+        [NotNull]
         public string Titel { get; set; }="/";
         [Required]
         [NotNull]
