@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using System.Net.Mail;
+using Lekkerbek.Web.ViewModels.Bestelling;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -77,10 +78,20 @@ namespace Lekkerbek.Web.Controllers
         // GET: Bestelling/Create
         public IActionResult Create()
         {
-            ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
-            ViewData["AlleGerechtenNamen"] = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
-            ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result.Where(tijdslot => tijdslot.IsVrij), "Tijdstip", "Tijdstip");
-            return View();
+
+            var klanten =  new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
+            var gerechten = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
+            var tijdslot = new SelectList(_context.AlleVrijeTijdsloten().Result.Where(tijdslot => tijdslot.IsVrij), "Tijdstip", "Tijdstip");
+
+            var vm = new CreateViewModel() {
+                KlantenLijst = klanten,
+                GerechtenLijst = gerechten,
+                Tijdsloten = tijdslot
+            }; 
+            //ViewData["Klanten"] = new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName");
+            //ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
+            //ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result.Where(tijdslot => tijdslot.IsVrij), "Tijdstip", "Tijdstip");
+            return View(vm);
         }
 
         // POST: Bestelling/Create
@@ -88,20 +99,20 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(IFormCollection collection)
+        public async Task<IActionResult> Create([Bind("KlantId", "Levertijd", "Opmerkingen", "AantalMaaltijden", "GerechtenNamen", "Tijdstip")]CreateViewModel vm)
         {
             try
-            {
+            { 
                 var tijdslot = _context.AlleVrijeTijdsloten()
-                    .Result.Find(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]));
+                    .Result.Find(tijdslot => tijdslot.Tijdstip == vm.Tijdstip);
                 tijdslot.IsVrij = false;
                 Gebruiker klantVanBestelling = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
                 Bestelling bestelling = new Bestelling()
                 {
-                    AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]),
+                    AantalMaaltijden = vm.AantalMaaltijden,
                     GerechtenLijst = new List<Gerecht>(),
-                    Opmerkingen = collection["Opmerkingen"],
-                    Levertijd = DateTime.Parse(collection["Levertijd"]),                    
+                    Opmerkingen = vm.Opmerkingen,
+                    Levertijd = vm.Levertijd,
                     Tijdslot = tijdslot
                 };
                 IEnumerable<string> gerechtNamen = (ICollection<string>)collection["GerechtenLijst"];
@@ -113,7 +124,7 @@ namespace Lekkerbek.Web.Controllers
                 }
                 else
                 {
-                    bestelling.KlantId = int.Parse(collection["Klant"]); 
+                    bestelling.KlantId = vm.KlantId;
                 }
                 await _bestellingService.AddBestelling(bestelling);
 
@@ -127,8 +138,8 @@ namespace Lekkerbek.Web.Controllers
         }
 
         public IActionResult VoegGerechtenToe(int id)
-        {
-            var gerechteKlantBestelling = _context.Bestellingen.Find(id);
+        { 
+            var gerechteKlantBestelling = _context.Bestellingen.Include("GerechtenLijst").First(p=> p.Id == id);
             List<Gerecht> gerechtenLijstKlant = new List<Gerecht>(); 
             foreach(Gerecht g in _gerechtService.GetGerechten())
             {
@@ -137,12 +148,18 @@ namespace Lekkerbek.Web.Controllers
                     gerechtenLijstKlant.Add(g); 
                 }
             }
-            ViewData["Naam"] = new SelectList(gerechtenLijstKlant, "Naam", "Naam");
-            return View(); 
+
+            VoegGerechtenToeViewModel vm = new VoegGerechtenToeViewModel()
+            {
+                Id = id,
+                GerechtenLijst = new SelectList(gerechtenLijstKlant, "Naam", "Naam")
+            };
+
+            return View(vm); 
         }
 
         [HttpPost]
-        public async Task<IActionResult> VoegGerechtenToe(int id, IFormCollection collection)
+        public async Task<IActionResult> VoegGerechtenToe([Bind("Id", "ToeTeVoegenGerecht")]VoegGerechtenToeViewModel vm)
         {
             var gerecht = _gerechtService.GetGerecht(collection["Naam"]);
             Bestelling bestelling = _bestellingService.GetBestelling(id);
@@ -192,14 +209,18 @@ namespace Lekkerbek.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> WijzigTijdslot(int id, int tijdslotId)
         {
-            var huidigtijdslot = _context.Tijdslot.Find(tijdslotId); 
+            WijzigTijdslotViewModel vm = new WijzigTijdslotViewModel();
+
+            vm.Id = id;
+            vm.HuidigTijdslotId = tijdslotId;
+            vm.HuidigTijdslot = _context.Tijdslot.Find(tijdslotId);
+            
             var tijdsloten = _context.AlleVrijeTijdsloten();
-            ViewData["HuidigTijdslot"] = huidigtijdslot.Tijdstip; 
             ViewData["Tijdslot"] = new SelectList(tijdsloten.Result, "Id", "Tijdstip"); 
-            return View();
+            return View(vm);
         }
         [HttpPost]
-        public async Task<IActionResult> WijzigTijdslot(int id, int tijdslotid, IFormCollection collection)
+        public async Task<IActionResult> WijzigTijdslot(int tijdslotId, WijzigTijdslotViewModel vm)
         {
             var huidigtijdslot = _context.Tijdslot.Find(tijdslotid); 
             var tijdsloten = _context.AlleVrijeTijdsloten();
@@ -210,15 +231,18 @@ namespace Lekkerbek.Web.Controllers
             var bestelling = _bestellingService.GetBestelling(id);
 
             huidigtijdslot.IsVrij = true;
-            nieuwTijdSlot.IsVrij = false; 
+            nieuwTijdSlot.IsVrij = false;
             bestelling.Tijdslot = nieuwTijdSlot;
-            await _context.SaveChangesAsync();
+            
+             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index)); 
         }
 
         // GET: Bestelling/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            EditViewModel vm = new EditViewModel(); 
+            
             if (id == null)
             {
                 return NotFound();
@@ -237,12 +261,13 @@ namespace Lekkerbek.Web.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
-
-            ViewData["HuidigeKlant"] = _gebruikerService.GetGebruikerMetRolKlant(bestelling.KlantId); 
-            ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
-            ViewData["AlleGerechtenNamen"] = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
-            ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip");
-            return View(bestelling);
+            vm.bestelling = bestelling; 
+            vm.HuidigeKlant = _gebruikerService.GetGebruikerMetRolKlant(bestelling.KlantId);
+            vm.Klanten = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName", vm.HuidigeKlant);
+            vm.AlleGerechtNamen = _gerechtService.GetGerechten().ToList();
+            vm.Tijdslot = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip"); 
+           
+            return View(vm);
         }
 
         // POST: Bestelling/Edit/5
@@ -250,7 +275,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, IFormCollection collection)
+        public async Task<IActionResult> Edit(int id, [Bind ("KlantId", "AlleGerechtNamen", "TijdSlot", "bestelling")]EditViewModel vm)
         {
             Bestelling bestelling = null;
             
@@ -260,14 +285,14 @@ namespace Lekkerbek.Web.Controllers
                 try
                 {
 
-                    bestelling = _bestellingService.GetBestelling(id);
-                    bestelling.AantalMaaltijden = Int32.Parse(collection["AantalMaaltijden"]);
-                    bestelling.Opmerkingen = collection["Opmerkingen"];
-                    bestelling.Levertijd = DateTime.Parse(collection["Levertijd"]);
+                    bestelling = _bestellingService.GetBestelling(id); 
+                    bestelling.AantalMaaltijden = vm.bestelling.AantalMaaltijden;
+                    bestelling.Opmerkingen = vm.bestelling.Opmerkingen ;
+                    bestelling.Levertijd = vm.bestelling.Levertijd;
 
                     if (User.IsInRole(RollenEnum.Admin.ToString()))
                     { 
-                        Gebruiker klantVanBestelling =  _gebruikerService.GetGebruikerMetRolKlant(int.Parse(collection["Klant"]));
+                        Gebruiker klantVanBestelling =  _gebruikerService.GetGebruikerMetRolKlant(vm.KlantId);
                         bestelling.Klant = klantVanBestelling;
                         bestelling.KlantId = klantVanBestelling.Id;
                     }
@@ -289,8 +314,6 @@ namespace Lekkerbek.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
-            ViewData["AlleGerechtenNamen"] = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
-            ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip");
             return View(bestelling);
         }
 

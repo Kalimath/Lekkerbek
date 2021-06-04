@@ -1,7 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
 @using System.Linq
 @using Lekkerbek.Web.Models.Identity
-@model Lekkerbek.Web.Models.Bestelling
+@model Lekkerbek.Web.ViewModels.Bestelling.CreateViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -16,38 +16,45 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString())){  
+            @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+            {
+                @*<div class="form-group">
+                    <label asp-for="Klant" class="control-label"></label>
+                    <select asp-for="Klant" class="form-control" asp-items="ViewBag.Klanten"></select>
+                </div>*@
+                <div class="form-group">
+                    @Html.DropDownListFor(m => m.KlantId, Model.KlantenLijst)
+                </div>
+            }
             <div class="form-group">
-                <label asp-for="Klant" class="control-label"></label>
-                <select asp-for="Klant" class="form-control" asp-items="ViewBag.Klanten"></select>
-            </div>
-                }
-            <div class="form-group">
-                <label asp-for="Levertijd" class="control-label"></label>
-                <input asp-for="Levertijd" class="form-control" />
-                <span asp-validation-for="Levertijd" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Opmerkingen" class="control-label"></label>
-                <input asp-for="Opmerkingen" class="form-control" />
-                <span asp-validation-for="Opmerkingen" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AantalMaaltijden" class="control-label"></label>
-                <input asp-for="AantalMaaltijden" class="form-control" />
-                <span asp-validation-for="AantalMaaltijden" class="text-danger"></span>
-            </div>
+            <label asp-for="Levertijd" class="control-label"></label>
+            <input asp-for="Levertijd" class="form-control" />
+            <span asp-validation-for="Levertijd" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Opmerkingen" class="control-label"></label>
+            <input asp-for="Opmerkingen" class="form-control" />
+            <span asp-validation-for="Opmerkingen" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="AantalMaaltijden" class="control-label"></label>
+            <input asp-for="AantalMaaltijden" class="form-control" />
+            <span asp-validation-for="AantalMaaltijden" class="text-danger"></span>
+        </div>
+
+
+
             @*<div class="form-group">
             <label asp-for="Klant.UserName" class="control-label"></label>
             <select asp-for="Klant.UserName" class="form-control" asp-items="ViewBag.Klanten"></select>
         </div>*@
             <div class="form-group">
-                <label asp-for="GerechtenLijst" class="control-label"></label>
-                <select asp-for="GerechtenLijst" class="form-control" asp-items="ViewBag.AlleGerechtenNamen" multiple="multiple"></select>
+                <label asp-for="GerechtenNamen" class="control-label"></label>
+                <select asp-for="GerechtenNamen" class="form-control" asp-items="Model.GerechtenLijst" multiple="multiple"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Tijdslot" class="control-label"></label>
-                <select asp-for="Tijdslot" class="form-control" asp-items="ViewBag.Tijdslot"></select>
+                <label asp-for="Tijdstip" class="control-label"></label>
+                <select asp-for="Tijdstip" class="form-control" asp-items="Model.Tijdsloten"></select>
             </div>
 
             <div class="form-group">
