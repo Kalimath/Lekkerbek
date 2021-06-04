@@ -1,4 +1,4 @@
-﻿@model Lekkerbek.Web.Models.Gerecht
+﻿@model Lekkerbek.Web.ViewModels.Bestelling.VoegGerechtenToeViewModel
 
 @{
     ViewData["Title"] = "VoegGerechtenToe";
@@ -13,8 +13,8 @@
         <form asp-action="VoegGerechtenToe">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Naam" class="control-label"></label>
-                <select asp-for="Naam" class="form-control" asp-items="ViewBag.Naam"></select>
+                <label asp-for="@Model.ToeTeVoegenGerecht" class="control-label"></label>
+                <select asp-for="@Model.ToeTeVoegenGerecht" class="form-control" asp-items="@Model.GerechtenLijst"></select>
             </div>
             @*
         <div class="form-group">
@@ -34,7 +34,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Back to List</a>
 </div>
 
 @section Scripts {

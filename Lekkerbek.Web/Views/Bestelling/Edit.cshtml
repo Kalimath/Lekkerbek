@@ -1,4 +1,5 @@
-﻿@model Lekkerbek.Web.Models.Bestelling
+﻿@model Lekkerbek.Web.ViewModels.Bestelling.EditViewModel
+
 @using Lekkerbek.Web.Models.Identity 
 
 @{
@@ -7,36 +8,34 @@
 }
 
 <h1>Edit</h1>
-
 <h4>Bestelling</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="@Model.bestelling.Id" />
             <div class="form-group">
-                <label asp-for="Levertijd" class="control-label"></label>
-                <input asp-for="Levertijd" class="form-control" />
-                <span asp-validation-for="Levertijd" class="text-danger"></span>
+                <label asp-for="@Model.bestelling.Levertijd" class="control-label"></label>
+                <input asp-for="@Model.bestelling.Levertijd" class="form-control" />
+                <span asp-validation-for="@Model.bestelling.Levertijd" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Opmerkingen" class="control-label"></label>
-                <input asp-for="Opmerkingen" class="form-control" />
-                <span asp-validation-for="Opmerkingen" class="text-danger"></span>
+                <label asp-for="@Model.bestelling.Opmerkingen" class="control-label"></label>
+                <input asp-for="@Model.bestelling.Opmerkingen" class="form-control" />
+                <span asp-validation-for="@Model.bestelling.Opmerkingen" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AantalMaaltijden" class="control-label"></label>
-                <input asp-for="AantalMaaltijden" class="form-control" />
-                <span asp-validation-for="AantalMaaltijden" class="text-danger"></span>
+                <label asp-for="@Model.bestelling.AantalMaaltijden" class="control-label"></label>
+                <input asp-for="@Model.bestelling.AantalMaaltijden" class="form-control" />
+                <span asp-validation-for="@Model.bestelling.AantalMaaltijden" class="text-danger"></span>
             </div>
             @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
-        <div class="form-group">
-            <label asp-for="Klant" class="control-label"></label>
-            <p>Huidige klant van deze bestelling: @ViewBag.HuidigeKlant</p>
-            <select asp-for="Klant" class="form-control" asp-items="ViewBag.Klanten"></select>
-        </div>
+                <div class="form-group">
+                    <p>Huidige klant van deze bestelling: @Model.HuidigeKlant</p>
+                    @Html.DropDownListFor(k => k.KlantId, Model.Klanten)
+                </div>
             }
             @*<div class="form-group">
             <label asp-for="Tijdslot" class="control-label"></label>
@@ -49,7 +48,7 @@
         </div>*@
             <div>
                 <p>Tijdslot</p>
-                <p>@Model.Tijdslot.Tijdstip</p><a asp-action="WijzigTijdslot" asp-route-id="@Model.Id" asp-route-tijdslotId="@Model.Tijdslot.Id" class="btn btn-primary">Verander het tijdslot</a>
+                <p>@Model.bestelling.Tijdslot.Tijdstip</p><a asp-action="WijzigTijdslot" asp-route-id="@Model.bestelling.Id" asp-route-tijdslotId="@Model.bestelling.Tijdslot.Id" class="btn btn-primary">Verander het tijdslot</a>
             </div>
             @*<div class="form-group">
             <label asp-for="GerechtenLijst" class="control-label"></label>
@@ -58,7 +57,7 @@
 
             <div class="form-group" style="padding-top:10px">
                 <input type="submit" value="Opslaan" class="btn btn-primary" />
-                <a asp-action="VoegGerechtenToe" asp-route-id="@Model.Id" class="btn btn-primary">Voeg een gerecht toe</a>
+                <a asp-action="VoegGerechtenToe" asp-route-id="@Model.bestelling.Id" class="btn btn-primary">Voeg een gerecht toe</a>
 
             </div>
         </form>
@@ -69,13 +68,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.GerechtenLijst.First().Naam)
+                @Html.DisplayNameFor(model => model.bestelling.GerechtenLijst.First().Naam)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.GerechtenLijst.First().Categorie)
+                @Html.DisplayNameFor(model => model.bestelling.GerechtenLijst.First().Categorie)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.GerechtenLijst.First().Prijs)
+                @Html.DisplayNameFor(model => model.bestelling.GerechtenLijst.First().Prijs)
             </th>
             <th>
                 Delete
@@ -83,7 +82,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var gerecht in Model.GerechtenLijst)
+        @foreach (var gerecht in Model.bestelling.GerechtenLijst)
         {
             <tr>
                 <td>
@@ -96,7 +95,7 @@
                     € @gerecht.Prijs
                 </td>
                 <td>
-                    <a asp-action="VerwijderEenGerecht" asp-route-id="@gerecht.Naam" asp-route-bestellingid="@Model.Id"}>Delete</a>
+                    <a asp-action="VerwijderEenGerecht" asp-route-id="@gerecht.Naam" asp-route-bestellingid="@Model.bestelling.Id"}>Delete</a>
                 </td>
             </tr>
         }
