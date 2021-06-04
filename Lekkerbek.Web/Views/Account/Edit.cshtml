@@ -12,7 +12,12 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>           
+            <div class="form-group">
+                <label>Man </label>@Html.RadioButtonFor(g => g.Geslacht, "Man")
+                <label>Vrouw </label>@Html.RadioButtonFor(g => g.Geslacht, "Vrouw")
+                <label>Onzijdig </label> @Html.RadioButtonFor(g => g.Geslacht, "Onzijdig")
+            </div>
             <div class="form-group">
                 <label asp-for="UserName" class="control-label"></label>
                 <input asp-for="UserName" class="form-control" />

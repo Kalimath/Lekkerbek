@@ -1,0 +1,5 @@
+﻿<p>Beste, {0}{1} </p>
+<p>{2}</p>
+<p>Uw voorkeursgerechten: {3}</p>
+<p>Met vriendelijke groeten, </p>
+<p>Het Lekkerbek Team</p>

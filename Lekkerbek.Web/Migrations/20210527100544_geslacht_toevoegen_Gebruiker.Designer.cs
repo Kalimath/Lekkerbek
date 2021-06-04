@@ -4,14 +4,16 @@ using Lekkerbek.Web.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Lekkerbek.Web.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20210527100544_geslacht_toevoegen_Gebruiker")]
+    partial class geslacht_toevoegen_Gebruiker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,42 +49,6 @@ namespace Lekkerbek.Web.Migrations
                     b.HasIndex("VoorkeursgerechtenVanKlantenId");
 
                     b.ToTable("GebruikerGerecht");
-                });
-
-            modelBuilder.Entity("Lekkerbek.Web.Models.Beoordeling", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Commentaar")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("GebruikerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("KlantId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ScoreLijstId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Titel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("TotaalScore")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GebruikerId");
-
-                    b.HasIndex("ScoreLijstId");
-
-                    b.ToTable("Beoordelingen");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
@@ -268,33 +234,6 @@ namespace Lekkerbek.Web.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("Lekkerbek.Web.Models.ScoreLijst", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("BeoordelingsId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("EtenEnDrinkenScore")
-                        .HasColumnType("float");
-
-                    b.Property<double>("HygieneScore")
-                        .HasColumnType("float");
-
-                    b.Property<double>("PrijsKwaliteitScore")
-                        .HasColumnType("float");
-
-                    b.Property<double>("ServiceScore")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ScoreLijst");
-                });
-
             modelBuilder.Entity("Lekkerbek.Web.Models.Tijdslot", b =>
                 {
                     b.Property<int>("Id")
@@ -453,19 +392,6 @@ namespace Lekkerbek.Web.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Lekkerbek.Web.Models.Beoordeling", b =>
-                {
-                    b.HasOne("Lekkerbek.Web.Models.Identity.Gebruiker", null)
-                        .WithMany("Beoordelingen")
-                        .HasForeignKey("GebruikerId");
-
-                    b.HasOne("Lekkerbek.Web.Models.ScoreLijst", "ScoreLijst")
-                        .WithMany()
-                        .HasForeignKey("ScoreLijstId");
-
-                    b.Navigation("ScoreLijst");
-                });
-
             modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Identity.Gebruiker", "Klant")
@@ -556,8 +482,6 @@ namespace Lekkerbek.Web.Migrations
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Gebruiker", b =>
                 {
-                    b.Navigation("Beoordelingen");
-
                     b.Navigation("Bestellingen");
                 });
 #pragma warning restore 612, 618

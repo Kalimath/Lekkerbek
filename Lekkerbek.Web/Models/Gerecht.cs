@@ -11,6 +11,7 @@ namespace Lekkerbek.Web.Models
         private double _prijs;
 
         [Key]
+        [Required]
         public string Naam { get; set; }
 
         public Gerecht()

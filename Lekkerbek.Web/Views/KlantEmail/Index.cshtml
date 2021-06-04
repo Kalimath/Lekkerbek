@@ -1,0 +1,23 @@
+﻿@model Lekkerbek.Web.ViewModels.EmailKlant.IndexViewModel
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Nieuwe email sturen naar de klant</h1>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Send">
+            <div class="form-group">
+                <label asp-for="Klant" class="control-label"></label>
+                <select asp-for=Klant class=" form-control" asp-items="ViewBag.Klanten"></select>
+            </div>
+            <div class="form-group">
+                <a>Met pdf <input type="checkbox" asp-for=Pdf /></a>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Stuur email" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
