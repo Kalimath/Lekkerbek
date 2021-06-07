@@ -7,6 +7,7 @@ using Lekkerbek.Web.Models.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Lekkerbek.Web.ViewModels.OpeningsUur;
 
 namespace Lekkerbek.Web.Context
 {
@@ -24,6 +25,7 @@ namespace Lekkerbek.Web.Context
         public DbSet<Lekkerbek.Web.Models.Categorie> Categorie { get; set; }
         public DbSet<Gebruiker> Gebruikers { get; set; }
         public DbSet<Role> Rollen { get; set; }
+        public virtual DbSet<OpeningsUur> OpeningsUren { get; set; }
         public List<Gebruiker> GebruikersMetRolKlant()
         {
             var klanten = from u in Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten") join r in UserRoles on u.Id equals r.UserId where r.RoleId == 3 select u;
@@ -136,5 +138,8 @@ namespace Lekkerbek.Web.Context
             
             return tijdsloten;
         }
+
+
+        public DbSet<Lekkerbek.Web.ViewModels.OpeningsUur.OpeningsUurViewModel> OpeningsUurVewModel { get; set; }
     }
 }

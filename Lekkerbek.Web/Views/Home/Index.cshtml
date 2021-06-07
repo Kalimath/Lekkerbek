@@ -1,13 +1,47 @@
-﻿@{
+﻿
+@using Lekkerbek.Web.Models.Identity
+@model IEnumerable<Lekkerbek.Web.ViewModels.OpeningsUur.OpeningsUurViewModel>
+
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <img src="/img/menu.jpg" alt="menukaart" />
-    
+
 </div>
 <div class="text-center">
     <a asp-controller="Bestelling" asp-action="Create" class="btn btn-primary">Maak een bestelling</a>
 </div>
+@*<div class="text-center">
+        <a asp-controller="Home" asp-action="OpeningsUur" class="btn btn-primary">OpeningsUren</a>
+    </div>*@
+
+<h4>OpeningsUur</h4>
+<table class="table">
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Dag)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Uur)
+                </td>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.Datum)
+                </td>*@
+                @if (User.IsInRole(RollenEnum.Admin.ToString()))
+                {
+            <td>
+                <a asp-controller="OpeningsUurs" asp-action="Index">Update/Aanpassen</a>
+            </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
 

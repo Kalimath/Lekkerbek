@@ -4,11 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Lekkerbek.Web.Models
+namespace Lekkerbek.Web.ViewModels.OpeningsUur
 {
-    public class OpeningsUur
+    public class OpeningsUurViewModel
     {
-        [Key]
         public int Id { get; set; }
         [RegularExpression("(Maandag)|(Dinsdag)|(Woensdag)|(Donderdag)|(Vrijdag)|(Zaterdag)|(Zondag)", ErrorMessage = "Geen dag van de week")]
         public string Dag { get; set; }
@@ -17,3 +16,4 @@ namespace Lekkerbek.Web.Models
         public DateTime Datum { get; set; }
     }
 }
+
