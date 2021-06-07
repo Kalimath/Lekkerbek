@@ -41,9 +41,12 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Tijdslot" asp-action="Index">Agenda</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="KlantEmail" asp-action="Index">Email</a>
-                            </li>
+                            @if (User.IsInRole(RollenEnum.Admin.ToString()))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="KlantEmail" asp-action="Index">Email</a>
+                                </li>
+                            }
 
                         }
                         @if (User.IsInRole(RollenEnum.Klant.ToString()))

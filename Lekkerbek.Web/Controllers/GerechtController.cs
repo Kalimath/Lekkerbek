@@ -35,12 +35,12 @@ namespace Lekkerbek.Web.Controllers
 
         // GET: Gerecht/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(string gerechtNaam)
+        public async Task<IActionResult> Details(string id)
         {
             Gerecht gerecht;
             try
             {
-                gerecht = _gerechtService.GetGerecht(gerechtNaam);
+                gerecht = _gerechtService.GetGerecht(id);
             }
             catch (Exception e)
             {

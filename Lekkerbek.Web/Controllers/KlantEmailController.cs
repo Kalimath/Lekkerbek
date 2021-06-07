@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Http;
 using System.Net.Mail;
 using System.IO;
 using System.Net;
+using Lekkerbek.Web.Services;
 using Lekkerbek.Web.ViewModels.EmailKlant;
 
 namespace Lekkerbek.Web.Controllers
@@ -21,20 +22,20 @@ namespace Lekkerbek.Web.Controllers
     [Authorize(Roles = "Admin")]
     public class KlantEmailController : Controller
     {
-        private readonly IdentityContext _context;
+        private readonly IGebruikerService _gebruikerService;
         private readonly RoleManager<Role> _roleManager;
         private readonly UserManager<Gebruiker> _userManager;
 
-        public KlantEmailController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
+        public KlantEmailController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager, IGebruikerService gebruikerService)
         {
-            _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
+            _gebruikerService = gebruikerService;
         }
         
         public IActionResult Index()
         {
-            ViewBag.Klanten = new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName");
+            ViewBag.Klanten = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
             return View();
         }
 
@@ -44,7 +45,7 @@ namespace Lekkerbek.Web.Controllers
             try
             {
 
-                Gebruiker Klant = _context.GebruikersMetRolKlant().Find(g => g.Id ==  vm.Klant); 
+                Gebruiker Klant = _gebruikerService.GetGebruiker(vm.Klant); 
                 var message = new MailMessage();
                 message.To.Add(new MailAddress(Klant.Email));
                 message.From = new MailAddress("gip.sender.team11@outlook.com");
