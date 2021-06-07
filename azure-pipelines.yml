@@ -41,6 +41,6 @@ steps:
 - task: AzureWebApp@1
   inputs:
     appType: webApp
-    azureSubscription: '<Azure service connection>'
+    azureSubscription: 'Azure for Students (0357a6a9-92ef-4104-ba68-51e07ca4acc6)'
     appName: 'De Lekkerbek'
     package: $(System.DefaultWorkingDirectory)/**/*.zip   
