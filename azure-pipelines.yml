@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- azure-pipelines
+- Identity
 
 pool:
   vmImage: 'windows-latest'
@@ -32,15 +32,3 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
-    
-- task: AzureWebApp@1
-  inputs:
-    appType: webApp
-    azureSubscription: 'Azure for Students (0357a6a9-92ef-4104-ba68-51e07ca4acc6)'
-    appName: 'Lekkerbek'
-    package: $(System.DefaultWorkingDirectory)/**/*.zip   
