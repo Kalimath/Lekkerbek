@@ -1,0 +1,7 @@
+﻿<p>Beste {0},</p>
+<p></p>
+<p>Wij hebben uw klacht met id: {1} goed ontvangen. Uw klacht wordt momenteel verwerkt.</p>
+<p>Wij hopen u zo spoedig mogelijk te helpen. </p>
+<p>Nog een fijne dag gewenst, </p>
+<p></p>
+<p>Het Lekkerbek Team</p>

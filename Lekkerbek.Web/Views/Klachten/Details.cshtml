@@ -1,0 +1,72 @@
+﻿@using Lekkerbek.Web.Models.Identity
+@model Lekkerbek.Web.Models.Klacht
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Klacht</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Id)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Id)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Tijdstip)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Tijdstip)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Onderwerp)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Onderwerp)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Omschrijving)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Omschrijving)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Klant.UserName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Klant.UserName)
+        </dd>
+        <dt class="col-sm-2">
+            Status
+        </dt>
+        @if (Model.IsAfgehandeld)
+            {
+                <dd class="col-sm-10">Afgehandeld</dd>
+            }
+            else
+            {
+                <dd class="col-sm-10">In behandeling</dd>
+            }
+    </dl>
+</div>
+<div>
+    @if (!Model.IsAfgehandeld)
+    {
+        @if (User.IsInRole(RollenEnum.Admin.ToString()))
+        {
+            <form asp-controller="Klachten" asp-action="RondAf" asp-route-id="@Model.Id">
+                <input type="submit" value="Klacht afhandelen" />
+            </form>
+        }
+    }
+
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>

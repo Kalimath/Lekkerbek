@@ -46,6 +46,9 @@
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="KlantEmail" asp-action="Index">Email</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Klachten" asp-action="Index">Klachten</a>
+                                </li>
                             }
 
                         }
@@ -56,6 +59,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Bestelling" asp-action="Index">Mijn bestellingen</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Klachten" asp-action="Index">Mijn klachten</a>
                             </li>
                         }
                         @if (User.IsInRole(RollenEnum.Kok.ToString()))
