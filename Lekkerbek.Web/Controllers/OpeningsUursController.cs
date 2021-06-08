@@ -38,7 +38,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: OpeningsUurs/Details/5
-        [Authorize(Roles = "Adim,Kassamedewerker")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -57,7 +57,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: OpeningsUurs/Create
-        [Authorize(Roles = "Adim,Kassamedewerker")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -68,7 +68,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Adim,Kassamedewerker")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Id,Dag,Uur,Datum")] OpeningsUur openingsUur)
         {
             if (ModelState.IsValid)
@@ -81,7 +81,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: OpeningsUurs/Edit/5
-        [Authorize(Roles = "Adim,Kassamedewerker")]
+        [Authorize(Roles = "Admin)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -102,7 +102,7 @@ namespace Lekkerbek.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Adim,Kassamedewerker")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Dag,Uur,Datum")] OpeningsUur openingsUur)
         {
             if (id != openingsUur.Id)
@@ -134,7 +134,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: OpeningsUurs/Delete/5
-        [Authorize(Roles = "Adim,Kassamedewerker")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -153,7 +153,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // POST: OpeningsUurs/Delete/5
-        [Authorize(Roles = "Adim,Kassamedewerker")]
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

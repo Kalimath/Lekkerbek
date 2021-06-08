@@ -16,6 +16,7 @@ namespace Lekkerbek.Web.Models.Identity
             Voorkeursgerechten = new HashSet<Gerecht>();
         }
         private DateTime _geboortedatum;
+        [Required]
         public string Adres { get; set; }
 
         [DataType(DataType.Date)]
