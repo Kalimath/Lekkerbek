@@ -112,11 +112,12 @@ namespace Lekkerbek.Web.Controllers
                     AantalMaaltijden = vm.AantalMaaltijden,
                     GerechtenLijst = new List<Gerecht>(),
                     Opmerkingen = vm.Opmerkingen,
-                    Levertijd = vm.Levertijd,
                     Tijdslot = tijdslot
                 };
                 IEnumerable<string> gerechtNamen = (ICollection<string>)vm.GerechtenNamen;
-                bestelling.GerechtenLijst = await _gerechtService.GetGerechten().AsQueryable().Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
+                List<Gerecht> list = (from gerecht1 in _gerechtService.GetGerechten().AsQueryable().Where(gerecht => gerechtNamen.Contains(gerecht.Naam))
+                                      select gerecht1).ToList();
+                bestelling.GerechtenLijst = list;
                 
                 if (User.IsInRole(RollenEnum.Klant.ToString()))
                 {
@@ -288,7 +289,6 @@ namespace Lekkerbek.Web.Controllers
                     bestelling = _bestellingService.GetBestelling(id); 
                     bestelling.AantalMaaltijden = vm.bestelling.AantalMaaltijden;
                     bestelling.Opmerkingen = vm.bestelling.Opmerkingen ;
-                    bestelling.Levertijd = vm.bestelling.Levertijd;
 
                     if (User.IsInRole(RollenEnum.Admin.ToString()))
                     { 
@@ -313,8 +313,9 @@ namespace Lekkerbek.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
             ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
-            return View(vm);
+            return RedirectToAction(nameof(Edit), new{id});
         }
 
         // GET: Bestelling/Delete/5

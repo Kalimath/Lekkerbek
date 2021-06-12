@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
+
 namespace Lekkerbek.Web.Models
 {
     public class Gerecht : IDisposable
@@ -23,6 +24,8 @@ namespace Lekkerbek.Web.Models
         public string CategorieId { get; set; }
         public virtual Categorie Categorie { get; set; }
 
+        [Required]
+        [Range(0, 1000000)]
         public double Prijs
         {
             get => _prijs;
