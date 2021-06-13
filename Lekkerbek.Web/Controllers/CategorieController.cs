@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
@@ -14,18 +15,18 @@ namespace Lekkerbek.Web.Controllers
     [Authorize(Roles = "Admin,Kassamedewerker")]
     public class CategorieController : Controller
     {
-        private readonly IdentityContext _context;
+        public readonly ICategorieService _CategorieService;
 
-        public CategorieController(IdentityContext context)
+        public CategorieController(ICategorieService categorieService)
         {
-            _context = context;
+            _CategorieService = categorieService;
         }
 
         // GET: Categorie
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categorie.ToListAsync());
+            return View(_CategorieService.GetCategorieen());
         }
 
         // GET: Categorie/Details/5
@@ -37,8 +38,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var categorie = await _context.Categorie
-                .FirstOrDefaultAsync(m => m.Naam == id);
+            var categorie = _CategorieService.GetCategorie(id);
             if (categorie == null)
             {
                 return NotFound();
@@ -62,8 +62,7 @@ namespace Lekkerbek.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(categorie);
-                await _context.SaveChangesAsync();
+                await _CategorieService.AddCategorie(categorie);
                 return RedirectToAction(nameof(Index));
             }
             return View(categorie);
@@ -77,7 +76,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var categorie = await _context.Categorie.FindAsync(id);
+            var categorie = _CategorieService.GetCategorie(id);
             if (categorie == null)
             {
                 return NotFound();
@@ -101,12 +100,11 @@ namespace Lekkerbek.Web.Controllers
             {
                 try
                 {
-                    _context.Update(categorie);
-                    await _context.SaveChangesAsync();
+                    await _CategorieService.UpdateCategorie(categorie);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception e)
                 {
-                    if (!CategorieExists(categorie.Naam))
+                    if (!_CategorieService.CategorieExists(categorie))
                     {
                         return NotFound();
                     }
@@ -128,8 +126,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var categorie = await _context.Categorie
-                .FirstOrDefaultAsync(m => m.Naam == id);
+            var categorie = _CategorieService.GetCategorie(id);
             if (categorie == null)
             {
                 return NotFound();
@@ -143,15 +140,16 @@ namespace Lekkerbek.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var categorie = await _context.Categorie.FindAsync(id);
-            _context.Categorie.Remove(categorie);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _CategorieService.DeleteCategorie(id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool CategorieExists(string id)
-        {
-            return _context.Categorie.Any(e => e.Naam == id);
         }
     }
 }

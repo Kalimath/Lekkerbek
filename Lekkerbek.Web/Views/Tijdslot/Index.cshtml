@@ -3,64 +3,80 @@
 @using Microsoft.AspNetCore.Identity
 @model IEnumerable<Lekkerbek.Web.Models.Tijdslot>
 @inject UserManager<Gebruiker> _userManager
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="Stylesheet" type="text/css" />
+    <script type="text/javascript">
+        $(function () {
+            $("[id*=txtDate]").datepicker({
+                showOn: 'button',
+                buttonImageOnly: true,
+                buttonImage: 'images/calendar.png'
+            });
+        });
+    </script>
+    @{
+        ViewData["Title"] = "Index";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
 
-@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+    <h1>Index</h1>
 
-<h1>Index</h1>
+    @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+    {
+        <p>
+            <a asp-action="Create">Create New</a>
+        </p>
+    }
+    @*<asp:TextBox ID="txtDate" runat="server" ReadOnly="true"></asp:TextBox>
+    <hr />
+    <asp:Button ID="btnSubmit" runat="server" Text="Submit"
+                onclick="btnSubmit_Click" />*@
 
-@if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
-{
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
-}
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Tijdstip)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsVrij)
-            </th>
-            @*<th>
-                Bereidt door
-            </th>*@
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tijdstip)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsVrij)
-            </td>
-            <td>
-                @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+    <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Tijdstip)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.IsVrij)
+                    </th>
+                    @*<th>
+                        Bereidt door
+                    </th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
                 {
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                }
-                @if (User.IsInRole(RollenEnum.Kok.ToString()))
-                {
-                    @if (item.IsVrij || item.InGebruikDoorKok == null || item.InGebruikDoorKok.Id != _userManager.GetUserAsync(User).Id)
-                    {
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                    }
-                }
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Tijdstip)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsVrij)
+                    </td>
+                    <td>
+                        @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                            <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                        }
+                        @if (User.IsInRole(RollenEnum.Kok.ToString()))
+                        {
+                            @if (item.IsVrij || item.InGebruikDoorKok == null || item.InGebruikDoorKok.Id != _userManager.GetUserAsync(User).Id)
+                            {
+                                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                            }
+                        }
 
-                @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
-                {
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        @if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        }
+                    </td>
+                </tr>
                 }
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+            </tbody>
+        </table>

@@ -18,8 +18,8 @@ namespace Lekkerbek.Web.Context
 
         }
         public DbSet<Bestelling> Bestellingen { get; set; }
-
-        /*public DbSet<Agenda> Agenda { get; set; }*/
+        public DbSet<Klacht> Klachten { get; set; }
+        public DbSet<Beoordeling> Beoordelingen { get; set; }
         public DbSet<Gerecht> Gerechten { get; set; }
         public DbSet<Lekkerbek.Web.Models.Gerecht> Gerecht { get; set; }
         public DbSet<Lekkerbek.Web.Models.Categorie> Categorie { get; set; }
@@ -38,25 +38,6 @@ namespace Lekkerbek.Web.Context
             return klantNamen;
         }
 
-        /*public async Task<List<Gerecht>> AlleGerechten()
-        {
-            return await Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToListAsync();
-        }*/
-
-        /*public List<Bestelling> AlleBestellingen()
-        {
-            return Bestellingen.Include("Klant").Include(bestelling => bestelling.Tijdslot ).Include("GerechtenLijst").ToList();
-        }*/
-
-        /*public async Task<List<Gebruiker>> AlleGebruikers()
-        {
-            return await Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten").ToListAsync();
-        }*/
-
-        /*public async Task<List<Tijdslot>> Alletijdsloten()
-        {
-            return await Tijdslot.Include("InGebruikDoorKok").ToListAsync();
-        }*/
         public async Task<List<Tijdslot>> AlleVrijeTijdsloten()
         {
             return await Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.IsVrij).ToListAsync();
@@ -127,7 +108,7 @@ namespace Lekkerbek.Web.Context
                 where (bestelling.IsAfgerond == false && list.Contains(tijdslot)&&tijdslot.InGebruikDoorKok==kok)
                 select tijdslot;
 
-            if (tijdsloten2.Count()>0)
+            if (tijdsloten2.Any())
             {
                 tijdsloten = tijdsloten2.ToList();
             }

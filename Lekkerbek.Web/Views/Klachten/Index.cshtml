@@ -1,0 +1,89 @@
+﻿@using Lekkerbek.Web.Models.Identity
+@model IEnumerable<Lekkerbek.Web.Models.Klacht>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Index</h1>
+
+@if (User.IsInRole(RollenEnum.Klant.ToString()))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+<table class="table">
+    <thead>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Tijdstip)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Onderwerp)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Omschrijving)
+        </th>
+        <th>
+            Status
+        </th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model) {
+        <tr>
+            @if (!item.IsAfgehandeld && DateTime.Now > item.Tijdstip.AddDays(7))
+            {
+                <td class="alert-danger">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td class="alert-danger">
+                    @Html.DisplayFor(modelItem => item.Klant.Id)
+                </td>
+                <td class="alert-danger">
+                    @Html.DisplayFor(modelItem => item.Tijdstip)
+                </td>
+                <td class="alert-danger">
+                    @Html.DisplayFor(modelItem => item.Onderwerp)
+                </td>
+                <td class="alert-danger">
+                    In behandeling
+                </td>
+                <td class="alert-danger">
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            }
+            else
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Klant.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Tijdstip)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Onderwerp)
+                </td>
+                <td>
+                    Afgehandeld
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            }
+
+        </tr>
+}
+    </tbody>
+</table>

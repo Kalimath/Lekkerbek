@@ -16,7 +16,7 @@ namespace Lekkerbek.Web.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.4")
+                .HasAnnotation("ProductVersion", "5.0.6")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("BestellingGerecht", b =>
@@ -47,6 +47,42 @@ namespace Lekkerbek.Web.Migrations
                     b.HasIndex("VoorkeursgerechtenVanKlantenId");
 
                     b.ToTable("GebruikerGerecht");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Beoordeling", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Commentaar")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("GebruikerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("KlantId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ScoreLijstId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Titel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("TotaalScore")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GebruikerId");
+
+                    b.HasIndex("ScoreLijstId");
+
+                    b.ToTable("Beoordelingen");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
@@ -126,6 +162,7 @@ namespace Lekkerbek.Web.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Adres")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("BtwNummer")
@@ -230,6 +267,64 @@ namespace Lekkerbek.Web.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Klacht", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<bool>("IsAfgehandeld")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("KlantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Omschrijving")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Onderwerp")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Tijdstip")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KlantId");
+
+                    b.ToTable("Klachten");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.ScoreLijst", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("BeoordelingsId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("EtenEnDrinkenScore")
+                        .HasColumnType("float");
+
+                    b.Property<double>("HygieneScore")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PrijsKwaliteitScore")
+                        .HasColumnType("float");
+
+                    b.Property<double>("ServiceScore")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScoreLijst");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.OpeningsUur", b =>
@@ -411,6 +506,19 @@ namespace Lekkerbek.Web.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Lekkerbek.Web.Models.Beoordeling", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Identity.Gebruiker", null)
+                        .WithMany("Beoordelingen")
+                        .HasForeignKey("GebruikerId");
+
+                    b.HasOne("Lekkerbek.Web.Models.ScoreLijst", "ScoreLijst")
+                        .WithMany()
+                        .HasForeignKey("ScoreLijstId");
+
+                    b.Navigation("ScoreLijst");
+                });
+
             modelBuilder.Entity("Lekkerbek.Web.Models.Bestelling", b =>
                 {
                     b.HasOne("Lekkerbek.Web.Models.Identity.Gebruiker", "Klant")
@@ -437,6 +545,15 @@ namespace Lekkerbek.Web.Migrations
                         .IsRequired();
 
                     b.Navigation("Categorie");
+                });
+
+            modelBuilder.Entity("Lekkerbek.Web.Models.Klacht", b =>
+                {
+                    b.HasOne("Lekkerbek.Web.Models.Identity.Gebruiker", "Klant")
+                        .WithMany()
+                        .HasForeignKey("KlantId");
+
+                    b.Navigation("Klant");
                 });
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Tijdslot", b =>
@@ -501,6 +618,8 @@ namespace Lekkerbek.Web.Migrations
 
             modelBuilder.Entity("Lekkerbek.Web.Models.Identity.Gebruiker", b =>
                 {
+                    b.Navigation("Beoordelingen");
+
                     b.Navigation("Bestellingen");
                 });
 #pragma warning restore 612, 618

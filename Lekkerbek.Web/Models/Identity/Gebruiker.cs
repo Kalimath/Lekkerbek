@@ -20,6 +20,7 @@ namespace Lekkerbek.Web.Models.Identity
         public string Adres { get; set; }
 
         [DataType(DataType.Date)]
+        [Required]
         public DateTime Geboortedatum
         {
             get => _geboortedatum.Date;
@@ -29,6 +30,7 @@ namespace Lekkerbek.Web.Models.Identity
         public int Getrouwheidsscore { get; set; } = 0;
         public ICollection<Gerecht> Voorkeursgerechten { get; set; }
         public virtual ICollection<Bestelling> Bestellingen { get; set; }
+        public virtual ICollection<Beoordeling> Beoordelingen { get; set; }
 
         [Required]
         [DisplayName("Professionele gebruiker")]

@@ -1,0 +1,91 @@
+﻿@model IEnumerable<Lekkerbek.Web.Models.Beoordeling>
+@using Lekkerbek.Web.Models.Identity
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Beoordelingen</h1>
+
+@if (User.IsInRole(RollenEnum.Klant.ToString()))
+{
+    <p>
+        <a asp-action="Create">Create New</a>
+    </p>
+}
+@if (Model == null || Model.Count() == 0)
+{
+    <h4>Geen beoordelingen om weer te geven</h4>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Titel)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TotaalScore)
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var item in Model)
+            {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Titel)
+                </td>
+                <td>
+                    @{
+                        var score = Math.Round((item.TotaalScore / 2),1);
+                    }
+                    @score.ToString()/5
+                </td>
+                @*<td>
+                    <span id="@item.Id"></span>
+                </td>*@
+                @*<script>
+            document.getElementById("@item.Id").innerHTML = getStars(@(item.TotaalScore / 2));
+        </script>*@
+                <td>
+                    <a asp-controller="Beoordeling" asp-action="Delete" asp-route-id="@item.Id">Delete | </a>
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                </td>
+            </tr>
+            }
+
+
+        </tbody>
+    </table>
+}
+<script>
+
+
+    function getStars(rating) {
+
+        // Round to nearest half
+        rating = Math.round(rating * 2) / 2;
+        var output = [];
+
+        // Append all the filled whole stars
+        for (var i = rating; i >= 1; i--)
+            output.push('<i class="fa fa-star" aria-hidden="true" style="color: gold;"></i>&nbsp;');
+
+        // If there is a half a star, append it
+        if (i == .5) output.push('<i class="fa fa-star-half-o" aria-hidden="true" style="color: gold;"></i>&nbsp;');
+
+        // Fill the empty stars
+        for (let i = (5 - rating); i >= 1; i--)
+            output.push('<i class="fa fa-star-o" aria-hidden="true" style="color: gold;"></i>&nbsp;');
+
+        return output.join('');
+</script>

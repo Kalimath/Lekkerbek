@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Lekkerbek.Web.Models
 {
-    public class Gerecht
+    public class Gerecht : IDisposable
     {
         private double _prijs;
 
@@ -36,7 +36,7 @@ namespace Lekkerbek.Web.Models
         public double PrijsInclBtw()
         {
             var prijsIncl = 0.0;
-            if (Categorie.Naam.ToLower().Trim().Equals("alcoholische drank"))
+            if (CategorieId.ToLower().Trim().Equals("alcoholische drank"))
             {
                 prijsIncl = Prijs * 1.21;
             }
@@ -48,26 +48,9 @@ namespace Lekkerbek.Web.Models
             return Math.Round(prijsIncl, 2);
         }
 
-        /*public double Prijs
+        public void Dispose()
         {
-            get => _prijs;
-            set => _prijs = value;
+            throw new NotImplementedException();
         }
-        public double PrijsInclBtw
-        {
-            get => _prijsInclBtw;
-            set
-            {
-                if (Categorie.Naam.ToLower().Trim().Equals("alcoholische drank"))
-                {
-                    _prijsInclBtw = value * 1.21;
-                }
-                else
-                {
-                    _prijsInclBtw = value * 1.06;
-                }
-                Math.Round(_prijsInclBtw, 2);
-            }
-        }*/
     }
 }

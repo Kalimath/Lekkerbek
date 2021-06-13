@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models.Dtos;
 using Lekkerbek.Web.Models.Identity;
+using Lekkerbek.Web.Services;
 using Lekkerbek.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -20,14 +21,12 @@ namespace Lekkerbek.Web.Controllers
     [Authorize]
     public class AccountController : Controller
     {
-        private readonly IdentityContext _context;
-        private readonly RoleManager<Role> _roleManager;
+        private readonly IGebruikerService _gebruikerService;
         private readonly UserManager<Gebruiker> _userManager;
 
-        public AccountController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
+        public AccountController(IGebruikerService gebruikerService, UserManager<Gebruiker> userManager)
         {
-            _context = context;
-            _roleManager = roleManager;
+            _gebruikerService = gebruikerService;
             _userManager = userManager;
         }
 
@@ -36,13 +35,11 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Admin.ToString())|| User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
             {
-                /*ViewBag.GebruikersRollen = _context.HoogsteRollenGebruikers();
-                return View(_context.Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten"));*/
                 return View();
             }
             else
             {
-                return RedirectToAction("Details", new { id = await _userManager.GetUserIdAsync(await _userManager.GetUserAsync(HttpContext.User)) });
+                return RedirectToAction("Details", new { id = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User)).Id });
             }
         }
 
@@ -50,26 +47,27 @@ namespace Lekkerbek.Web.Controllers
         public async Task<IActionResult> Details(int id)
         {
             Gebruiker gebruiker = null;
-            if (id == null)
+            if (id == 0)
             {
                 return NotFound();
             }
-            if (!User.IsInRole(RollenEnum.Admin.ToString()) || !User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+
+            var hoogsteRolVanGebruiker = _gebruikerService.GetHoogsteRolVanGebruiker(_gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User)).Id);
+
+            if (!hoogsteRolVanGebruiker.Equals(RollenEnum.Admin.ToString()) && !hoogsteRolVanGebruiker.Equals(RollenEnum.Kassamedewerker.ToString()))
             {
-                gebruiker = await _userManager.GetUserAsync(HttpContext.User);
+                gebruiker = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
             }
             else
             {
-                gebruiker = await _context.Gebruikers
-                    .FirstOrDefaultAsync(m => m.Id == id);
+                gebruiker = _gebruikerService.GetGebruiker(id);
             }
             if (gebruiker == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Rol = _context.GebruikerHoogsteRol(id);
-            //ViewBag.Rol = await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(id + ""));
+            ViewBag.Rol = _gebruikerService.GetHoogsteRolVanGebruiker(id);
             return View(gebruiker);
         }
 
@@ -123,9 +121,7 @@ namespace Lekkerbek.Web.Controllers
                     PasswordHash = gebruikerDto.PasswordHash,
                     Geslacht = gebruikerDto.Geslacht
                 };
-                var user = await _userManager.CreateAsync(nieuweGebruiker, gebruikerDto.PasswordHash);
-                await _userManager.AddToRoleAsync(nieuweGebruiker, gebruikerDto.Rol);
-                _context.Add(nieuweGebruiker);
+                await _gebruikerService.AddGebruiker(nieuweGebruiker,  nieuweGebruiker.PasswordHash, gebruikerDto.Rol);
                 return RedirectToAction(nameof(Index));
             }
             return View(gebruikerDto);
@@ -135,17 +131,21 @@ namespace Lekkerbek.Web.Controllers
         [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> Edit(int? id)
         {
+            Gebruiker gebruiker;
             if (id == null)
             {
                 return NotFound();
             }
+            else
+            {
+                gebruiker = _gebruikerService.GetGebruiker((int) id);
+            }
 
-            var gebruiker = await _context.Gebruikers.FindAsync(id);
             if (gebruiker == null)
             {
                 return NotFound();
             }
-            ViewBag.Rol = await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(id + ""));
+            ViewBag.Rol = _gebruikerService.GetGebruikerRollen();
             return View(gebruiker);
         }
 
@@ -166,12 +166,11 @@ namespace Lekkerbek.Web.Controllers
             {
                 try
                 {
-                    _context.Update(gebruiker);
-                    await _context.SaveChangesAsync();
+                    await _gebruikerService.UpdateGebruiker(gebruiker);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GebruikerExists(gebruiker.Id))
+                    if (!_gebruikerService.GebruikerExists(id))
                     {
                         return NotFound();
                     }
@@ -193,8 +192,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var gebruiker = await _context.Gebruikers
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var gebruiker = _gebruikerService.GetGebruiker((int) id);
             if (gebruiker == null)
             {
                 return NotFound();
@@ -208,20 +206,21 @@ namespace Lekkerbek.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var gebruiker = await _context.Gebruikers.FindAsync(id);
-            _context.Gebruikers.Remove(gebruiker);
-            await _context.SaveChangesAsync();
+            try
+            {
+               await _gebruikerService.DeleteGebruiker(id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool GebruikerExists(int id)
-        {
-            return _context.Gebruikers.Any(e => e.Id == id);
         }
 
         public List<GebruikerMetRolViewModel> GebruikersMetRolViewModels()
         {
-            IQueryable<GebruikerMetRolViewModel> viewmodels = from u in _context.Gebruikers
+            IQueryable<GebruikerMetRolViewModel> viewmodels = from u in _gebruikerService.GetGebruikers().AsQueryable()
                 select new GebruikerMetRolViewModel()
                 {
                     Id = u.Id,
@@ -229,7 +228,7 @@ namespace Lekkerbek.Web.Controllers
                     Email = u.Email,
                     Adres = u.Adres,
                     Geboortedatum = u.Geboortedatum,
-                    Rol = _context.GebruikerHoogsteRol(u.Id)
+                    Rol = _gebruikerService.GetHoogsteRolVanGebruiker(u.Id)
                 };
 
             return viewmodels.ToList();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -21,12 +23,19 @@ namespace Lekkerbek.Web.Controllers
     public class BestellingController : Controller
     {
         private readonly IdentityContext _context;
-        private readonly RoleManager<Role> _roleManager;
+        private readonly IBestellingService _bestellingService;
+        private readonly IGebruikerService _gebruikerService;
+        private readonly IGerechtService _gerechtService;
+        private readonly ICategorieService _categorieService;
         private readonly UserManager<Gebruiker> _userManager;
-        public BestellingController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
+
+        public BestellingController(IdentityContext context, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService, UserManager<Gebruiker> userManager)
         {
             _context = context;
-            _roleManager = roleManager;
+            _bestellingService = bestellingService;
+            _gebruikerService = gebruikerService;
+            _gerechtService = gerechtService;
+            _categorieService = categorieService;
             _userManager = userManager;
         }
 
@@ -35,12 +44,12 @@ namespace Lekkerbek.Web.Controllers
         {
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                var currentUser = await _userManager.GetUserAsync(HttpContext.User);
-                return View(OpenstaandeBestellingenVanKlantMetId(currentUser.Id));
+                var currentUser = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
+                return View(_bestellingService.GetBestellingenVanKlant(currentUser.Id));
             }
             else
             {
-                return View(AlleBestellingen().Result);
+                return View(await _bestellingService.GetAlleBestellingen());
             }
         }
 
@@ -52,13 +61,11 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            if (this.BestellingExists((int) id))
+            if (_bestellingService.BestellingExists((int) id))
             {
-                Bestelling bestelling = await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").FirstAsync(bestelling1 => bestelling1.Id == id);
-                bestelling.Tijdslot = await _context.Tijdslot.Include(tijdslot => tijdslot.InGebruikDoorKok)
-                    .FirstAsync(tijdslot => tijdslot.Id == bestelling.Tijdslot.Id);
-                ViewBag.TotaalPrijs = GerechtenTotaalPrijsAsync(bestelling, false).Result;
-                ViewBag.TotaalPrijsInclBtw = GerechtenTotaalPrijsAsync(bestelling, true).Result;
+                Bestelling bestelling = _bestellingService.GetBestelling((int)id);
+                ViewBag.TotaalPrijs = _gerechtService.GerechtenTotaalPrijsAsync(bestelling, false);
+                ViewBag.TotaalPrijsInclBtw = _gerechtService.GerechtenTotaalPrijsAsync(bestelling, true);
                 return View(bestelling);
             }
             else
@@ -72,8 +79,8 @@ namespace Lekkerbek.Web.Controllers
         public IActionResult Create()
         {
 
-            var klanten =  new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName");
-            var gerechten = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
+            var klanten =  new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
+            var gerechten = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
             var tijdslot = new SelectList(_context.AlleVrijeTijdsloten().Result.Where(tijdslot => tijdslot.IsVrij), "Tijdstip", "Tijdstip");
 
             var vm = new CreateViewModel() {
@@ -99,7 +106,7 @@ namespace Lekkerbek.Web.Controllers
                 var tijdslot = _context.AlleVrijeTijdsloten()
                     .Result.Find(tijdslot => tijdslot.Tijdstip == vm.Tijdstip);
                 tijdslot.IsVrij = false;
-                Gebruiker klantVanBestelling = await _userManager.GetUserAsync(User);
+                Gebruiker klantVanBestelling = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
                 Bestelling bestelling = new Bestelling()
                 {
                     AantalMaaltijden = vm.AantalMaaltijden,
@@ -108,9 +115,9 @@ namespace Lekkerbek.Web.Controllers
                     Levertijd = vm.Levertijd,
                     Tijdslot = tijdslot
                 };
-                IEnumerable<string> gerechtNamen = vm.GerechtenNamen;
-                bestelling.GerechtenLijst = await _context.Gerechten.Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
-
+                IEnumerable<string> gerechtNamen = (ICollection<string>)vm.GerechtenNamen;
+                bestelling.GerechtenLijst = await _gerechtService.GetGerechten().AsQueryable().Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToListAsync();
+                
                 if (User.IsInRole(RollenEnum.Klant.ToString()))
                 {
                     bestelling.KlantId = klantVanBestelling.Id;
@@ -119,9 +126,8 @@ namespace Lekkerbek.Web.Controllers
                 {
                     bestelling.KlantId = vm.KlantId;
                 }
+                await _bestellingService.AddBestelling(bestelling);
 
-                _context.Bestellingen.Add(bestelling);
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception e)
@@ -135,7 +141,7 @@ namespace Lekkerbek.Web.Controllers
         { 
             var gerechteKlantBestelling = _context.Bestellingen.Include("GerechtenLijst").First(p=> p.Id == id);
             List<Gerecht> gerechtenLijstKlant = new List<Gerecht>(); 
-            foreach(Gerecht g in _context.Gerecht.ToList())
+            foreach(Gerecht g in _gerechtService.GetGerechten())
             {
                 if (!gerechteKlantBestelling.GerechtenLijst.Contains(g))
                 {
@@ -155,31 +161,48 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> VoegGerechtenToe([Bind("Id", "ToeTeVoegenGerecht")]VoegGerechtenToeViewModel vm)
         {
-            var gerecht = await _context.Gerechten.FirstAsync(g => g.Naam.Equals(vm.ToeTeVoegenGerecht));
-            var bestelling = await _context.Bestellingen.FindAsync(vm.Id);
-            if(bestelling.GerechtenLijst == null)
+            var gerecht = _gerechtService.GetGerecht(vm.ToeTeVoegenGerecht);
+            Bestelling bestelling = _bestellingService.GetBestelling(vm.Id);
+            try
             {
-                bestelling.GerechtenLijst = new List<Gerecht>(); 
+                await _bestellingService.AddGerechtAanBestelling(vm.Id, gerecht);
             }
-            bestelling.GerechtenLijst.Add(gerecht);
-            await _context.SaveChangesAsync();
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                RedirectToPage("Error");
+            }
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
-        public async Task<IActionResult> VerwijderEenGerecht(String id, int bestellingId)
+        public async Task<IActionResult> VerwijderEenGerecht(String gerechtNaam, int bestellingId)
         {
-            var gerecht = _context.Gerechten.Include("Categorie").First(g => g.Naam.Equals(id));
-            var bestelling = _context.Bestellingen.Include("GerechtenLijst").ToList().First(b => b.Id == bestellingId);
-            ViewData["bestellingId"] = bestellingId; 
+            var gerecht = _gerechtService.GetGerecht(gerechtNaam);
+            try
+            {
+                await _bestellingService.DeleteGerechtVanBestelling(gerechtNaam, bestellingId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                RedirectToPage("Error");
+            }
             return View(gerecht);
         }
+
         [HttpPost]
-        public async Task<IActionResult> VerwijderEenGerecht(String id, int bestellingid, IFormCollection collection)
+        public async Task<IActionResult> VerwijderEenGerecht(String gerechtNaam, int bestellingid, IFormCollection collection)
         {
-            var bestelling = _context.Bestellingen.Include("GerechtenLijst").ToList().First(b => b.Id == bestellingid);
-            var gerecht = _context.Gerechten.Include("Categorie").First(g => g.Naam.Equals(id));
-            bestelling.GerechtenLijst.Remove(gerecht);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _bestellingService.DeleteGerechtVanBestelling(gerechtNaam, bestellingid);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                RedirectToPage("Error");
+            }
             return RedirectToAction(nameof(Index)); 
         }
 
@@ -199,14 +222,14 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> WijzigTijdslot(int tijdslotId, WijzigTijdslotViewModel vm)
         {
-            var huidigtijdslot = await _context.Tijdslot.FindAsync(tijdslotId);
-            var tijdsloten = await _context.AlleVrijeTijdsloten();
-            
+            var huidigtijdslot = _context.Tijdslot.Find(tijdslotId); 
+            var tijdsloten = _context.AlleVrijeTijdsloten();
+
             var nieuwTijdslotId = vm.NieuwTijdslotId; 
-            var nieuwTijdSlot = _context.AlleVrijeTijdsloten().Result.Find(nt => nt.Id == nieuwTijdslotId); 
-            
-            var bestelling = _context.Bestellingen.Include("Tijdslot").ToList().Find(b => b.Id == vm.Id);
-            
+            var nieuwTijdSlot = _context.AlleVrijeTijdsloten().Result.Find(nt => nt.Id == nieuwTijdslotId);
+
+            var bestelling = _bestellingService.GetBestelling(vm.Id);
+
             huidigtijdslot.IsVrij = true;
             nieuwTijdSlot.IsVrij = false;
             bestelling.Tijdslot = nieuwTijdSlot;
@@ -224,14 +247,7 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-
-            
-            
-            //var bestelling = _context.Bestellingen.Include("Tijdslot").ToList().Find(g => g.Id == id);
-            var bestelling = await _context.Bestellingen
-                .Include(b => b.Tijdslot)
-                .Include(b => b.GerechtenLijst)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var bestelling = _bestellingService.GetBestelling((int) id);
             if (bestelling == null)
             {
                 return NotFound();
@@ -245,16 +261,10 @@ namespace Lekkerbek.Web.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
-            //_context.Tijdslot.Include("InGebruikDoorKok").ToList().Find(tijdslot => tijdslot.Tijdstip == bestelling.Tijdslot.Tijdstip).IsVrij = true;
-            //ViewData["HuidigeKlant"] = _context.GebruikersMetRolKlant().Find(k=> k.Id == bestelling.KlantId);
-            //SelectList Klanten = /*new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName");  */
-            //ViewData["Klanten"] = Klanten;
-            //ViewData["AlleGerechtenNamen"] = new SelectList(_context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie"), "Naam", "Naam");
-            //ViewData["Tijdslot"] = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip");
             vm.bestelling = bestelling; 
-            vm.HuidigeKlant = _context.GebruikersMetRolKlant().Find(k => k.Id == bestelling.KlantId);
-            vm.Klanten = new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName", vm.HuidigeKlant);
-            vm.AlleGerechtNamen = _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").ToList();
+            vm.HuidigeKlant = _gebruikerService.GetGebruikerMetRolKlant(bestelling.KlantId);
+            vm.Klanten = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName", vm.HuidigeKlant);
+            vm.AlleGerechtNamen = _gerechtService.GetGerechten().ToList();
             vm.Tijdslot = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip"); 
            
             return View(vm);
@@ -275,31 +285,27 @@ namespace Lekkerbek.Web.Controllers
                 try
                 {
 
-                    bestelling = _context.Bestellingen.First(bestelling => bestelling.Id == id); 
+                    bestelling = _bestellingService.GetBestelling(id); 
                     bestelling.AantalMaaltijden = vm.bestelling.AantalMaaltijden;
                     bestelling.Opmerkingen = vm.bestelling.Opmerkingen ;
                     bestelling.Levertijd = vm.bestelling.Levertijd;
 
                     if (User.IsInRole(RollenEnum.Admin.ToString()))
                     { 
-                        Gebruiker klantVanBestelling =  _context.GebruikersMetRolKlant().AsQueryable().First(klant => klant.Id == vm.KlantId);
+                        Gebruiker klantVanBestelling =  _gebruikerService.GetGebruikerMetRolKlant(vm.KlantId);
                         bestelling.Klant = klantVanBestelling;
                         bestelling.KlantId = klantVanBestelling.Id;
                     }
-                    //bestelling.Tijdslot = new Tijdslot(DateTime.Parse(collection["Tijdslot"]));
 
-                    //Maak tijdslot weer beschikbaar als dit is veranderd of bestelling is verwijderd.
-                    /*if (collection["Tijdslot"] != bestelling.Tijdslot)
+                    try
                     {
-                        _context.Alletijdsloten().ToList().Find(tijdslot => tijdslot.Tijdstip == _context.Bestellingen.Find(id).Tijdslot.Tijdstip).IsVrij = true;
-                    }*/
-                    //_context.Alletijdsloten().First(tijdslot => tijdslot.Tijdstip == DateTime.Parse(collection["Tijdslot"]) && tijdslot.IsVrij).IsVrij = false;
-                    //IEnumerable<string> gerechtNamen = (ICollection<string>)collection["GerechtenLijst"];
-                    /*var nieuweGerechten = _context.Gerechten.Where(gerecht => gerechtNamen.Contains(gerecht.Naam)).ToList()
-                        .AsQueryable();*/
-                    
-                    _context.Update(bestelling);
-                    await _context.SaveChangesAsync();
+                        await _bestellingService.UpdateBestelling(bestelling);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        RedirectToPage("Error");
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -307,8 +313,8 @@ namespace Lekkerbek.Web.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["Klanten"] = new SelectList(_context.GebruikersMetRolKlant(), "Id", "UserName");
-            return View(bestelling);
+            ViewData["Klanten"] = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
+            return View(vm);
         }
 
         // GET: Bestelling/Delete/5
@@ -319,7 +325,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var bestelling = AlleBestellingen().Result.First(bestelling1 => bestelling1.Id == id);
+            var bestelling = _bestellingService.GetAlleBestellingen().Result.First(bestelling1 => bestelling1.Id == id);
             if (bestelling == null)
             {
                 return NotFound();
@@ -341,16 +347,23 @@ namespace Lekkerbek.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var bestelling = await _context.Bestellingen.FindAsync(id);
+            var bestelling = _bestellingService.GetBestelling(id);
 
             //Maak tijdslot weer beschikbaar als dit is veranderd of bestelling is verwijderd.
-            if (bestelling.Tijdslot != AlleBestellingen().Result.Find(bestelling1 => bestelling1.Id == id).Tijdslot)
+            if (bestelling.Tijdslot != _bestellingService.GetAlleBestellingen().Result.Find(bestelling1 => bestelling1.Id == id).Tijdslot)
             {
-                _context.Tijdslot.Include("InGebruikDoorKok").ToList().Find(tijdslot => tijdslot.Tijdstip == _context.Bestellingen.Find(id).Tijdslot.Tijdstip).IsVrij = true;
+                _context.Tijdslot.Include("InGebruikDoorKok").ToList().Find(tijdslot => tijdslot.Tijdstip == _bestellingService.GetBestelling(id).Tijdslot.Tijdstip).IsVrij = true;
             }
 
-            _context.Bestellingen.Remove(bestelling);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _bestellingService.DeleteBestelling(id);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                RedirectToPage("Error");
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -360,84 +373,38 @@ namespace Lekkerbek.Web.Controllers
         [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> BestellingAfronden(int id)
         {
-            Bestelling bestelling = await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").FirstAsync(bestelling1 => bestelling1.Id == id);
+            Bestelling bestelling = _bestellingService.GetBestelling(id);
             bestelling.Tijdslot = await _context.Tijdslot.Include(tijdslot => tijdslot.InGebruikDoorKok)
                 .FirstAsync(tijdslot => tijdslot.Id == bestelling.Tijdslot.Id);
             if (bestelling.Tijdslot.InGebruikDoorKok != null)
             {
                 bestelling.IsAfgerond = true;
             }
-            _context.Bestellingen.Update(bestelling);
-            await _context.SaveChangesAsync();
+            
+            try
+            {
+                await _bestellingService.UpdateBestelling(bestelling);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                RedirectToPage("Error");
+            }
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        private bool BestellingExists(int id)
-        {
-            return AlleBestellingen().Result.Any(e => e.Id == id);
-        }
 
-        public async Task<List<Bestelling>> AlleBestellingen()
-        {
-            return await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").ToListAsync();
-        }
-
-        public List<Bestelling> OpenstaandeBestellingenVanKlantMetId(int klantId)
-        {
-            return _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst")
-                .Where(bestelling => bestelling.KlantId == klantId).ToList();
-        }
-
-        private async Task<double> GerechtenTotaalPrijsAsync(Bestelling bestelling, bool isInclBtw)
-        {
-            var gerechten =  await _context.Gerechten.Include("Bestellingen").Include("VoorkeursgerechtenVanKlanten").Include("Categorie").AsQueryable().Where(gerecht =>
-                gerecht.Bestellingen.Any(bestellingTemp => bestellingTemp.Id == bestelling.Id)).ToListAsync();
-            double totaalPrijs = 0;
-            if (isInclBtw)
-            {
-                foreach (var g in gerechten)
-                {
-                    totaalPrijs += g.PrijsInclBtw();
-                }
-                //gerechten.ForEachAsync(gerecht => totaalPrijs += gerecht.PrijsInclBtw());
-            }
-            else
-            {
-                foreach (var g in gerechten)
-                {
-                    totaalPrijs += g.Prijs;
-                }
-                //gerechten.ForEachAsync(gerecht => totaalPrijs += gerecht.Prijs);
-            }
-
-            /*var bestellingen = _context.GebruikersMetRolKlant().Find(gebruiker => gebruiker.Id == bestelling.KlantId).Bestellingen;*/
-            int aantalBestellingen = await _context.Bestellingen
-                .CountAsync(b => b.KlantId == bestelling.KlantId);
-            if (aantalBestellingen >= 3)
-            {
-                totaalPrijs *= 0.9;
-            }
-
-            return Math.Round(totaalPrijs, 2); ;
-        }
-
-        public JsonResult LaadAlleBestellingen()
+        public async Task<JsonResult> LaadAlleBestellingen()
         {
             if (User.IsInRole(RollenEnum.Klant.ToString()))
             {
-                var currentUser = _userManager.GetUserAsync(HttpContext.User);
-                return Json(new {data = OpenstaandeBestellingenVanKlantMetId(currentUser.Id)});
+                var currentUser = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
+                return Json(new {data = _bestellingService.GetBestellingenVanKlant(currentUser.Id)});
             }
             else
             {
-                return Json(new { data = AlleBestellingen().Result});
+                return Json(new { data = _bestellingService.GetAlleBestellingen().Result});
             }
         }
-
-        /*public async Task<IActionResult> MijnBestellingen(int? klantId)
-        {
-            var klanten = _context.GebruikersMetRolKlant().AsQueryable();
-            return View(klanten.First((klant => klant.Id == klantId)).Bestellingen);
-        }*/
     }
 }

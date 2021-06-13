@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <script type="text/javascript" src="js/jquery-3.1.1.js"></script>
     <script type="text/javascript" src="js/select2.js"></script>
 </head>
@@ -40,9 +41,15 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Tijdslot" asp-action="Index">Agenda</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="KlantEmail" asp-action="Index">Email</a>
-                            </li>
+                            @if (User.IsInRole(RollenEnum.Admin.ToString()))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="KlantEmail" asp-action="Index">Email</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Klachten" asp-action="Index">Klachten</a>
+                                </li>
+                            }
 
                         }
                         @if (User.IsInRole(RollenEnum.Klant.ToString()))
@@ -51,9 +58,11 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Voorkeursgerechten" asp-action="Index">Jouw voorkeursgerechten</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Bestelling" asp-action="Index">Openstaande bestellingen</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Bestelling" asp-action="Index">Mijn bestellingen</a>
                             </li>
-
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Klachten" asp-action="Index">Mijn klachten</a>
+                            </li>
                         }
                         @if (User.IsInRole(RollenEnum.Kok.ToString()))
                         {
@@ -61,6 +70,9 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Tijdslot" asp-action="Index">Agenda</a>
                             </li>
                         }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Beoordeling" asp-action="Index">Beoordelingen</a>
+                        </li>
 
                     </ul>
                 </div>

@@ -7,9 +7,14 @@ using System.ComponentModel.DataAnnotations;
 namespace Lekkerbek.Web.Models
 {
     
-    public class Categorie
+    public class Categorie : IDisposable
     {
         [Key]
         public string Naam { get; set; }
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
