@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Lekkerbek.Web.Models
 {
-    public class OpeningsUur
+    public class OpeningsUur : ITijdInvulling
     {
         [Key]
         public int Id { get; set; }
@@ -15,5 +15,10 @@ namespace Lekkerbek.Web.Models
         [RegularExpression("([0-1][0-9]|[2][0-3]):[0-5][0-9]-([0-1][0-9]|[2][0-4]):[0-5][0-9]", ErrorMessage = "Ongeldig tijdstip")]
         public string Uur { get; set; }
         public DateTime Datum { get; set; }
+
+        public override string ToString()
+        {
+            return "Geopend";
+        }
     }
 }
