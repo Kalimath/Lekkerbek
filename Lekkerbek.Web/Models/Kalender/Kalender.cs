@@ -7,12 +7,17 @@ namespace Lekkerbek.Web.Models.Kalender
 {
     public class Kalender
     {
+        public static TijdslotenFactory TijdslotenFactory;
         public int MaxAantalKoks { get; set; }
         public List<OpeningsUur> Openingsuren { get; set; } = new List<OpeningsUur>();
-        public Dictionary<DateTime, Tijdslot> Tijdsloten { get; set; } = new Dictionary<DateTime, Tijdslot>();
+        public List<Tijdslot> Tijdsloten { get; set; } = new List<Tijdslot>();
         public Dictionary<Gebruiker, List<DateTime>> ZiektedagenKoks { get; set; } = new Dictionary<Gebruiker, List<DateTime>>();
         public Dictionary<Gebruiker, List<DateTime>> VerlofdagenKoks { get; set; } = new Dictionary<Gebruiker, List<DateTime>>();
-
+        public Kalender(int tijdslotDuur)
+        {
+            TijdslotenFactory = new TijdslotenFactory(this,tijdslotDuur);
+            TijdslotenFactory.VulKalender();
+        }
         public int AantalKoksBeschikbaarOpDatum(DateTime datum)
         {
             var aantal = 0;

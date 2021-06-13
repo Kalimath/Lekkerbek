@@ -14,8 +14,6 @@ namespace Lekkerbek.Web.Models
         public string Dag { get; set; }
         //[RegularExpression("(([0-1][0-9]|[2][0-3]):[0-5][0-9]-([0-1][0-9]|[2][0-4]):[0-5][0-9])|(Gesloten)", ErrorMessage = "Ongeldig tijdstip juiste formaat is xx:xx-xx:xx")]
         public string Uur { get {return Startuur.Hour.ToString() + ":" + SluitingsUur.Hour.ToString();  } }
-        public DateTime Datum { get; set; }
-
         public DateTime Startuur { get; set; }
         public DateTime SluitingsUur { get; set; }
 
@@ -23,7 +21,7 @@ namespace Lekkerbek.Web.Models
         public List<DateTime> AlleUren()
         {
             List<DateTime> alleUren = new List<DateTime>();
-            for(int i= 1; i < SluitingsUur.Hour; i++)
+            for(int i= 0; i < SluitingsUur.Hour; i++)
             {
                 alleUren.Add(Startuur.AddHours(i));
             }
