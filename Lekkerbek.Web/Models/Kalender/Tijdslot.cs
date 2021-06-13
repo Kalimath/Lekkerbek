@@ -8,7 +8,7 @@ using Lekkerbek.Web.Models.Identity;
 
 namespace Lekkerbek.Web.Models
 {
-    public class Tijdslot
+    public class Tijdslot : ITijdInvulling
     {
         public int Id { get; set; }
         [Required]
