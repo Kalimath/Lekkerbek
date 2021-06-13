@@ -81,7 +81,7 @@ namespace Lekkerbek.Web.Controllers
         }
 
         // GET: OpeningsUurs/Edit/5
-        [Authorize(Roles = "Admin)]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
