@@ -10,6 +10,7 @@ namespace Lekkerbek.Web.Models
     public class Categorie : IDisposable
     {
         [Key]
+        [Required]
         public string Naam { get; set; }
 
         public void Dispose()

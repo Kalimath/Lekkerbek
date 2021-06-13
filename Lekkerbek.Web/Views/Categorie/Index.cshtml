@@ -8,7 +8,7 @@
 
 <h1>Index</h1>
 
-@if (!User.IsInRole(RollenEnum.Klant.ToString()))
+@if (User.IsInRole(RollenEnum.Admin.ToString()) || User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
 {
     <p>
         <a asp-action="Create">Create New</a>
