@@ -11,8 +11,8 @@ namespace Lekkerbek.Web.Services
     public interface IKalenderService
     {
         public List<OpeningsUur> GetOpeningsUren();
-        public Task AddOpeningsUren(List<OpeningsUur> openingsUren);
-        public Task UpdateOpeningsUren(List<OpeningsUur> openingsUren);
+        public Task AddOpeningsUur(OpeningsUur openingsUren);
+        public Task UpdateOpeningsUren(OpeningsUur openingsUren);
         public Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen);
         public Task AddZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen);
         public Task UpdateVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen);
