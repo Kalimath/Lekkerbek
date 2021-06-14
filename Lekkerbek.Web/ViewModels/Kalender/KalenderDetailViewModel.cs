@@ -8,8 +8,8 @@ namespace Lekkerbek.Web.ViewModels.Kalender
 {
     public class KalenderDetailViewModel
     {
-        public int AantalKoksVrij { get; set; }
-        public Tijdslot Tijdslot { get; set; }
+        public int AantalKoksBeschikbaar { get; set; }
+        public List<Tijdslot> Tijdsloten { get; set; }
         public Models.OpeningsUur Openingsuren { get; set; }
     }
 }
