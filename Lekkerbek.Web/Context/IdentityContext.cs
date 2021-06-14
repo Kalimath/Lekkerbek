@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
+using Lekkerbek.Web.Models.Kalender;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,9 @@ namespace Lekkerbek.Web.Context
         public DbSet<Gebruiker> Gebruikers { get; set; }
         public DbSet<Role> Rollen { get; set; }
         public virtual DbSet<OpeningsUur> OpeningsUren { get; set; }
+        public DbSet<ZiekteDagenVanGebruiker> ZiekteDagenVanGebruikers { get; set; }
+        public DbSet<VerlofDagenVanGebruiker> VerlofDagenVanGebruikers { get; set; }
+        public DbSet<Lekkerbek.Web.Models.Tijdslot> Tijdslot { get; set; }
         public List<Gebruiker> GebruikersMetRolKlant()
         {
             var klanten = from u in Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten") join r in UserRoles on u.Id equals r.UserId where r.RoleId == 3 select u;
@@ -92,7 +96,7 @@ namespace Lekkerbek.Web.Context
             }
         }
 
-        public DbSet<Lekkerbek.Web.Models.Tijdslot> Tijdslot { get; set; }
+        
 
 
         public async Task<List<Tijdslot>> TijdslotenToegankelijkVoorKok(Gebruiker kok)

@@ -1,31 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Lekkerbek.Web.Models.Identity;
 
 namespace Lekkerbek.Web.Models.Kalender
 {
-    public class Kalender
+    [NotMapped]
+    public sealed class Kalender
     {
+        private static Kalender _instance = null;
+
         public static TijdslotenFactory TijdslotenFactory;
-        public int MaxAantalKoks { get; set; }
         public List<OpeningsUur> Openingsuren { get; set; } = new List<OpeningsUur>();
         public List<Tijdslot> Tijdsloten { get; set; } = new List<Tijdslot>();
-        public Dictionary<Gebruiker, List<DateTime>> ZiektedagenKoks { get; set; } = new Dictionary<Gebruiker, List<DateTime>>();
-        public Dictionary<Gebruiker, List<DateTime>> VerlofdagenKoks { get; set; } = new Dictionary<Gebruiker, List<DateTime>>();
-        public Kalender(int tijdslotDuur)
+
+        public List<ZiekteDagenVanGebruiker> ZiektedagenKoks { get; set; }
+        public List<VerlofDagenVanGebruiker> VerlofdagenKoks { get; set; }
+        private Kalender()
         {
-            TijdslotenFactory = new TijdslotenFactory(this,tijdslotDuur);
+            TijdslotenFactory = new TijdslotenFactory(15);
             TijdslotenFactory.VulKalender();
         }
+        public static Kalender Instance => _instance ??= new Kalender();
+
         public int AantalKoksBeschikbaarOpDatum(DateTime datum)
         {
             var aantal = 0;
-            foreach (var keyValuePair in this.VerlofdagenKoks)
+            foreach (var item in VerlofdagenKoks)
             {
-                foreach (var keyValuePair2 in this.ZiektedagenKoks)
+                foreach (var item2 in ZiektedagenKoks)
                 {
-                    if (keyValuePair.Value.All(time => time.Date != datum.Date) && keyValuePair2.Value.All(time => time.Date != datum.Date))
+                    if (item.Dagen.All(time => time.Datum.Date != datum.Date) && item2.Dagen.All(time => time.Datum.Date != datum.Date))
                     {
                         aantal++;
                     }

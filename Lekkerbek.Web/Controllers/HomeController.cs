@@ -31,8 +31,7 @@ namespace Lekkerbek.Web.Controllers
                         {
                             Id = c.Id,
                             Dag = c.Dag,
-                            Uur = c.Uur,
-                            Datum = c.
+                            Uur = c.ToString()
                         };
             return View(model);
         }

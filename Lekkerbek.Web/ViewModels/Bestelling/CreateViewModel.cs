@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Lekkerbek.Web.ViewModels.Bestelling
 {
+    [NotMapped]
     public class CreateViewModel
     {
         //public List<Gebruiker> Klanten { get; set; }

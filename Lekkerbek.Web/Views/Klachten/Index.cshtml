@@ -27,7 +27,7 @@
             @Html.DisplayNameFor(model => model.Onderwerp)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Omschrijving)
+            @Html.DisplayNameFor(model => model.Klant.Id)
         </th>
         <th>
             Status
@@ -38,19 +38,20 @@
     <tbody>
     @foreach (var item in Model) {
         <tr>
-            @if (!item.IsAfgehandeld && DateTime.Now > item.Tijdstip.AddDays(7))
+            @if (!item.IsAfgehandeld && DateTime.Now < item.Tijdstip.AddDays(7))
             {
                 <td class="alert-danger">
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
-                <td class="alert-danger">
-                    @Html.DisplayFor(modelItem => item.Klant.Id)
-                </td>
+
                 <td class="alert-danger">
                     @Html.DisplayFor(modelItem => item.Tijdstip)
                 </td>
                 <td class="alert-danger">
                     @Html.DisplayFor(modelItem => item.Onderwerp)
+                </td>
+                <td class="alert-danger">
+                    @Html.DisplayFor(modelItem => item.Klant.Id)
                 </td>
                 <td class="alert-danger">
                     In behandeling
@@ -62,17 +63,18 @@
             }
             else
             {
-                <td>
+                <td class="alert-danger">
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Klant.Id)
-                </td>
-                <td>
+
+                <td class="alert-danger">
                     @Html.DisplayFor(modelItem => item.Tijdstip)
                 </td>
-                <td>
+                <td class="alert-danger">
                     @Html.DisplayFor(modelItem => item.Onderwerp)
+                </td>
+                <td class="alert-danger">
+                    @Html.DisplayFor(modelItem => item.Klant.Id)
                 </td>
                 <td>
                     Afgehandeld
