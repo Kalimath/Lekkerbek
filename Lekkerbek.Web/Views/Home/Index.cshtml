@@ -24,23 +24,32 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Dag)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Uur)
-                </td>
-                @*<td>
-                    @Html.DisplayFor(modelItem => item.Datum)
-                </td>*@
-                @if (User.IsInRole(RollenEnum.Admin.ToString()))
-                {
+        <tr>
             <td>
-                <a asp-controller="OpeningsUurs" asp-action="Index">Update/Aanpassen</a>
+                @Html.DisplayFor(modelItem => item.Dag)
             </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Uur)
+            </td>
+            @*<td>
+            @Html.DisplayFor(modelItem => item.Datum)
+        </td>*@
+            @if (User.IsInRole(RollenEnum.Admin.ToString()))
+            {
+                <td>
+                    <a asp-controller="OpeningsUurs" asp-action="Index">Update/Aanpassen</a>
+                </td>
+                @if (item.Id == null)
+                {
+                    <td>
+                        <a asp-controller="OpeningsUurs" asp-action="Index">Update/Aanpassen</a>
+                    </td>
                 }
-            </tr>
+                {
+
+                }
+            }
+        </tr>
         }
     </tbody>
 </table>
