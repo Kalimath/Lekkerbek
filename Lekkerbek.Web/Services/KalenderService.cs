@@ -21,7 +21,7 @@ namespace Lekkerbek.Web.Services
 
         public List<OpeningsUur> GetOpeningsUren()
         {
-            return _context.OpeningsUren.ToList(); 
+            return _context.OpeningsUren.OrderBy(uur =>uur.Startuur).ToList(); 
         }
 
         public async Task AddOpeningsUur(OpeningsUur openingsUur)

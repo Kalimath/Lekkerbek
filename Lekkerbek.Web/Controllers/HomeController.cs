@@ -8,6 +8,7 @@ using Lekkerbek.Web.Context;
 using Lekkerbek.Web.ViewModels.OpeningsUur;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Models;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Http;
 
 namespace Lekkerbek.Web.Controllers
@@ -15,10 +16,11 @@ namespace Lekkerbek.Web.Controllers
     
     public class HomeController : Controller
     {
-        private IdentityContext _context;
-        public HomeController(IdentityContext context)
+        private IKalenderService _kalenderService;
+
+        public HomeController(IdentityContext context, IKalenderService kalenderService)
         {
-            _context = context;
+            _kalenderService = kalenderService;
         }
 
         
@@ -26,13 +28,8 @@ namespace Lekkerbek.Web.Controllers
         // GET: OpeningsUurs
         public IActionResult Index()
         {
-            var model = from c in _context.OpeningsUren
-                        select new OpeningsUurViewModel()
-                        {
-                            Id = c.Id,
-                            Dag = c.Dag,
-                            Uur = c.Uur
-                        };
+            var model = _kalenderService.GetOpeningsUren().AsEnumerable();
+
             return View(model);
         }
     }
