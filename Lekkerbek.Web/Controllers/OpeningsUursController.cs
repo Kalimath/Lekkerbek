@@ -68,7 +68,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,Datum")] OpeningsUur openingsUur)
+        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,Startuur,Sluitingsuur,Datum")] OpeningsUur openingsUur)
         {
             if (ModelState.IsValid)
             {
