@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Services;
+using Lekkerbek.Web.ViewModels.Kalender;
 
 namespace Lekkerbek.Web.Controllers
 {
@@ -19,7 +20,12 @@ namespace Lekkerbek.Web.Controllers
         // GET: KalenderController
         public ActionResult Index()
         {
-            return View();
+            var model = from k in _kalenderService.GetAlleTijdsloten()
+                        select new KalenderIndexViewModel()
+                        {
+                            s
+                        };
+            return View(model);
         }
 
         // GET: KalenderController/Details/5
