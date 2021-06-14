@@ -21,7 +21,7 @@ namespace Lekkerbek.Web.Services
 
         public List<OpeningsUur> GetOpeningsUren()
         {
-            return _context.OpeningsUren.Include("Dag").ToList(); 
+            return _context.OpeningsUren.ToList(); 
         }
 
         public async Task AddOpeningsUur(OpeningsUur openingsUur)

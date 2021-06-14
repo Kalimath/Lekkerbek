@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Lekkerbek.Web.Services;
 using Lekkerbek.Web.ViewModels.OpeningsUur;
 using Microsoft.AspNetCore.Authorization;
 
@@ -15,23 +16,23 @@ namespace Lekkerbek.Web.Controllers
     [Authorize]
     public class OpeningsUursController : Controller
     {
-        private readonly IdentityContext _context;
+        private readonly IKalenderService _kalenderService;
 
-        public OpeningsUursController(IdentityContext context)
+        public OpeningsUursController(IKalenderService kalenderService)
         {
-            _context = context;
+            _kalenderService = kalenderService;
         }
 
         // GET: OpeningsUurs
         [AllowAnonymous]
         public  IActionResult Index()
         {
-            var model = from c in _context.OpeningsUren
+            var model = from c in _kalenderService.GetOpeningsUren()
                         select new OpeningsUurViewModel()
                         {
                             Id = c.Id,
                             Dag = c.Dag,
-                            Uur = c.ToString()
+                            Uur = c.Uur
                         };
             return View(model);
         }
@@ -45,8 +46,8 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var openingsUur = await _context.OpeningsUren
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var openingsUur = _kalenderService.GetOpeningsUren()
+                .FirstOrDefault(m => m.Id == id);
             if (openingsUur == null)
             {
                 return NotFound();
@@ -72,8 +73,7 @@ namespace Lekkerbek.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(openingsUur);
-                await _context.SaveChangesAsync();
+                await _kalenderService.AddOpeningsUur(openingsUur);
                 return RedirectToAction(nameof(Index));
             }
             return View(openingsUur);
@@ -87,8 +87,9 @@ namespace Lekkerbek.Web.Controllers
             {
                 return NotFound();
             }
-
-            var openingsUur = await _context.OpeningsUren.FindAsync(id);
+            
+            var openingsUur = _kalenderService.GetOpeningsUren()
+                .FirstOrDefault(m => m.Id == id);
             if (openingsUur == null)
             {
                 return NotFound();
@@ -113,26 +114,19 @@ namespace Lekkerbek.Web.Controllers
             {
                 try
                 {
-                    _context.Update(openingsUur);
-                    await _context.SaveChangesAsync();
+                    await _kalenderService.UpdateOpeningsUren(openingsUur);
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception e)
                 {
-                    if (!OpeningsUurExists(openingsUur.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    Console.WriteLine(e);
+                    throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
             return View(openingsUur);
         }
 
-        // GET: OpeningsUurs/Delete/5
+        /*// GET: OpeningsUurs/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -141,8 +135,8 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var openingsUur = await _context.OpeningsUren
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var openingsUur = _kalenderService.GetOpeningsUren()
+                .FirstOrDefault(m => m.Id == id);
             if (openingsUur == null)
             {
                 return NotFound();
@@ -157,15 +151,10 @@ namespace Lekkerbek.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var openingsUur = await _context.OpeningsUren.FindAsync(id);
-            _context.OpeningsUren.Remove(openingsUur);
-            await _context.SaveChangesAsync();
+            var openingsUur = _kalenderService.GetOpeningsUren()
+                .FirstOrDefault(m => m.Id == id);
+            _kalenderService.de
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool OpeningsUurExists(int id)
-        {
-            return _context.OpeningsUren.Any(e => e.Id == id);
-        }
+        }*/
     }
 }
