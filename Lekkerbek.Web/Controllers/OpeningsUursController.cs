@@ -27,13 +27,8 @@ namespace Lekkerbek.Web.Controllers
         [AllowAnonymous]
         public  IActionResult Index()
         {
-            var model = from c in _kalenderService.GetOpeningsUren()
-                        select new OpeningsUurViewModel()
-                        {
-                            Id = c.Id,
-                            Dag = c.Dag,
-                            Uur = c.Uur
-                        };
+            var model = _kalenderService.GetOpeningsUren().AsEnumerable();
+                        
             return View(model);
         }
 
@@ -69,7 +64,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,Startuur,Sluitingsuur,Datum")] OpeningsUur openingsUur)
+        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
             if (ModelState.IsValid)
             {
