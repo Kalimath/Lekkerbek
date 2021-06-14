@@ -29,7 +29,6 @@
   <ItemGroup>
     <Folder Include="Migrations\Identity\" />
     <Folder Include="Models\Validation\" />
-    <Folder Include="Pages\" />
   </ItemGroup>
 
 </Project>
