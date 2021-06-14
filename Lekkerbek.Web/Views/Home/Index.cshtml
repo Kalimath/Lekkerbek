@@ -39,14 +39,11 @@
                 <td>
                     <a asp-controller="OpeningsUurs" asp-action="Index">Update/Aanpassen</a>
                 </td>
-                @if (item.Id == null)
+                @if (item == null)
                 {
                     <td>
                         <a asp-controller="OpeningsUurs" asp-action="Index">Update/Aanpassen</a>
                     </td>
-                }
-                {
-
                 }
             }
         </tr>

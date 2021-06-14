@@ -15,13 +15,18 @@
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
                 <label asp-for="Dag" class="control-label"></label>
-                <input asp-for="Dag" class="form-control" readonly/>
+                <input asp-for="Dag" class="form-control" readonly />
                 <span asp-validation-for="Dag" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Uur" class="control-label"></label>
-                <input asp-for="Uur" class="form-control" />
-                <span asp-validation-for="Uur" class="text-danger"></span>
+                <label asp-for="Startuur" class="control-label"></label>
+                <input asp-for="Startuur" class="form-control" />
+                <span asp-validation-for="Startuur" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SluitingsUur" class="control-label"></label>
+                <input asp-for="SluitingsUur" class="form-control" />
+                <span asp-validation-for="SluitingsUur" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
