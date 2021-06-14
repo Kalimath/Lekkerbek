@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Lekkerbek.Web.Models.Identity;
 using Lekkerbek.Web.Models.Kalender;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,13 +36,13 @@ namespace Lekkerbek.Web.Services
             throw new NotImplementedException();
         }
 
-        public bool VerlofDagenExists(OpeningsUur openingsUur)
+        public async Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen)
         {
             try
             {
                 if (verlofDagen != null && !VerlofDagenVanGebruikerExists(verlofDagen))
                 {
-                    await _context.VerlofDagenVanGebruiker.AddAsync(verlofDagen);
+                    await _context.VerlofDagenVanGebruikers.AddAsync(verlofDagen);
                     await _context.SaveChangesAsync();
                 }
                 else
@@ -54,11 +55,6 @@ namespace Lekkerbek.Web.Services
                 Console.WriteLine(e);
                 throw;
             }
-        }
-
-        public async Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen)
-        {
-           
         }
 
         public async Task AddZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen)
@@ -130,12 +126,12 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                return GetVerlofDagenVanGebruikers().FirstOrDefault(gebruiker => gebruiker.Id == gebruikerId);
+                return _context.VerlofDagenVanGebruikers.Include(gebruiker => gebruiker.Dagen).FirstOrDefault(gebruiker => gebruiker.Id == gebruikerId);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw new ServiceException("Kon geen Datum vinden: " + gebruikerId);
+                throw new ServiceException("Kon geen verlofdagen vinden: " + gebruikerId);
             }
         }
 
@@ -315,14 +311,14 @@ namespace Lekkerbek.Web.Services
             return aantal;
         }
 
-        public bool VerlofDagenVanGebruikerExists(int GebruikerId)
+        public bool VerlofDagenVanGebruikerExists(int gebruikerId)
         {
-            return _context.Gebruiker.Any(Gebruiker => Gebruiker.Id == Gebruiker.Id);
+            return _context.VerlofDagenVanGebruikers.Any(Gebruiker => Gebruiker.Id == gebruikerId);
         }
 
-        public bool VerlofDagenVanGebruikerExists(Gebruiker gebruiker)
+        public bool VerlofDagenVanGebruikerExists(VerlofDagenVanGebruiker verlofDagen)
         {
-            return _context.Gebruiker.Any(gebruiker1 => gebruiker1.Id == gebruiker.Id);
+            return _context.VerlofDagenVanGebruikers.Any(gebruiker1 => gebruiker1.Id == verlofDagen.Id);
         }
     }
 }

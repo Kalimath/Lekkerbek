@@ -13,7 +13,6 @@ namespace Lekkerbek.Web.Services
         public List<OpeningsUur> GetOpeningsUren();
         public Task AddOpeningsUren(List<OpeningsUur> openingsUren);
         public Task UpdateOpeningsUren(List<OpeningsUur> openingsUren);
-        public bool VerlofDagenExists(OpeningsUur openingsUur);
         public Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen);
         public Task AddZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen);
         public Task UpdateVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen);
@@ -36,5 +35,6 @@ namespace Lekkerbek.Web.Services
         public bool TijdslotExists(int tijdslotId);
         public bool TijdslotExists(Tijdslot tijdslot);
         public int AantalKoksBeschikbaarOpDatum(DateTime datum);
+        
     }
 }
