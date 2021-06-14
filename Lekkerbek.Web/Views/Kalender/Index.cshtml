@@ -2,33 +2,37 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @model IEnumerable<Lekkerbek.Web.ViewModels.Kalender.KalenderIndexViewModel> 
-@{
-}
+
 <table class="table">
     <thead>
         <tr>
-            <th>Maandag</th>
-            <th>Dinsdag</th>
-            <th>Woensdag</th>
-            <th>Donderdag</th>
-            <th>Vrijdag</th>
-            <th>Zaterdag</th>
-            <th>Zondag</th>
+            <th>
+                Tijdstip
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.Gebruikersnaam)*@
+            </th>
+            <th>
+                @*@Html.DisplayNameFor(model => model.Email)*@
+            </th>
+            
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        }
+    
+    @foreach (var item in Model.First().Momenten)
+    {
+
+        <tr>
+            <td>@Html.DisplayNameFor(item => item)</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    }
 
     </tbody>
 </table>

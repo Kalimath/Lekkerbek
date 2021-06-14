@@ -20,11 +20,7 @@ namespace Lekkerbek.Web.Controllers
         // GET: KalenderController
         public ActionResult Index()
         {
-            var model = from k in _kalenderService.GetAlleTijdsloten()
-                        select new KalenderIndexViewModel()
-                        {
-                            s
-                        };
+            var model = new KalenderIndexViewModel();
             return View(model);
         }
 
