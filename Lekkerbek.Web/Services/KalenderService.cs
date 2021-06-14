@@ -37,7 +37,23 @@ namespace Lekkerbek.Web.Services
 
         public bool VerlofDagenExists(OpeningsUur openingsUur)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (verlofDagen != null && !VerlofDagenVanGebruikerExists(verlofDagen))
+                {
+                    await _context.VerlofDagenVanGebruiker.AddAsync(verlofDagen);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new ServiceException("Kon geen Verlofdag toevoegen met Datum: " + verlofDagen);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public async Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen)
@@ -66,9 +82,26 @@ namespace Lekkerbek.Web.Services
             }
         }
 
-        public async Task UpdateVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen)
+        public async Task UpdateVerlofDagenVanGebruiker(VerlofDagenVanGebruiker UpdatedverlofDagen)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (VerlofDagenVanGebruikerExists(UpdatedverlofDagen.Id))
+                {
+                    _context.Update(UpdatedverlofDagen);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new ServiceException("Kon Verlofdag met id: " + UpdatedverlofDagen.Id + " niet aanpassen: Verlofdag niet in database");
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException(e.Message);
+            }
         }
 
         public async Task UpdateZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen)
@@ -95,7 +128,15 @@ namespace Lekkerbek.Web.Services
 
         public VerlofDagenVanGebruiker GetVerlofDagenVanGebruiker(int gebruikerId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return GetVerlofDagenVanGebruikers().FirstOrDefault(gebruiker => gebruiker.Id == gebruikerId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException("Kon geen Datum vinden: " + gebruikerId);
+            }
         }
 
         public ZiekteDagenVanGebruiker GetZiekteDagenVanGebruiker(int gebruikerId)
@@ -272,6 +313,16 @@ namespace Lekkerbek.Web.Services
                 }
             }
             return aantal;
+        }
+
+        public bool VerlofDagenVanGebruikerExists(int GebruikerId)
+        {
+            return _context.Gebruiker.Any(Gebruiker => Gebruiker.Id == Gebruiker.Id);
+        }
+
+        public bool VerlofDagenVanGebruikerExists(Gebruiker gebruiker)
+        {
+            return _context.Gebruiker.Any(gebruiker1 => gebruiker1.Id == gebruiker.Id);
         }
     }
 }
