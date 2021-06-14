@@ -19,6 +19,8 @@ namespace Lekkerbek.Web.Services
         public Task UpdateZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen);
         public VerlofDagenVanGebruiker GetVerlofDagenVanGebruiker(int gebruikerId);
         public ZiekteDagenVanGebruiker GetZiekteDagenVanGebruiker(int gebruikerId);
+        public bool ZiekteDagenGebruikerExists(ZiekteDagenVanGebruiker ziekteDagen);
+        public bool VerlofDagenGebruikerExists(VerlofDagenVanGebruiker verlofDagen);
         public List<Dag> GetVerlofDagenVanGebruikers();
         public List<Dag> GetZiekteDagenVanGebruikers();
         public List<Tijdslot> GetTijdslotenOpDag(Dag dag);
@@ -33,5 +35,6 @@ namespace Lekkerbek.Web.Services
         public bool TijdslotExists(int tijdslotId);
         public bool TijdslotExists(Tijdslot tijdslot);
         public int AantalKoksBeschikbaarOpDatum(DateTime datum);
+        
     }
 }

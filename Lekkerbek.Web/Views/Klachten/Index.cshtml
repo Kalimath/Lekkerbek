@@ -1,6 +1,8 @@
 ﻿@using Lekkerbek.Web.Models.Identity
 @model IEnumerable<Lekkerbek.Web.Models.Klacht>
 
+
+
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -36,10 +38,13 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model) {
+    @foreach (var item in Model)
+    {
+        
         <tr>
-            @if (!item.IsAfgehandeld && DateTime.Now < item.Tijdstip.AddDays(7))
+            @if (!item.IsAfgehandeld && DateTime.Now > item.Tijdstip.AddDays(7))
             {
+                
                 <td class="alert-danger">
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
@@ -54,7 +59,10 @@
                     @Html.DisplayFor(modelItem => item.Klant.Id)
                 </td>
                 <td class="alert-danger">
-                    In behandeling
+                    @{
+                        string status = item.IsAfgehandeld ? "Afgehandeld" : "In behandeling";
+                    }
+                    @status
                 </td>
                 <td class="alert-danger">
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
@@ -63,21 +71,24 @@
             }
             else
             {
-                <td class="alert-danger">
+                <td>
                     @Html.DisplayFor(modelItem => item.Id)
                 </td>
 
-                <td class="alert-danger">
+                <td>
                     @Html.DisplayFor(modelItem => item.Tijdstip)
                 </td>
-                <td class="alert-danger">
+                <td>
                     @Html.DisplayFor(modelItem => item.Onderwerp)
                 </td>
-                <td class="alert-danger">
+                <td>
                     @Html.DisplayFor(modelItem => item.Klant.Id)
                 </td>
                 <td>
-                    Afgehandeld
+                    @{
+                        string status = item.IsAfgehandeld ? "Afgehandeld" : "In behandeling";
+                    }
+                    @status
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
@@ -86,6 +97,6 @@
             }
 
         </tr>
-}
+    }
     </tbody>
 </table>
