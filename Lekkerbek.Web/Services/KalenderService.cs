@@ -182,12 +182,18 @@ namespace Lekkerbek.Web.Services
 
         public bool VerlofDagenGebruikerExists(VerlofDagenVanGebruiker verlofDagen)
         {
-            throw new NotImplementedException();
+            return _context.VerlofDagenVanGebruikers.Any(gebruiker => gebruiker.Id == verlofDagen.Id);
         }
 
         public List<Dag> GetVerlofDagenVanGebruikers()
         {
-            throw new NotImplementedException();
+            var dagen = new List<Dag>();
+            var verlofDagenVanGebruiker = _context.VerlofDagenVanGebruikers.Include(gebruiker => gebruiker.Dagen);
+            foreach (var verlofDagen in verlofDagenVanGebruiker)
+            {
+                dagen.AddRange(verlofDagen.Dagen);
+            }
+            return dagen;
         }
 
         public List<Dag> GetZiekteDagenVanGebruikers()

@@ -55,6 +55,7 @@ namespace Lekkerbek.Web
             services.AddTransient<ITijdslotService, TijdslotService>();
             services.AddTransient<IKlachtenService, KlachtenService>();
             services.AddTransient<IMailService, MailService>();
+            services.AddTransient<IKalenderService, KalenderService>();
 
             services.Configure<IdentityOptions>(options =>
             {
