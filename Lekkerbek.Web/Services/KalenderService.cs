@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Kalender;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Services
 {
     public class KalenderService : IKalenderService
     {
-        private IdentityContext _context;
+        private readonly IdentityContext _context;
 
         public KalenderService(IdentityContext context)
         {
@@ -21,7 +22,9 @@ namespace Lekkerbek.Web.Services
         {
             throw new NotImplementedException();
         }
-
+        // openingsuren: J
+        // ziekteDagen: M
+        // verlofdagen: R
         public async Task AddOpeningsUren(List<OpeningsUur> openingsUren)
         {
             throw new NotImplementedException();
@@ -34,7 +37,23 @@ namespace Lekkerbek.Web.Services
 
         public async Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (verlofDagen != null && !TijdslotExists(verlofDagen))
+                {
+                    await _context.Tijdslot.AddAsync(nieuwTijdslot);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    throw new ServiceException("Kon geen tijdslot toevoegen met tijdstip: " + nieuwTijdslot.Tijdstip.Date);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public async Task AddZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen)

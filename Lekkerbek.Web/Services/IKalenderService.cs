@@ -13,12 +13,15 @@ namespace Lekkerbek.Web.Services
         public List<OpeningsUur> GetOpeningsUren();
         public Task AddOpeningsUren(List<OpeningsUur> openingsUren);
         public Task UpdateOpeningsUren(List<OpeningsUur> openingsUren);
+        public bool VerlofDagenExists(OpeningsUur openingsUur);
         public Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen);
         public Task AddZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen);
         public Task UpdateVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen);
         public Task UpdateZiekteDagenVanGebruiker(ZiekteDagenVanGebruiker ziekteDagen);
         public VerlofDagenVanGebruiker GetVerlofDagenVanGebruiker(int gebruikerId);
         public ZiekteDagenVanGebruiker GetZiekteDagenVanGebruiker(int gebruikerId);
+        public bool ZiekteDagenGebruikerExists(ZiekteDagenVanGebruiker ziekteDagen);
+        public bool VerlofDagenGebruikerExists(VerlofDagenVanGebruiker verlofDagen);
         public List<Dag> GetVerlofDagenVanGebruikers();
         public List<Dag> GetZiekteDagenVanGebruikers();
         public List<Tijdslot> GetTijdslotenOpDag(Dag dag);
