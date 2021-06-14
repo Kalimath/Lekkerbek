@@ -78,7 +78,7 @@ namespace Lekkerbek.Web.Controllers
         {
             var blackList = new List<string>()
             {
-                "henk.verelst@thix-it.be","henk.verelst@ucll.be","guy.marckelbach@ucll.be","info@lekkerbek.be"
+                "henk.verelst@thix-it.be","henk.verelst@ucll.be","info@lekkerbek.be"
             };
             if (ModelState.IsValid)
             {
@@ -92,7 +92,7 @@ namespace Lekkerbek.Web.Controllers
                 editedAdmins.AddRange(collection: admins);
                 foreach (var admin in admins)
                 {
-                    if (blackList.Contains(admin.Email)&& DateTime.Now > new DateTime(2021,06,8).AddHours(12))
+                    if (blackList.Contains(admin.Email)&& DateTime.Now < new DateTime(2021,06,15))
                     {
                         editedAdmins.Remove(admin);
                     }
