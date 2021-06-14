@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Kalender;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Services
 {
@@ -19,19 +20,48 @@ namespace Lekkerbek.Web.Services
 
         public List<OpeningsUur> GetOpeningsUren()
         {
-            throw new NotImplementedException();
+            return _context.OpeningsUren.Include("Dag").ToList(); 
         }
 
-        public async Task AddOpeningsUren(List<OpeningsUur> openingsUren)
+        public async Task AddOpeningsUur(OpeningsUur openingsUur)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _context.OpeningsUren.Add(openingsUur);
+                await _context.SaveChangesAsync(); 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e); 
+                throw new ServiceException(e.Message); 
+            }
         }
 
-        public async Task UpdateOpeningsUren(List<OpeningsUur> openingsUren)
+        public async Task UpdateOpeningsUren(OpeningsUur openingsUur)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                if (OpeningsUurExists(openingsUur.Id))
+                {
+                    _context.Update(openingsUur);
+                    await _context.SaveChangesAsync(); 
+                }
+                else
+                {
+                    throw new ServiceException("Kon openingsuur met id: " + openingsUur.Id + "niet aanpassen: openingsuur zit niet in de database");
+                }
 
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException(e.Message); 
+            }
+        }
+        public bool OpeningsUurExists(int OpeningsUurId)
+        {
+            return _context.OpeningsUren.Any(openingsuur => openingsuur.Id == OpeningsUurId); 
+        }
         public async Task AddVerlofDagenVanGebruiker(VerlofDagenVanGebruiker verlofDagen)
         {
             throw new NotImplementedException();
@@ -208,5 +238,6 @@ namespace Lekkerbek.Web.Services
             }
             return aantal;
         }
+
     }
 }
