@@ -13,6 +13,7 @@ namespace Lekkerbek.Web.Services
     public class KalenderService : IKalenderService
     {
         private readonly IdentityContext _context;
+        private readonly TijdslotenFactory _tijdslotenFactory = new TijdslotenFactory(15);
 
         public KalenderService(IdentityContext context)
         {
@@ -28,7 +29,9 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                _context.OpeningsUren.Add(openingsUur);
+                var nieuweTijdsloten = _tijdslotenFactory.VulKalender();
+                await _context.AddAsync(nieuweTijdsloten);
+                await _context.OpeningsUren.AddAsync(openingsUur);
                 await _context.SaveChangesAsync(); 
             }
             catch (Exception e)

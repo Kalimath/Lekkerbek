@@ -14,11 +14,11 @@ using Microsoft.AspNetCore.Authorization;
 namespace Lekkerbek.Web.Controllers
 {
     [Authorize]
-    public class OpeningsUursController : Controller
+    public class OpeningsUurController : Controller
     {
         private readonly IKalenderService _kalenderService;
 
-        public OpeningsUursController(IKalenderService kalenderService)
+        public OpeningsUurController(IKalenderService kalenderService)
         {
             _kalenderService = kalenderService;
         }
