@@ -27,15 +27,17 @@ namespace Lekkerbek.Web.Controllers
         private readonly IGebruikerService _gebruikerService;
         private readonly IGerechtService _gerechtService;
         private readonly ICategorieService _categorieService;
+        private readonly ITijdslotService _tijdslotService; 
         private readonly UserManager<Gebruiker> _userManager;
 
-        public BestellingController(IdentityContext context, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService, UserManager<Gebruiker> userManager)
+        public BestellingController(IdentityContext context, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService, ITijdslotService tijdslotService,UserManager<Gebruiker> userManager)
         {
             _context = context;
             _bestellingService = bestellingService;
             _gebruikerService = gebruikerService;
             _gerechtService = gerechtService;
             _categorieService = categorieService;
+            _tijdslotService = tijdslotService; 
             _userManager = userManager;
         }
 
@@ -81,7 +83,7 @@ namespace Lekkerbek.Web.Controllers
 
             var klanten =  new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName");
             var gerechten = new SelectList(_gerechtService.GetGerechten(), "Naam", "Naam");
-            var tijdslot = new SelectList(_context.AlleVrijeTijdsloten().Result.Where(tijdslot => tijdslot.IsVrij), "Tijdstip", "Tijdstip");
+            var tijdslot = new SelectList(_tijdslotService.GetAlleTijdslotenZonderDuplicates(), "Tijdstip", "Tijdstip");
 
             var vm = new CreateViewModel() {
                 KlantenLijst = klanten,
@@ -215,9 +217,9 @@ namespace Lekkerbek.Web.Controllers
             vm.Id = id;
             vm.HuidigTijdslotId = tijdslotId;
             vm.HuidigTijdslot = _context.Tijdslot.Find(tijdslotId);
-            
-            var tijdsloten = _context.AlleVrijeTijdsloten();
-            ViewData["Tijdslot"] = new SelectList(tijdsloten.Result, "Id", "Tijdstip"); 
+
+            var tijdsloten = _tijdslotService.GetAlleTijdslotenZonderDuplicates();
+            ViewData["Tijdslot"] = new SelectList(tijdsloten, "Id", "Tijdstip"); 
             return View(vm);
         }
         [HttpPost]
@@ -266,7 +268,7 @@ namespace Lekkerbek.Web.Controllers
             vm.HuidigeKlant = _gebruikerService.GetGebruikerMetRolKlant(bestelling.KlantId);
             vm.Klanten = new SelectList(_gebruikerService.GetGebruikersMetRolKlant(), "Id", "UserName", vm.HuidigeKlant);
             vm.AlleGerechtNamen = _gerechtService.GetGerechten().ToList();
-            vm.Tijdslot = new SelectList(_context.AlleVrijeTijdsloten().Result, "Tijdstip", "Tijdstip"); 
+            vm.Tijdslot = new SelectList(_tijdslotService.GetAlleTijdslotenZonderDuplicates(), "Tijdstip", "Tijdstip"); 
            
             return View(vm);
         }
