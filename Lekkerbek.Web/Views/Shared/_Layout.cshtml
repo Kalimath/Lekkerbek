@@ -39,7 +39,7 @@
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Gebruikers</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="OpeningsUurs" asp-action="Index">Kalender</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="OpeningsUur" asp-action="Index">Kalender</a>
                             </li>
                             @if (User.IsInRole(RollenEnum.Admin.ToString()))
                             {
@@ -67,7 +67,7 @@
                         @if (User.IsInRole(RollenEnum.Kok.ToString()))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="OpeningsUurs" asp-action="Index">Kalender</a>
+                                <a class="nav-link text-dark" asp-area="" asp-controller="OpeningsUur" asp-action="Index">Kalender</a>
                             </li>
                         }
                         <li class="nav-item">
