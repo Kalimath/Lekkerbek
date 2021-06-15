@@ -8,38 +8,63 @@ namespace Lekkerbek.Web.Models
 {
     public class TijdslotenFactory
     {
-        private readonly int _tijdslotDuur;
+        private readonly double _tijdslotDuur;
 
         public TijdslotenFactory(int tijdslotDuur)
         {
             _tijdslotDuur = tijdslotDuur;
         }
 
-        public List<Tijdslot> VulKalender()
+        public List<Tijdslot> VulKalender(List<OpeningsUur> openingsUren, int aantalKoksOpDatum)
         {
             var nieuweTijdsloten = new List<Tijdslot>();
-            // foreach openingsdag
-            foreach (var item in Kalender.Kalender.Instance.Openingsuren)
+            if (aantalKoksOpDatum !=0 && openingsUren !=null)
             {
-                var nieuwTijdslotMoment = item.Startuur;
-                var aantalKoksBeschikbaarOpDatum = Kalender.Kalender.Instance.AantalKoksBeschikbaarOpDatum(item.Startuur.Date);
-                
-
-                //Zolang het aankomende nieuwTijdslotMoment valt voor het sluitingsuur van een bepaalde dag
-                while (nieuwTijdslotMoment < item.SluitingsUur)
+                // foreach openingsdag
+                foreach (var item in openingsUren)
                 {
-                    // foreach beschikbare kok
-                    for (int i = 0; i < aantalKoksBeschikbaarOpDatum; i++)
+                    var nieuwTijdslotMoment = item.Startuur;
+
+                    //Zolang het aankomende nieuwTijdslotMoment valt voor het sluitingsuur van een bepaalde dag
+                    while (nieuwTijdslotMoment < item.SluitingsUur)
                     {
-                        //nieuw tijdslot toevoegen met nieuwTijdslotMoment
-                        nieuweTijdsloten.Add(new Tijdslot(nieuwTijdslotMoment));
+                        // foreach beschikbare kok
+                        for (int i = 0; i < aantalKoksOpDatum; i++)
+                        {
+                            //nieuw tijdslot toevoegen met nieuwTijdslotMoment
+                            nieuweTijdsloten.Add(new Tijdslot(nieuwTijdslotMoment));
+                        }
+                        //volgende nieuweTijdslotMoment 15 minuten later dan huidig
+                        nieuwTijdslotMoment.AddMinutes(_tijdslotDuur);
                     }
-                    //volgende nieuweTijdslotMoment 15 minuten later dan huidig
-                    nieuwTijdslotMoment.AddMinutes(_tijdslotDuur);
                 }
             }
-
             return nieuweTijdsloten;
+        }
+
+        public List<Tijdslot> VulKalenderVoorDatum(OpeningsUur openingsUur, int aantalKoksOpDatum)
+        {
+                var nieuweTijdsloten = new List<Tijdslot>();
+                
+                if (aantalKoksOpDatum != 0 && openingsUur != null)
+                {
+                    var nieuwTijdslotMoment = openingsUur.Startuur;
+                //Zolang het aankomende nieuwTijdslotMoment valt voor het sluitingsuur van een bepaalde dag
+                while (nieuwTijdslotMoment < openingsUur.SluitingsUur)
+                    {
+                        // foreach beschikbare kok
+                        for (int i = 0; i < aantalKoksOpDatum; i++)
+                        {
+                            //nieuw tijdslot toevoegen met nieuwTijdslotMoment
+                            nieuweTijdsloten.Add(new Tijdslot(nieuwTijdslotMoment));
+                        }
+
+                        //volgende nieuweTijdslotMoment 15 minuten later dan huidig
+                        nieuwTijdslotMoment = nieuwTijdslotMoment.AddMinutes(_tijdslotDuur);
+                    }
+                }
+
+                return nieuweTijdsloten;
         }
 
         /*public void VulKalender()

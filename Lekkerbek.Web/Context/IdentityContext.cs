@@ -35,6 +35,11 @@ namespace Lekkerbek.Web.Context
             var klanten = from u in Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten") join r in UserRoles on u.Id equals r.UserId where r.RoleId == 3 select u;
             return klanten.ToList();
         }
+        public List<Gebruiker> GebruikersMetRolKok()
+        {
+            var klanten = from u in Gebruikers.Include("Bestellingen").Include("Voorkeursgerechten") join r in UserRoles on u.Id equals r.UserId where r.RoleId == 2 select u;
+            return klanten.ToList();
+        }
         public List<string> KlantNamen()
         {
             List<string> klantNamen = new List<string>();

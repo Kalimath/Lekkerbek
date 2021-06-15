@@ -6,6 +6,7 @@ using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
 using Lekkerbek.Web.Models.Kalender;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Services
@@ -29,8 +30,15 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                var nieuweTijdsloten = _tijdslotenFactory.VulKalender();
-                await _context.AddAsync(nieuweTijdsloten);
+                if (!TijdslotenExistOpDatum(openingsUur.Startuur))
+                {
+                    var nieuweTijdsloten = _tijdslotenFactory.VulKalenderVoorDatum(openingsUur, AantalKoksBeschikbaarOpDatum(openingsUur.Startuur));
+                    foreach (var item in nieuweTijdsloten)
+                    {
+                        await _context.AddAsync(item);
+                    }
+                    
+                }
                 await _context.OpeningsUren.AddAsync(openingsUur);
                 await _context.SaveChangesAsync(); 
             }
@@ -47,6 +55,11 @@ namespace Lekkerbek.Web.Services
             {
                 if (OpeningsUurExists(openingsUur.Id))
                 {
+                    if (!TijdslotenExistOpDatum(openingsUur.Startuur))
+                    {
+                        var nieuweTijdsloten = _tijdslotenFactory.VulKalenderVoorDatum(openingsUur, AantalKoksBeschikbaarOpDatum(openingsUur.Startuur));
+                        await _context.AddAsync(nieuweTijdsloten);
+                    }
                     _context.Update(openingsUur);
                     await _context.SaveChangesAsync(); 
                 }
@@ -333,15 +346,19 @@ namespace Lekkerbek.Web.Services
 
         public int AantalKoksBeschikbaarOpDatum(DateTime datum)
         {
-            var aantal = 0;
+            var aantal = _context.GebruikersMetRolKok().Count;
+            foreach (var item2 in GetZiekteDagenVanGebruikers())
+            {
+                if (datum.Date == item2.Datum.Date)
+                {
+                    aantal--;
+                }
+            }
             foreach (var item in GetVerlofDagenVanGebruikers())
             {
-                foreach (var item2 in GetZiekteDagenVanGebruikers())
+                if (datum.Date == item.Datum.Date)
                 {
-                    if ((item2.Datum.Date != datum.Date) && (item.Datum.Date != datum.Date))
-                    {
-                        aantal++;
-                    }
+                    aantal--;
                 }
             }
             return aantal;
@@ -355,6 +372,11 @@ namespace Lekkerbek.Web.Services
         public bool VerlofDagenVanGebruikerExists(VerlofDagenVanGebruiker verlofDagen)
         {
             return _context.VerlofDagenVanGebruikers.Any(gebruiker1 => gebruiker1.Id == verlofDagen.Id);
+        }
+
+        public bool TijdslotenExistOpDatum(DateTime datum)
+        {
+            return _context.Tijdslot.Any(tijdslot => tijdslot.Tijdstip.Date == datum.Date);
         }
     }
 }
