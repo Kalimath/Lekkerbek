@@ -13,5 +13,6 @@ namespace Lekkerbek.Web.Services
         public Task SendPromotie(Gebruiker klant, bool menuInBijlage);
         public Task SendKlacht(Klacht klacht, List<Gebruiker> adminGebruikers);
         public Task SendKlachtBevestiging(Klacht klacht);
+        public Task SendKlachtAfgehandeld(Klacht klacht);
     }
 }

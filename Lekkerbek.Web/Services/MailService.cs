@@ -130,6 +130,43 @@ namespace Lekkerbek.Web.Services
             }
         }
 
+        public async Task SendKlachtAfgehandeld(Klacht klacht)
+        {
+            try
+            {
+                var klant = klacht.Klant;
+                var message = ConvertMailMessage(klant.Email, "Uw klacht met id: " + klacht.Id + " werd afgehandeld");
+                string textEmail = await File.ReadAllTextAsync("ExterneBestanden/EmailKlachtAfgehandeld.txt");
+                string aanspreking = "";
+                switch (klant.Geslacht)
+                {
+                    case "Man":
+                        aanspreking = "heer ";
+                        break;
+                    case "Vrouw":
+                        aanspreking = "mevrouw ";
+                        break;
+                    default:
+                        aanspreking = "";
+                        break;
+                }
+                textEmail = string.Format(textEmail, aanspreking, klacht.Id);
+                message.Body = textEmail;
+                message.IsBodyHtml = true;
+
+                var smtp = new SmtpClient("smtp.outlook.com");
+                smtp.Credentials = new NetworkCredential(AdresZender, "Lekkerbek123");
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
         public MailMessage ConvertMailMessage(string adresOntvanger, string onderwerp)
         {
             var message = new MailMessage();

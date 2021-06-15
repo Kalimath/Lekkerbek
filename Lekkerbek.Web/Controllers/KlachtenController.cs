@@ -23,6 +23,11 @@ namespace Lekkerbek.Web.Controllers
         private readonly IMailService _mailService;
         private readonly UserManager<Gebruiker> _userManager;
 
+        private readonly List<string> _blackList = new List<string>()
+        {
+            "henk.verelst@thix-it.be","henk.verelst@ucll.be","info@lekkerbek.be"
+        };
+
         public KlachtenController(IKlachtenService klachtenService, UserManager<Gebruiker> userManager, IGebruikerService gebruikerService, IMailService mailService)
         {
             _klachtenService = klachtenService;
@@ -76,10 +81,6 @@ namespace Lekkerbek.Web.Controllers
         [Authorize(Roles = "Klant")]
         public async Task<IActionResult> Create([Bind("Id,Onderwerp,Omschrijving")] Klacht klacht)
         {
-            var blackList = new List<string>()
-            {
-                "henk.verelst@thix-it.be","henk.verelst@ucll.be","info@lekkerbek.be"
-            };
             if (ModelState.IsValid)
             {
                 var currentUser = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
@@ -92,7 +93,7 @@ namespace Lekkerbek.Web.Controllers
                 editedAdmins.AddRange(collection: admins);
                 foreach (var admin in admins)
                 {
-                    if (blackList.Contains(admin.Email)&& DateTime.Now < new DateTime(2021,06,15))
+                    if (_blackList.Contains(admin.Email)&& DateTime.Now < new DateTime(2021,06,15))
                     {
                         editedAdmins.Remove(admin);
                     }
@@ -140,6 +141,20 @@ namespace Lekkerbek.Web.Controllers
                 try
                 {
                     await _klachtenService.RondKlachtAf(id);
+                    var admins = _gebruikerService.GetGebruikers().Where(gebruiker =>
+                        _gebruikerService.GetHoogsteRolVanGebruiker(gebruiker.Id)
+                            .Equals(RollenEnum.Admin.ToString())).ToList();
+                    List<Gebruiker> editedAdmins = new List<Gebruiker>();
+                    editedAdmins.AddRange(collection: admins);
+                    foreach (var admin in admins)
+                    {
+                        if (_blackList.Contains(admin.Email) && DateTime.Now < new DateTime(2021, 06, 15))
+                        {
+                            editedAdmins.Remove(admin);
+                        }
+                    }
+
+                    await _mailService.SendKlachtAfgehandeld(_klachtenService.GetKlacht(id));
                 }
                 catch (Exception e)
                 {
