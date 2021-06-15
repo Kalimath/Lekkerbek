@@ -19,7 +19,7 @@ namespace Lekkerbek.Web.Services
 
         public async Task<List<Bestelling>> GetAlleBestellingen()
         {
-            return await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include("GerechtenLijst").ToListAsync();
+            return await _context.Bestellingen.Include("Klant").Include("Tijdslot").Include(bestelling => bestelling.Tijdslot.InGebruikDoorKok).Include("GerechtenLijst").ToListAsync();
         }
 
         public Bestelling GetBestelling(int id)
@@ -109,10 +109,17 @@ namespace Lekkerbek.Web.Services
 
         public async Task UpdateBestelling(Bestelling bestelling)
         {
+            var huidigeBestelling = GetBestelling(bestelling.Id);
             try
             {
-                if (BestellingExists(bestelling.Id))
+                if (BestellingExists(huidigeBestelling.Id))
                 {
+                    if (huidigeBestelling.Tijdslot.Id != bestelling.Tijdslot.Id)
+                    {
+                        huidigeBestelling.Tijdslot.IsVrij = true;
+                        huidigeBestelling.Tijdslot = bestelling.Tijdslot;
+                        huidigeBestelling.Tijdslot.IsVrij = false;
+                    }
                     _context.Update(bestelling);
                     await _context.SaveChangesAsync();
                 }
@@ -137,7 +144,7 @@ namespace Lekkerbek.Web.Services
                 {
                     throw new ArgumentNullException("Kon geen leeg gerecht toevoegen aan een bestelling met id: " + id);
                 }
-                if (_context.Gerechten.Any(gerecht1 => gerecht1.Naam.Equals(gerecht.Naam)))
+                if (GetBestelling(id).GerechtenLijst.Any(gerecht1 => gerecht1.Naam.Equals(gerecht.Naam)))
                 {
                     throw new ServiceException("Kon geen onbekend gerecht toevoegen aan een bestelling met id: " + id);
                 }
@@ -172,7 +179,7 @@ namespace Lekkerbek.Web.Services
             {
                 if (GerechtExistsInBestelling(gerechtNaam, bestellingId))
                 {
-                    GetBestelling(bestellingId).GerechtenLijst.Remove(_context.Gerecht.Find(gerechtNaam));
+                    GetBestelling(bestellingId).GerechtenLijst.Remove(await _context.Gerecht.FindAsync(gerechtNaam));
                     await _context.SaveChangesAsync();
                 }
                 else

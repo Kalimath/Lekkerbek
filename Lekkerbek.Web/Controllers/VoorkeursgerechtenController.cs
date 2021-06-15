@@ -108,8 +108,8 @@ namespace Lekkerbek.Web.Controllers
             try
             {
                 var currentUser = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
-                var gerecht = _context.Gerecht.First(g => g.Naam.Equals(id)); 
-                _context.VoorkeursGerechtenVanKlanten(currentUser.Id).Remove(gerecht);
+                var gerecht = _context.Gerecht.First(g => g.Naam.Equals(id));
+                _gebruikerService.GetGebruiker(currentUser.Id).Voorkeursgerechten.Remove(gerecht);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }

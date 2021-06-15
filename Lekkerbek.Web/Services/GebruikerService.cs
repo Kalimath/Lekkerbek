@@ -155,6 +155,7 @@ namespace Lekkerbek.Web.Services
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                throw;
             }
 
             return result;

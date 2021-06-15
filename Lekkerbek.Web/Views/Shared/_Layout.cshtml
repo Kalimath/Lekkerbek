@@ -38,7 +38,12 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Index">Gebruikers</a>
                             </li>
-                            
+                            @if (User.IsInRole(RollenEnum.Kassamedewerker.ToString()))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Tijdslot" asp-action="Index">Tijdsloten</a>
+                                </li>
+                            }
                             @if (User.IsInRole(RollenEnum.Admin.ToString()))
                             {
                                 <li class="nav-item">

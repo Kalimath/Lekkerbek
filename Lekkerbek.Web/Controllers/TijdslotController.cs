@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
 using Lekkerbek.Web.Models.Identity;
+using Lekkerbek.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 
@@ -16,35 +17,38 @@ namespace Lekkerbek.Web.Controllers
     [Authorize(Roles = "Admin,Kassamedewerker,Kok")]
     public class TijdslotController : Controller
     {
-        private readonly IdentityContext _context;
+        private readonly ITijdslotService _tijdslotService;
+        private readonly IBestellingService _bestellingService;
         private readonly RoleManager<Role> _roleManager;
         private readonly UserManager<Gebruiker> _userManager;
 
-        public TijdslotController(IdentityContext context, RoleManager<Role> roleManager, UserManager<Gebruiker> userManager)
+        public TijdslotController(IdentityContext context, RoleManager<Role> roleManager,
+            UserManager<Gebruiker> userManager, ITijdslotService tijdslotService, IBestellingService bestellingService)
         {
-            _context = context;
             _roleManager = roleManager;
             _userManager = userManager;
+            _tijdslotService = tijdslotService;
+            _bestellingService = bestellingService;
         }
 
         // GET: Tijdslot
-        
+
         public async Task<IActionResult> Index()
         {
             if (User.IsInRole(RollenEnum.Kok.ToString()))
             {
                 var currentUser = (await _userManager.GetUserAsync(HttpContext.User));
-                var tijdsloten = _context.TijdslotenToegankelijkVoorKok(currentUser).Result;
+                var tijdsloten = _tijdslotService.GetTijdslotenVanKok(currentUser.Id);
                 return View(tijdsloten.OrderBy(tijdslot => tijdslot.Tijdstip));
             }
             else
             {
-                return View(await _context.Tijdslot.Include("InGebruikDoorKok").OrderBy(tijdslot => tijdslot.Tijdstip).ToListAsync());
+                return View(_tijdslotService.GetAlleTijdsloten().OrderBy(tijdslot => tijdslot.Tijdstip));
             }
         }
 
         // GET: Tijdslot/Details/5
-        
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -52,13 +56,13 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var tijdslot = await _context.Tijdslot.Include("InGebruikDoorKok")
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var tijdslot = _tijdslotService.GetTijdslot((int) id);
             if (tijdslot == null)
             {
                 return NotFound();
             }
-            ViewBag.Bestelling = BestellingVanTijdslot(tijdslot.Id);
+
+            ViewBag.Bestelling =(await _bestellingService.GetAlleBestellingen()).FirstOrDefault(bestelling => bestelling.Tijdslot.Id == id);
             return View(tijdslot);
         }
 
@@ -79,11 +83,10 @@ namespace Lekkerbek.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                //TODO
-                _context.Add(tijdslot);
-                await _context.SaveChangesAsync();
+                await _tijdslotService.AddTijdslot(tijdslot);
                 return RedirectToAction(nameof(Index));
             }
+
             return View(tijdslot);
         }
 
@@ -97,14 +100,16 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             {
-                var tijdslot = _context.Tijdslot.Find(id);
-                if(tijdslot.InGebruikDoorKok == null) tijdslot.InGebruikDoorKok = await _userManager.GetUserAsync(HttpContext.User);
-                await _context.SaveChangesAsync();
+                var tijdslot = _tijdslotService.GetTijdslot(id);
+                if (tijdslot.InGebruikDoorKok == null)
+                    tijdslot.InGebruikDoorKok = await _userManager.GetUserAsync(HttpContext.User);
+                await _tijdslotService.UpdateTijdslot(tijdslot);
             }
             catch (DbUpdateConcurrencyException)
             {
                 throw;
             }
+
             return RedirectToAction(nameof(Details), new {id});
         }
 
@@ -118,11 +123,12 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var tijdslot = await _context.Tijdslot.FindAsync(id);
+            var tijdslot = _tijdslotService.GetTijdslot((int) id);
             if (tijdslot == null)
             {
                 return NotFound();
             }
+
             return View(tijdslot);
         }
 
@@ -143,22 +149,18 @@ namespace Lekkerbek.Web.Controllers
             {
                 try
                 {
-                    _context.Update(tijdslot);
-                    await _context.SaveChangesAsync();
+                    await _tijdslotService.UpdateTijdslot(tijdslot);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!TijdslotExists(tijdslot.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
+
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(tijdslot);
         }
 
@@ -171,8 +173,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var tijdslot = await _context.Tijdslot
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var tijdslot = _tijdslotService.GetTijdslot((int) id);
             if (tijdslot == null)
             {
                 return NotFound();
@@ -187,31 +188,10 @@ namespace Lekkerbek.Web.Controllers
         [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tijdslot = await _context.Tijdslot.FindAsync(id);
-            _context.Tijdslot.Remove(tijdslot);
-            await _context.SaveChangesAsync();
+            await _tijdslotService.DeleteTijdslot(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool TijdslotExists(int id)
-        {
-            return _context.Tijdslot.Any(e => e.Id == id);
-        }
 
-        public Bestelling BestellingVanTijdslot(int tijdslotId)
-        {
-            Bestelling bestelling = null;
-            try
-            {
-                bestelling = _context.Bestellingen.Include("GerechtenLijst").FirstOrDefault(bestelling => bestelling.Tijdslot.Id == tijdslotId);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-
-            return bestelling;
-        }
     }
 }

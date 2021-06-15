@@ -22,7 +22,6 @@ namespace Lekkerbek.Web.Controllers
     [Authorize(Roles = "Admin,Kassamedewerker,Klant")]
     public class BestellingController : Controller
     {
-        private readonly IdentityContext _context;
         private readonly IBestellingService _bestellingService;
         private readonly IGebruikerService _gebruikerService;
         private readonly IGerechtService _gerechtService;
@@ -32,7 +31,6 @@ namespace Lekkerbek.Web.Controllers
 
         public BestellingController(IdentityContext context, IBestellingService bestellingService, IGebruikerService gebruikerService, IGerechtService gerechtService, ICategorieService categorieService, ITijdslotService tijdslotService,UserManager<Gebruiker> userManager)
         {
-            _context = context;
             _bestellingService = bestellingService;
             _gebruikerService = gebruikerService;
             _gerechtService = gerechtService;
@@ -105,8 +103,8 @@ namespace Lekkerbek.Web.Controllers
         {
             try
             { 
-                var tijdslot = _context.AlleVrijeTijdsloten()
-                    .Result.Find(tijdslot => tijdslot.Tijdstip == vm.Tijdstip);
+                var tijdslot = _tijdslotService.GetVrijeTijdsloten()
+                    .FirstOrDefault(tijdslot => tijdslot.Tijdstip == vm.Tijdstip);
                 tijdslot.IsVrij = false;
                 Gebruiker klantVanBestelling = _gebruikerService.GetGebruikerInfo(await _userManager.GetUserAsync(HttpContext.User));
                 Bestelling bestelling = new Bestelling()
@@ -142,7 +140,7 @@ namespace Lekkerbek.Web.Controllers
 
         public IActionResult VoegGerechtenToe(int id)
         { 
-            var gerechteKlantBestelling = _context.Bestellingen.Include("GerechtenLijst").First(p=> p.Id == id);
+            var gerechteKlantBestelling = _bestellingService.GetBestelling(id);
             List<Gerecht> gerechtenLijstKlant = new List<Gerecht>(); 
             foreach(Gerecht g in _gerechtService.GetGerechten())
             {
@@ -216,7 +214,7 @@ namespace Lekkerbek.Web.Controllers
 
             vm.Id = id;
             vm.HuidigTijdslotId = tijdslotId;
-            vm.HuidigTijdslot = _context.Tijdslot.Find(tijdslotId);
+            vm.HuidigTijdslot = _tijdslotService.GetTijdslot(tijdslotId);
 
             var tijdsloten = _tijdslotService.GetAlleTijdslotenZonderDuplicates();
             ViewData["Tijdslot"] = new SelectList(tijdsloten, "Id", "Tijdstip"); 
@@ -225,19 +223,9 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> WijzigTijdslot(int tijdslotId, WijzigTijdslotViewModel vm)
         {
-            var huidigtijdslot = _context.Tijdslot.Find(tijdslotId); 
-            var tijdsloten = _context.AlleVrijeTijdsloten();
-
-            var nieuwTijdslotId = vm.NieuwTijdslotId; 
-            var nieuwTijdSlot = _context.AlleVrijeTijdsloten().Result.Find(nt => nt.Id == nieuwTijdslotId);
-
-            var bestelling = _bestellingService.GetBestelling(vm.Id);
-
-            huidigtijdslot.IsVrij = true;
-            nieuwTijdSlot.IsVrij = false;
-            bestelling.Tijdslot = nieuwTijdSlot;
-            
-             await _context.SaveChangesAsync();
+            var updatedTijdslot = _bestellingService.GetBestelling(vm.Id);
+            updatedTijdslot.Tijdslot = _tijdslotService.GetTijdslot(vm.NieuwTijdslotId);
+            await _bestellingService.UpdateBestelling(updatedTijdslot);
             return RedirectToAction(nameof(Index)); 
         }
 
@@ -328,7 +316,7 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            var bestelling = _bestellingService.GetAlleBestellingen().Result.First(bestelling1 => bestelling1.Id == id);
+            var bestelling = (await _bestellingService.GetAlleBestellingen()).First(bestelling1 => bestelling1.Id == id);
             if (bestelling == null)
             {
                 return NotFound();
@@ -353,9 +341,9 @@ namespace Lekkerbek.Web.Controllers
             var bestelling = _bestellingService.GetBestelling(id);
 
             //Maak tijdslot weer beschikbaar als dit is veranderd of bestelling is verwijderd.
-            if (bestelling.Tijdslot != _bestellingService.GetAlleBestellingen().Result.Find(bestelling1 => bestelling1.Id == id).Tijdslot)
+            if (bestelling.Tijdslot != (await _bestellingService.GetAlleBestellingen()).Find(bestelling1 => bestelling1.Id == id).Tijdslot)
             {
-                _context.Tijdslot.Include("InGebruikDoorKok").ToList().Find(tijdslot => tijdslot.Tijdstip == _bestellingService.GetBestelling(id).Tijdslot.Tijdstip).IsVrij = true;
+                _tijdslotService.GetAlleTijdsloten().FirstOrDefault(tijdslot => tijdslot.Tijdstip == _bestellingService.GetBestelling(id).Tijdslot.Tijdstip).IsVrij = true;
             }
 
             try
@@ -370,20 +358,18 @@ namespace Lekkerbek.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: Bestelling/Delete/5
+        // POST: Bestelling/BestellingAfronden/5
         [HttpPost, ActionName("Afronden")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin,Kassamedewerker")]
         public async Task<IActionResult> BestellingAfronden(int id)
         {
             Bestelling bestelling = _bestellingService.GetBestelling(id);
-            bestelling.Tijdslot = await _context.Tijdslot.Include(tijdslot => tijdslot.InGebruikDoorKok)
-                .FirstAsync(tijdslot => tijdslot.Id == bestelling.Tijdslot.Id);
+            
             if (bestelling.Tijdslot.InGebruikDoorKok != null)
             {
                 bestelling.IsAfgerond = true;
             }
-            
             try
             {
                 await _bestellingService.UpdateBestelling(bestelling);

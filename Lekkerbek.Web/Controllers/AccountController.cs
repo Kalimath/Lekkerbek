@@ -149,41 +149,6 @@ namespace Lekkerbek.Web.Controllers
             return View(gebruiker);
         }
 
-        // POST: Account/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin,Kassamedewerker")]
-        public async Task<IActionResult> Edit(int id, [Bind("UserName,Email,Adres,Geboortedatum,Getrouwheidsscore,IsProfessional,BtwNummer,FirmaNaam,Geslacht")] Gebruiker gebruiker)
-        {
-            if (id != gebruiker.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    await _gebruikerService.UpdateGebruiker(gebruiker);
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_gebruikerService.GebruikerExists(id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(gebruiker);
-        }
-
         // GET: Account/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {

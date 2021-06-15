@@ -56,7 +56,7 @@ namespace Lekkerbek.Web.Services
 
         public ICollection<Tijdslot> GetTijdslotenVanKok(int kokId)
         {
-            return GetTijdslotenVanKok(kokId).ToList();
+            return _context.TijdslotenToegankelijkVoorKok(_context.GebruikersMetRolKok().FirstOrDefault(gebruiker => gebruiker.Id == kokId)).Result;
         }
 
         public async Task AddTijdslot(Tijdslot nieuwTijdslot)
