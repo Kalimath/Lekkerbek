@@ -7,7 +7,7 @@ using Lekkerbek.Web.Models;
 
 namespace Lekkerbek.Web.Services
 {
-    interface ITijdslotService
+    public interface ITijdslotService
     {
         public Tijdslot GetTijdslot(int TijdslotId);
         public Task AddTijdslot(Tijdslot tijdslot);
@@ -17,6 +17,7 @@ namespace Lekkerbek.Web.Services
         public ICollection<Tijdslot> GetTijdslotenVanKok(int kokId);
         public Task UpdateTijdslot(Tijdslot updatedTijdslot);
         public Task DeleteTijdslot(int tijdslotId);
+        public List<Tijdslot> GetAlleTijdslotenZonderDuplicates(); 
         public bool TijdslotExists(int tijdslotId);
         public bool TijdslotExists(Tijdslot tijdslot);
     }

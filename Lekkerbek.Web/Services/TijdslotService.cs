@@ -46,7 +46,7 @@ namespace Lekkerbek.Web.Services
 
         public ICollection<Tijdslot> GetVrijeTijdsloten()
         {
-            throw new NotImplementedException();
+            return _context.Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.IsVrij).ToList();
         }
 
         public ICollection<Tijdslot> GetGereserveerdeTijdsloten()
@@ -122,6 +122,15 @@ namespace Lekkerbek.Web.Services
                 Console.WriteLine(e);
             }
 
+        }
+
+        public List<Tijdslot> GetAlleTijdslotenZonderDuplicates()
+        {
+            List<Tijdslot> tijdslotenUniek = GetVrijeTijdsloten()
+                                                      .GroupBy(t => t.Tijdstip)
+                                                      .Select(group => group.First()).ToList();
+
+            return tijdslotenUniek.OrderBy(p => p.Tijdstip.Date).OrderBy(c => c.Tijdstip).ToList(); 
         }
 
         public bool TijdslotExists(int tijdslotId)
