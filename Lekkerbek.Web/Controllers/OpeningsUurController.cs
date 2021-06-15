@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Lekkerbek.Web.Models.Kalender;
 using Lekkerbek.Web.Services;
 using Lekkerbek.Web.ViewModels.OpeningsUur;
 using Microsoft.AspNetCore.Authorization;
@@ -64,7 +65,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,Startuur,SluitingsUur")] OpeningsUur openingsUur)
+        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,IsGesloten,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
             if (ModelState.IsValid)
             {
@@ -98,7 +99,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Dag,Uur,Datum")] OpeningsUur openingsUur)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Dag,Uur,IsGesloten,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
             if (id != openingsUur.Id)
             {

@@ -1,4 +1,4 @@
-﻿@model Lekkerbek.Web.Models.OpeningsUur
+﻿@model Lekkerbek.Web.Models.Kalender.OpeningsUur
 
 @{
     ViewData["Title"] = "Edit";
@@ -17,6 +17,11 @@
                 <label asp-for="Dag" class="control-label"></label>
                 <input asp-for="Dag" class="form-control" readonly />
                 <span asp-validation-for="Dag" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IsGesloten" class="control-label"></label>
+                <input asp-for="IsGesloten" class="checkbox" />
+                <span asp-validation-for="IsGesloten" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Startuur" class="control-label"></label>

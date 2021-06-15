@@ -30,7 +30,7 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                if (!TijdslotenExistOpDatum(openingsUur.Startuur))
+                if (!TijdslotenExistOpDatum(openingsUur.Startuur)&&!openingsUur.IsGesloten)
                 {
                     var nieuweTijdsloten = _tijdslotenFactory.VulKalenderVoorDatum(openingsUur, AantalKoksBeschikbaarOpDatum(openingsUur.Startuur));
                     foreach (var item in nieuweTijdsloten)
@@ -55,7 +55,7 @@ namespace Lekkerbek.Web.Services
             {
                 if (OpeningsUurExists(openingsUur.Id))
                 {
-                    if (!TijdslotenExistOpDatum(openingsUur.Startuur))
+                    if (!TijdslotenExistOpDatum(openingsUur.Startuur) && !openingsUur.IsGesloten)
                     {
                         var nieuweTijdsloten = _tijdslotenFactory.VulKalenderVoorDatum(openingsUur, AantalKoksBeschikbaarOpDatum(openingsUur.Startuur));
                         await _context.AddAsync(nieuweTijdsloten);

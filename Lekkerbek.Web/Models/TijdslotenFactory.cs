@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lekkerbek.Web.Models.Kalender;
 using Microsoft.EntityFrameworkCore;
 
 namespace Lekkerbek.Web.Models
@@ -23,19 +24,22 @@ namespace Lekkerbek.Web.Models
                 // foreach openingsdag
                 foreach (var item in openingsUren)
                 {
-                    var nieuwTijdslotMoment = item.Startuur;
-
-                    //Zolang het aankomende nieuwTijdslotMoment valt voor het sluitingsuur van een bepaalde dag
-                    while (nieuwTijdslotMoment < item.SluitingsUur)
+                    if (!item.IsGesloten)
                     {
-                        // foreach beschikbare kok
-                        for (int i = 0; i < aantalKoksOpDatum; i++)
+                        var nieuwTijdslotMoment = item.Startuur;
+
+                        //Zolang het aankomende nieuwTijdslotMoment valt voor het sluitingsuur van een bepaalde dag
+                        while (nieuwTijdslotMoment < item.SluitingsUur)
                         {
-                            //nieuw tijdslot toevoegen met nieuwTijdslotMoment
-                            nieuweTijdsloten.Add(new Tijdslot(nieuwTijdslotMoment));
+                            // foreach beschikbare kok
+                            for (int i = 0; i < aantalKoksOpDatum; i++)
+                            {
+                                //nieuw tijdslot toevoegen met nieuwTijdslotMoment
+                                nieuweTijdsloten.Add(new Tijdslot(nieuwTijdslotMoment));
+                            }
+                            //volgende nieuweTijdslotMoment 15 minuten later dan huidig
+                            nieuwTijdslotMoment.AddMinutes(_tijdslotDuur);
                         }
-                        //volgende nieuweTijdslotMoment 15 minuten later dan huidig
-                        nieuwTijdslotMoment.AddMinutes(_tijdslotDuur);
                     }
                 }
             }
@@ -46,7 +50,7 @@ namespace Lekkerbek.Web.Models
         {
                 var nieuweTijdsloten = new List<Tijdslot>();
                 
-                if (aantalKoksOpDatum != 0 && openingsUur != null)
+                if (aantalKoksOpDatum != 0 && openingsUur != null && !openingsUur.IsGesloten)
                 {
                     var nieuwTijdslotMoment = openingsUur.Startuur;
                 //Zolang het aankomende nieuwTijdslotMoment valt voor het sluitingsuur van een bepaalde dag
