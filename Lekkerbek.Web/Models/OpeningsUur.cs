@@ -14,7 +14,7 @@ namespace Lekkerbek.Web.Models
         public string Dag { get; set; }
         //[RegularExpression("(([0-1][0-9]|[2][0-3]):[0-5][0-9]-([0-1][0-9]|[2][0-4]):[0-5][0-9])|(Gesloten)", ErrorMessage = "Ongeldig tijdstip juiste formaat is xx:xx-xx:xx")]
         [DisplayName("Openingsuren")]
-        public string Uur => IsGesloten ? (SluitingsUur.Date + "").Substring(0, 10) + ":\tGesloten" : Startuur + " - " + SluitingsUur.TimeOfDay;
+        public string Uur => IsGesloten ? (SluitingsUur.Date + "").Substring(0, 10) + ":\t\tGesloten" : Startuur + " - " + SluitingsUur.TimeOfDay;
         [DisplayName("Sluitingsdag")]
         public bool IsGesloten { get; set; } = false;
         [Required]

@@ -201,6 +201,20 @@ namespace Lekkerbek.Web.Services
             return _context.VerlofDagenVanGebruikers.Any(gebruiker => gebruiker.Id == verlofDagen.Id);
         }
 
+        public List<Gebruiker> GetGebruikersMetVerlofOpDatum(DateTime datum)
+        {
+            var userIdKoks =
+                _context.VerlofDagenVanGebruikers.Where(gebruiker => gebruiker.Dagen.Any(dag => dag.Datum.Date == datum.Date)).Select(gebruiker => gebruiker.GebruikerId).ToList();
+            return _context.Gebruikers.Where(gebruiker => userIdKoks.Contains(gebruiker.Id)).ToList();
+        }
+
+        public List<Gebruiker> GetGebruikersZiekOpDatum(DateTime datum)
+        {
+            var userIdKoks =
+                _context.ZiekteDagenVanGebruikers.Where(gebruiker => gebruiker.Dagen.Any(dag => dag.Datum.Date == datum.Date)).Select(gebruiker => gebruiker.GebruikerId).ToList();
+            return _context.Gebruikers.Where(gebruiker => userIdKoks.Contains(gebruiker.Id)).ToList();
+        }
+
         public List<Dag> GetVerlofDagenVanGebruikers()
         {
             var dagen = new List<Dag>();
@@ -223,10 +237,15 @@ namespace Lekkerbek.Web.Services
             return dagen;
         }
 
-        public List<Tijdslot> GetTijdslotenOpDag(Dag dag)
+        public List<Tijdslot> GetTijdslotenOpDag(DateTime dag)
         {
             return _context.Tijdslot.Include("InGebruikDoorKok")
-                .Where(tijdslot => tijdslot.Tijdstip.Date == dag.Datum.Date).ToList();
+                .Where(tijdslot => tijdslot.Tijdstip.Date == dag.Date).OrderBy(tijdslot => tijdslot.Tijdstip.TimeOfDay).ToList();
+        }
+
+        public OpeningsUur GetOpeningsUur(int id)
+        {
+            return _context.OpeningsUren.FirstOrDefault(uur => uur.Id == id);
         }
 
         public Tijdslot GetTijdslot(int tijdslotId)
@@ -246,7 +265,7 @@ namespace Lekkerbek.Web.Services
         {
             try
             {
-                return _context.Tijdslot.Include("InGebruikDoorKok").ToList();
+                return _context.Tijdslot.Include("InGebruikDoorKok").OrderBy(tijdslot => tijdslot.Tijdstip.TimeOfDay).ToList();
             }
             catch (Exception e)
             {
@@ -257,17 +276,17 @@ namespace Lekkerbek.Web.Services
 
         public ICollection<Tijdslot> GetVrijeTijdsloten()
         {
-            return GetAlleTijdsloten().Where(tijdslot => tijdslot.IsVrij).ToList();
+            return GetAlleTijdsloten().Where(tijdslot => tijdslot.IsVrij).OrderBy(tijdslot => tijdslot.Tijdstip.TimeOfDay).ToList();
         }
 
         public ICollection<Tijdslot> GetGereserveerdeTijdsloten()
         {
-            return GetAlleTijdsloten().Where(tijdslot => !tijdslot.IsVrij).ToList();
+            return GetAlleTijdsloten().Where(tijdslot => !tijdslot.IsVrij).OrderBy(tijdslot => tijdslot.Tijdstip.TimeOfDay).ToList();
         }
 
         public ICollection<Tijdslot> GetTijdslotenVanKok(int kokId)
         {
-            return GetTijdslotenVanKok(kokId).ToList();
+            return GetTijdslotenVanKok(kokId).OrderBy(tijdslot => tijdslot.Tijdstip.TimeOfDay).ToList();
         }
 
         public async Task AddTijdslot(Tijdslot nieuwTijdslot)

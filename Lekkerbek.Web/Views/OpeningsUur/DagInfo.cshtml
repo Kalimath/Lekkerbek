@@ -1,0 +1,117 @@
+﻿@model Lekkerbek.Web.ViewModels.OpeningsUur.DagInfoViewModel
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Info @Model.OpeningsUur.Dag @Model.OpeningsUur.Startuur.Date.ToString().Substring(0, 10)</h2>
+
+<h4>Aantal koks beschikbaar</h4>
+<p>@Model.AantalKoksBeschikbaar</p>
+
+<h4>Zieke koks</h4>
+@if (Model.KoksZiekOpDag.Count == 0)
+{
+    <p>Geen koks om weer te geven</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Gebruikersnaam
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.KoksZiekOpDag)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        <a asp-controller="Account" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-controller="Account" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<h4>Koks met vakantie</h4>
+@if (Model.KoksZiekOpDag.Count == 0)
+{
+    <p>Geen koks om weer te geven</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Gebruikersnaam
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.KoksZiekOpDag)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        <a asp-controller="Account" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-controller="Account" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Tijdstip
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tijdsloten.FirstOrDefault().Id)
+            </th>
+            <th>
+                Toegewezen aan kok
+            </th>
+            <th>
+                Vrij
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Tijdsloten)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Tijdstip.TimeOfDay)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InGebruikDoorKok.UserName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsVrij)
+                </td>
+                <td>
+                    <a asp-controller="Tijdslot" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-controller="Tijdslot" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -49,7 +49,39 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            return View(openingsUur);
+            return View();
+        }
+
+        // GET: OpeningsUurs/Details/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DagInfo(int id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var openingsUren = _kalenderService.GetOpeningsUur(id);
+
+            if(openingsUren!=null && !openingsUren.IsGesloten)
+            {
+                var datum = openingsUren.Startuur.Date;
+                var tijdslotenVanDag = _kalenderService.GetTijdslotenOpDag(datum);
+            
+                DagInfoViewModel vm = new DagInfoViewModel()
+                {
+                    OpeningsUur = openingsUren,
+                    AantalKoksBeschikbaar = _kalenderService.AantalKoksBeschikbaarOpDatum(datum),
+                    KoksVakantieOpDag = _kalenderService.GetGebruikersMetVerlofOpDatum(datum),
+                    KoksZiekOpDag = _kalenderService.GetGebruikersZiekOpDatum(datum),
+                    Tijdsloten = tijdslotenVanDag
+                };
+                return View(vm);
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            
         }
 
         // GET: OpeningsUurs/Create
