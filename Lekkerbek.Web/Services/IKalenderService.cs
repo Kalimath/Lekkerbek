@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lekkerbek.Web.Models;
+using Lekkerbek.Web.Models.Identity;
 using Lekkerbek.Web.Models.Kalender;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,9 +22,12 @@ namespace Lekkerbek.Web.Services
         public ZiekteDagenVanGebruiker GetZiekteDagenVanGebruiker(int gebruikerId);
         public bool ZiekteDagenGebruikerExists(ZiekteDagenVanGebruiker ziekteDagen);
         public bool VerlofDagenGebruikerExists(VerlofDagenVanGebruiker verlofDagen);
+        public List<Gebruiker> GetGebruikersMetVerlofOpDatum(DateTime datum);
+        public List<Gebruiker> GetGebruikersZiekOpDatum(DateTime datum);
         public List<Dag> GetVerlofDagenVanGebruikers();
         public List<Dag> GetZiekteDagenVanGebruikers();
-        public List<Tijdslot> GetTijdslotenOpDag(Dag dag);
+        public List<Tijdslot> GetTijdslotenOpDag(DateTime dag);
+        public OpeningsUur GetOpeningsUur(int id);
         public Tijdslot GetTijdslot(int tijdslotId);
         public Task AddTijdslot(Tijdslot tijdslot);
         public ICollection<Tijdslot> GetAlleTijdsloten();

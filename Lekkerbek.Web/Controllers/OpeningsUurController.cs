@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Lekkerbek.Web.Context;
 using Lekkerbek.Web.Models;
+using Lekkerbek.Web.Models.Kalender;
 using Lekkerbek.Web.Services;
 using Lekkerbek.Web.ViewModels.OpeningsUur;
 using Microsoft.AspNetCore.Authorization;
@@ -48,7 +49,39 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
 
-            return View(openingsUur);
+            return View();
+        }
+
+        // GET: OpeningsUurs/Details/5
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DagInfo(int id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var openingsUren = _kalenderService.GetOpeningsUur(id);
+
+            if(openingsUren!=null && !openingsUren.IsGesloten)
+            {
+                var datum = openingsUren.Startuur.Date;
+                var tijdslotenVanDag = _kalenderService.GetTijdslotenOpDag(datum);
+            
+                DagInfoViewModel vm = new DagInfoViewModel()
+                {
+                    OpeningsUur = openingsUren,
+                    AantalKoksBeschikbaar = _kalenderService.AantalKoksBeschikbaarOpDatum(datum),
+                    KoksVakantieOpDag = _kalenderService.GetGebruikersMetVerlofOpDatum(datum),
+                    KoksZiekOpDag = _kalenderService.GetGebruikersZiekOpDatum(datum),
+                    Tijdsloten = tijdslotenVanDag
+                };
+                return View(vm);
+            }
+            else
+            {
+                return RedirectToAction(nameof(Index));
+            }
+            
         }
 
         // GET: OpeningsUurs/Create
@@ -64,7 +97,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,Startuur,SluitingsUur")] OpeningsUur openingsUur)
+        public async Task<IActionResult> Create([Bind("Id,Dag,Uur,IsGesloten,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
             if (ModelState.IsValid)
             {
@@ -98,7 +131,7 @@ namespace Lekkerbek.Web.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Dag,Uur,Datum")] OpeningsUur openingsUur)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Dag,Uur,IsGesloten,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
             if (id != openingsUur.Id)
             {

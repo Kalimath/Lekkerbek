@@ -129,7 +129,6 @@ namespace Lekkerbek.Web.Context
             return tijdsloten;
         }
 
-
         public DbSet<Lekkerbek.Web.ViewModels.OpeningsUur.OpeningsUurViewModel> OpeningsUurVewModel { get; set; }
     }
 }

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Lekkerbek.Web.Models
 {
@@ -11,12 +9,17 @@ namespace Lekkerbek.Web.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required]
         [RegularExpression("(Maandag)|(Dinsdag)|(Woensdag)|(Donderdag)|(Vrijdag)|(Zaterdag)|(Zondag)", ErrorMessage = "Geen dag van de week")]
         public string Dag { get; set; }
         //[RegularExpression("(([0-1][0-9]|[2][0-3]):[0-5][0-9]-([0-1][0-9]|[2][0-4]):[0-5][0-9])|(Gesloten)", ErrorMessage = "Ongeldig tijdstip juiste formaat is xx:xx-xx:xx")]
         [DisplayName("Openingsuren")]
-        public string Uur { get {return Startuur + " - " + SluitingsUur.TimeOfDay;  } }
+        public string Uur => IsGesloten ? (SluitingsUur.Date + "").Substring(0, 10) + ":\t\tGesloten" : Startuur + " - " + SluitingsUur.TimeOfDay;
+        [DisplayName("Sluitingsdag")]
+        public bool IsGesloten { get; set; } = false;
+        [Required]
         public DateTime Startuur { get; set; }
+        [Required]
         public DateTime SluitingsUur { get; set; }
 
         public List<DateTime> AlleUren()
