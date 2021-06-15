@@ -123,7 +123,7 @@ namespace Lekkerbek.Web.Context
             }
             else
             {
-                tijdsloten = await Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok == null).ToListAsync();
+                tijdsloten = await Tijdslot.Include("InGebruikDoorKok").Where(tijdslot => tijdslot.InGebruikDoorKok == null&& !tijdslot.IsVrij).ToListAsync();
             }
             
             return tijdsloten;

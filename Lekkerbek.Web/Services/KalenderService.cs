@@ -58,7 +58,10 @@ namespace Lekkerbek.Web.Services
                     if (!TijdslotenExistOpDatum(openingsUur.Startuur) && !openingsUur.IsGesloten)
                     {
                         var nieuweTijdsloten = _tijdslotenFactory.VulKalenderVoorDatum(openingsUur, AantalKoksBeschikbaarOpDatum(openingsUur.Startuur));
-                        await _context.AddAsync(nieuweTijdsloten);
+                        foreach (var item in nieuweTijdsloten)
+                        {
+                            await _context.AddAsync(item);
+                        }
                     }
                     _context.Update(openingsUur);
                     await _context.SaveChangesAsync(); 

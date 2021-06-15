@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Lekkerbek.Web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class OpeningsUurController : Controller
     {
         private readonly IKalenderService _kalenderService;
@@ -24,8 +24,7 @@ namespace Lekkerbek.Web.Controllers
             _kalenderService = kalenderService;
         }
 
-        // GET: OpeningsUurs
-        [AllowAnonymous]
+        // GET: OpeningsUur
         public  IActionResult Index()
         {
             var model = _kalenderService.GetOpeningsUren().AsEnumerable();
@@ -33,8 +32,7 @@ namespace Lekkerbek.Web.Controllers
             return View(model);
         }
 
-        // GET: OpeningsUurs/Details/5
-        [Authorize(Roles = "Admin")]
+        // GET: OpeningsUur/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -52,8 +50,7 @@ namespace Lekkerbek.Web.Controllers
             return View();
         }
 
-        // GET: OpeningsUurs/Details/5
-        [Authorize(Roles = "Admin")]
+        // GET: OpeningsUur/Details/5
         public async Task<IActionResult> DagInfo(int id)
         {
             if (id == null)
@@ -84,19 +81,18 @@ namespace Lekkerbek.Web.Controllers
             
         }
 
-        // GET: OpeningsUurs/Create
+        // GET: OpeningsUur/Create
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: OpeningsUurs/Create
+        // POST: OpeningsUur/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Id,Dag,Uur,IsGesloten,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
             if (ModelState.IsValid)
@@ -107,8 +103,7 @@ namespace Lekkerbek.Web.Controllers
             return View(openingsUur);
         }
 
-        // GET: OpeningsUurs/Edit/5
-        [Authorize(Roles = "Admin")]
+        // GET: OpeningsUur/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -125,12 +120,11 @@ namespace Lekkerbek.Web.Controllers
             return View(openingsUur);
         }
 
-        // POST: OpeningsUurs/Edit/5
+        // POST: OpeningsUur/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Dag,Uur,IsGesloten,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
             if (id != openingsUur.Id)
@@ -154,7 +148,7 @@ namespace Lekkerbek.Web.Controllers
             return View(openingsUur);
         }
 
-        /*// GET: OpeningsUurs/Delete/5
+        /*// GET: OpeningsUur/Delete/5
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
