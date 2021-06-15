@@ -23,7 +23,7 @@ namespace Lekkerbek.Web.Services
                 string korting = "";
                 string voorkeursgerechten = "";
                 string aanspreking = "";
-                if (klant.Bestellingen.Count % 2 == 0 && klant.Bestellingen.Count != 0 && klant.Bestellingen.Count != 1)
+                if (klant.Bestellingen.Count > 2)
                 {
                     korting = "Op uw eerstvolgende bestelling ontvangt u een korting";
                 }
