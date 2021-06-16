@@ -62,6 +62,32 @@ namespace Lekkerbek.Web.Services
             }
         }
 
+        public ICollection<Gebruiker> GetGebruikersMetRolKok()
+        {
+            try
+            {
+                return _context.GebruikersMetRolKok();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return new List<Gebruiker>();
+            }
+        }
+
+        public Gebruiker GetGebruikerMetRolKok(int gebruikerId)
+        {
+            try
+            {
+                return _context.GebruikersMetRolKlant().Find(gebruiker => gebruiker.Id == gebruikerId);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw new ServiceException("Kon geen gebruiker vinden met rol Kok en id: " + gebruikerId);
+            }
+        }
+
         public Gebruiker GetGebruiker(int gebruikerId)
         {
             try

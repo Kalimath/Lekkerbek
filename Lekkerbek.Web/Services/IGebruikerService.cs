@@ -10,7 +10,9 @@ namespace Lekkerbek.Web.Services
     {
         public ICollection<Gebruiker> GetGebruikers();
         public ICollection<Gebruiker> GetGebruikersMetRolKlant();
+        public ICollection<Gebruiker> GetGebruikersMetRolKok();
         public Gebruiker GetGebruikerMetRolKlant(int gebruikerId);
+        public Gebruiker GetGebruikerMetRolKok(int gebruikerId);
         public Gebruiker GetGebruiker(int gebruikerId);
         public Gebruiker GetGebruikerInfo(Gebruiker gebruiker);
         public List<string> GetGebruikerRollen();

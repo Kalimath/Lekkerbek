@@ -18,10 +18,12 @@ namespace Lekkerbek.Web.Controllers
     public class OpeningsUurController : Controller
     {
         private readonly IKalenderService _kalenderService;
+        private readonly IGebruikerService _gebruikerService;
 
-        public OpeningsUurController(IKalenderService kalenderService)
+        public OpeningsUurController(IKalenderService kalenderService, IGebruikerService gebruikerService)
         {
             _kalenderService = kalenderService;
+            _gebruikerService = gebruikerService;
         }
 
         // GET: OpeningsUur
@@ -81,6 +83,19 @@ namespace Lekkerbek.Web.Controllers
             
         }
 
+        //List van ale Koks
+        [Authorize(Roles = "Admin")]
+        public IActionResult Koks()
+        {
+            var vm = from g in _gebruikerService.GetGebruikersMetRolKok()
+                             select new AlleKoksOpDagViewModel()
+                             {
+                                 Gebruikersnaam = g.NormalizedUserName,
+                                 Rol = g.UserName
+                             };
+            return View(vm);
+        }
+
         // GET: OpeningsUur/Create
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
@@ -118,6 +133,45 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
             return View(openingsUur);
+        }
+
+        public IActionResult IsZiekOfOpVerlof(int id, DateTime dateTime)
+        {
+            /*var update = from g in _kalenderService.GetGebruikersZiekOpDatum(dateTime)
+                         where id == g.Id
+                         select new RegistreerViewModel()
+                         {
+                             Id = g.Id
+                         };
+            _kalenderService.UpdateZiekteDagenVanGebruiker((ZiekteDagenVanGebruiker)update);
+            var kk = from h in _kalenderService.GetAlleTijdsloten()
+                     select new RegistreerViewModel()
+                     {
+                         IsVrij = h.IsVrij
+                     };
+            _kalenderService.UpdateZiekteDagenVanGebruiker((ZiekteDagenVanGebruiker)kk);
+
+            var update1 = from t in _kalenderService.GetAlleTijdsloten()
+                          where id == t.Id
+                          select t.IsVrij == false;
+
+            var update = from k in _gebruikerService.GetGebruikersMetRolKok()
+                         where id == k.Id
+                         select (from g in _kalenderService.GetAlleTijdsloten()
+                                         select g.IsVrij == false);
+
+            /*var deletedag = from d in _gebruikerService.GetGebruikersMetRolKok()
+                            where id == d.Id
+                            select (from dag in _kalenderService.get
+                                    select dag);
+            object p = deletedag.Count--;*/
+            var op = _kalenderService.GetOpeningsUur(id);
+            var date = op.Startuur;
+
+            _kalenderService.AantalKoksBeschikbaarOpDatum(date);
+
+
+            return RedirectToAction(nameof(Koks));
         }
 
         // POST: OpeningsUur/Edit/5
