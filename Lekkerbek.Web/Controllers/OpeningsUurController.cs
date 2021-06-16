@@ -117,8 +117,8 @@ namespace Lekkerbek.Web.Controllers
             }
             return View(openingsUur);
         }
-
-        /*// GET: OpeningsUur/Edit/5
+        /*
+        // GET: OpeningsUur/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -133,8 +133,8 @@ namespace Lekkerbek.Web.Controllers
                 return NotFound();
             }
             return View(openingsUur);
-        }
-
+        }*/
+        
         public IActionResult IsZiekOfOpVerlof(int id, DateTime dateTime)
         {
             /*var update = from g in _kalenderService.GetGebruikersZiekOpDatum(dateTime)
@@ -167,13 +167,16 @@ namespace Lekkerbek.Web.Controllers
             object p = deletedag.Count--;*/
             var op = _kalenderService.GetOpeningsUur(id);
             var date = op.Startuur;
+            ZiekteDagenVanGebruiker ziek = new ZiekteDagenVanGebruiker(id);
+            //ziek.Dagen = date;
 
             _kalenderService.AantalKoksBeschikbaarOpDatum(date);
+            _kalenderService.AddZiekteDagenVanGebruiker(ziek);
 
 
             return RedirectToAction(nameof(Koks));
         }
-
+        /*
         // POST: OpeningsUur/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
