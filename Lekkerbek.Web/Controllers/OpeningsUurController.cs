@@ -72,7 +72,8 @@ namespace Lekkerbek.Web.Controllers
                     AantalKoksBeschikbaar = _kalenderService.AantalKoksBeschikbaarOpDatum(datum),
                     KoksVakantieOpDag = _kalenderService.GetGebruikersMetVerlofOpDatum(datum),
                     KoksZiekOpDag = _kalenderService.GetGebruikersZiekOpDatum(datum),
-                    Tijdsloten = tijdslotenVanDag
+                    Tijdsloten = tijdslotenVanDag,
+                    AlleKoks = _gebruikerService.GetGebruikersMetRolKok().ToList()
                 };
                 return View(vm);
             }
@@ -83,17 +84,28 @@ namespace Lekkerbek.Web.Controllers
             
         }
 
-        //List van ale Koks
-        [Authorize(Roles = "Admin")]
-        public IActionResult Koks()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> IsZiekOfOpVerlof(int id,[Bind("IsZiek, OpeningsUurId")] AfwezigheidKokViewModel vm)
         {
-            var vm = from g in _gebruikerService.GetGebruikersMetRolKok()
-                             select new AlleKoksOpDagViewModel()
-                             {
-                                 Gebruikersnaam = g.NormalizedUserName,
-                                 Rol = g.UserName
-                             };
-            return View(vm);
+            if (ModelState.IsValid)
+            {
+                var datum = _kalenderService.GetOpeningsUren().FirstOrDefault(uur => uur.Id == vm.OpeningsUurId).Startuur;
+                if (vm.IsZiek)
+                {
+                    var ziektedagen = _kalenderService.GetZiekteDagenVanGebruiker(id);
+                        ziektedagen.Dagen.Add(new Dag() { Datum = datum });
+                    await _kalenderService.UpdateZiekteDagenVanGebruiker(ziektedagen);
+                }
+                else
+                {
+                    var verlofdagen = _kalenderService.GetVerlofDagenVanGebruiker(id);
+                    verlofdagen.Dagen.Add(new Dag() { Datum = datum });
+                    await _kalenderService.UpdateVerlofDagenVanGebruiker(verlofdagen);
+                }
+                return RedirectToAction(nameof(DagInfo),new{vm.OpeningsUurId});
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: OpeningsUur/Create
@@ -135,47 +147,7 @@ namespace Lekkerbek.Web.Controllers
             return View(openingsUur);
         }*/
         
-        public IActionResult IsZiekOfOpVerlof(int id, DateTime dateTime)
-        {
-            /*var update = from g in _kalenderService.GetGebruikersZiekOpDatum(dateTime)
-                         where id == g.Id
-                         select new RegistreerViewModel()
-                         {
-                             Id = g.Id
-                         };
-            _kalenderService.UpdateZiekteDagenVanGebruiker((ZiekteDagenVanGebruiker)update);
-            var kk = from h in _kalenderService.GetAlleTijdsloten()
-                     select new RegistreerViewModel()
-                     {
-                         IsVrij = h.IsVrij
-                     };
-            _kalenderService.UpdateZiekteDagenVanGebruiker((ZiekteDagenVanGebruiker)kk);
-
-            var update1 = from t in _kalenderService.GetAlleTijdsloten()
-                          where id == t.Id
-                          select t.IsVrij == false;
-
-            var update = from k in _gebruikerService.GetGebruikersMetRolKok()
-                         where id == k.Id
-                         select (from g in _kalenderService.GetAlleTijdsloten()
-                                         select g.IsVrij == false);
-
-            /*var deletedag = from d in _gebruikerService.GetGebruikersMetRolKok()
-                            where id == d.Id
-                            select (from dag in _kalenderService.get
-                                    select dag);
-            object p = deletedag.Count--;*/
-            var op = _kalenderService.GetOpeningsUur(id);
-            var date = op.Startuur;
-            ZiekteDagenVanGebruiker ziek = new ZiekteDagenVanGebruiker(id);
-            //ziek.Dagen = date;
-
-            _kalenderService.AantalKoksBeschikbaarOpDatum(date);
-            _kalenderService.AddZiekteDagenVanGebruiker(ziek);
-
-
-            return RedirectToAction(nameof(Koks));
-        }
+       
         /*
         // POST: OpeningsUur/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.

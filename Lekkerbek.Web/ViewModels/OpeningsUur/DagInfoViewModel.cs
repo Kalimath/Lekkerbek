@@ -16,6 +16,8 @@ namespace Lekkerbek.Web.ViewModels.OpeningsUur
         public List<Tijdslot> Tijdsloten { get; set; }
         [DisplayName("Aantal beschikbare koks")]
         public int AantalKoksBeschikbaar { get; set; }
+
+        public List<Gebruiker> AlleKoks { get; set; }
         [DisplayName("Koks met vakantie")]
         public List<Gebruiker> KoksVakantieOpDag { get; set; }
         [DisplayName("Koks ziek")]
