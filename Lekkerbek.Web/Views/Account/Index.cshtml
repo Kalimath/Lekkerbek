@@ -74,7 +74,6 @@
                         }
                     },
                     { "data": "Rol" },
-                    { "data": null, "defaultContent": "<a href='' class='edit'>Edit</a>" },
                     { "data": null, "defaultContent": "<a href='' class='del'>Delete</a>"}
                 ]
             });
@@ -91,11 +90,6 @@
 
 
                 if ($(e.target).is("a.del")) { $.get('@Url.Action("Delete","Account")', { id: id }, function (data) {
-                        $("body").html(data);
-                    });
-                    return;
-                }
-                if ($(e.target).is("a.edit")) { $.get('@Url.Action("Edit","Account")', { id: id }, function (data) {
                         $("body").html(data);
                     });
                     return;

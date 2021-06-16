@@ -110,7 +110,7 @@ namespace Lekkerbek.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Dag,Uur,IsGesloten,Startuur,SluitingsUur")] OpeningsUur openingsUur)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && openingsUur.Startuur.Date == openingsUur.SluitingsUur.Date)
             {
                 await _kalenderService.AddOpeningsUur(openingsUur);
                 return RedirectToAction(nameof(Index));
@@ -118,7 +118,7 @@ namespace Lekkerbek.Web.Controllers
             return View(openingsUur);
         }
 
-        // GET: OpeningsUur/Edit/5
+        /*// GET: OpeningsUur/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -200,7 +200,7 @@ namespace Lekkerbek.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(openingsUur);
-        }
+        }*/
 
         /*// GET: OpeningsUur/Delete/5
         [Authorize(Roles = "Admin")]
