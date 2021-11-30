@@ -384,6 +384,19 @@ namespace Lekkerbek.Web.Controllers
             return Math.Round(totaalPrijs, 2); ;
         }
 
+        public JsonResult LaadAlleBestellingen()
+        {
+            if (User.IsInRole(RollenEnum.Klant.ToString()))
+            {
+                var currentUser = _userManager.GetUserAsync(HttpContext.User);
+                return Json(new {data = OpenstaandeBestellingenVanKlantMetId(currentUser.Id)});
+            }
+            else
+            {
+                return Json(new { data = AlleBestellingen().Result});
+            }
+        }
+
         /*public async Task<IActionResult> MijnBestellingen(int? klantId)
         {
             var klanten = _context.GebruikersMetRolKlant().AsQueryable();
